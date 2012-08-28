@@ -1,0 +1,31 @@
+/* x-form-trigger */
+.x-form-trigger.app-form-plus-trigger {
+    background-image: url(../i/form-plus-trigger.png);
+    }
+    
+/* app-form */    
+.app-form-required {
+    color:red;
+    font-weight:bold;
+    }
+.x-docked.app-form-buttons {
+    margin-left: 105px;
+    }
+/* icons */    
+.app-icon-add {
+    background-image: url(../i/glyphicons/png/16x16/glyphicons_190_circle_plus.png);
+    }
+.app-icon-remove {
+    background-image: url(../i/glyphicons/png/16x16/glyphicons_192_circle_remove.png);
+    }
+.app-icon-refresh {
+    background-image: url(../i/glyphicons/png/16x16/glyphicons_081_refresh.png);
+    }
+/* mask */
+.app-masked.x-item-disabled {
+    opacity: 0.3;
+    }
+.app-masked .x-mask {
+    background: none;
+    }
+    
