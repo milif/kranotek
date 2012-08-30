@@ -13,7 +13,7 @@
                 }
             },              
             fields: [
-                'ClassName', 'ClassInfo', 'System', 'baseclass'
+                'ClassName', 'ClassInfo', 'System', 'baseclass', 'fields'
             ],
             validations:[
                 {type: 'length',    field: 'ClassName',     min: 2}

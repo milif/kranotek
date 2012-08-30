@@ -39,7 +39,10 @@ Ext.define('App.class.view.Panel', {
                 trigger2Cls: Ext.baseCSSPrefix + 'form-trigger',
                 defaultMargins: { right: 20 },
                 onTrigger1Click: function(){
-                    this.clearValue();
+                    saveIfDirty(function(ok){
+                        if(!ok) return;
+                        comboBaseClass.clearValue();                       
+                    });                    
                 }, 
                 listeners: {
                     'dirtychange': function(me, isDirty){
@@ -50,15 +53,24 @@ Ext.define('App.class.view.Panel', {
                             tabpanel.hide();
                         } else {
                             buttonBaseClassRemove.enable();                        
-                        }
+                        }                        
                     },
-                    'select': function(m, r){
-                        comboChildClass.enable();
-                        comboChildClass.clearValue();
-                        comboChildClass.getStore().getProxy().setExtraParam("baseclass", this.getValue());
-                        comboChildClass.lastQuery = null;
-                        updateTabs( this.getStore().findRecord( 'id', this.getValue()) );   
-                        buttonBaseClassRemove.enable();                    
+                    'beforeselect': function(me, r){
+                        return saveIfDirty(function(ok){
+                            if(!ok) {
+                                return;
+                            }
+
+                            me.setValue(r.getId(), false);
+                            me.collapse();
+
+                            comboChildClass.enable();
+                            comboChildClass.clearValue();
+                            comboChildClass.getStore().getProxy().setExtraParam("baseclass", me.getValue());
+                            comboChildClass.lastQuery = null;
+                            updateTabs( me.getStore().findRecord( 'id', me.getValue()) );
+                            buttonBaseClassRemove.enable();  
+                        });                                          
                     }
                 },                                      
                 store: comboBaseStore,
@@ -83,11 +95,14 @@ Ext.define('App.class.view.Panel', {
                 iconCls: 'app-icon-add',
                 tooltip: 'Добавить базовый класс',
                 handler: function(){
-                    comboBaseClass.clearValue();
-                    
-                    var m = new App.class.model.Class();
-                    m.combo = comboBaseClass;
-                    updateTabs(m);                    
+                    saveIfDirty(function(ok){
+                        if(!ok) return;
+                        comboBaseClass.clearValue();
+                        
+                        var m = new App.class.model.Class();
+                        m.combo = comboBaseClass;
+                        updateTabs(m);                      
+                    });                                    
                 }
             }),  
             buttonBaseClassRemove = new Ext.button.Button({
@@ -115,7 +130,10 @@ Ext.define('App.class.view.Panel', {
                 trigger1Cls: Ext.baseCSSPrefix + 'form-clear-trigger',
                 trigger2Cls: Ext.baseCSSPrefix + 'form-trigger',
                 onTrigger1Click: function(){
-                    this.clearValue();
+                    saveIfDirty(function(ok){
+                        if(!ok) return;
+                        comboChildClass.clearValue();                       
+                    });                 
                 }, 
                 listeners: {
                     'dirtychange': function(me, isDirty){
@@ -128,10 +146,16 @@ Ext.define('App.class.view.Panel', {
                             buttonChildClassRemove.enable();
                         }
                     },
-                    'select': function(m, r){
-                        
-                        updateTabs( this.getStore().findRecord( 'id', this.getValue()) );                                
-                                                                                     
+                    'beforeselect': function(me, r){
+                        return saveIfDirty(function(ok){
+                            if(!ok) {
+                                return;
+                            }
+                            me.setValue(r.getId(), false);
+                            me.collapse();
+
+                            updateTabs( me.getStore().findRecord( 'id', me.getValue()) );                       
+                        });
                     },
                     'disable': function(){
                         toolbarChildClass.disable();
@@ -150,11 +174,14 @@ Ext.define('App.class.view.Panel', {
                 iconCls: 'app-icon-add',
                 tooltip: 'Добавить дочерний класс',
                 handler: function(){
-                    comboChildClass.clearValue();
-                    var m = new App.class.model.Class({'baseclass': comboBaseClass.getValue()});
-                    m.baseclass=comboBaseClass.getValue();
-                    m.combo = comboChildClass;
-                    updateTabs(m);                   
+                    saveIfDirty(function(ok){
+                        if(!ok) return;
+                        comboChildClass.clearValue();
+                        var m = new App.class.model.Class({'baseclass': comboBaseClass.getValue()});
+                        m.baseclass=comboBaseClass.getValue();
+                        m.combo = comboChildClass;
+                        updateTabs(m);                      
+                    });                
                 }
             }), 
             buttonChildClassRemove = new Ext.button.Button({
@@ -251,33 +278,51 @@ Ext.define('App.class.view.Panel', {
                 columns: [
                 { text: 'Значения',  dataIndex: 'name', flex: 1, menuDisabled: true, sortable: false, editor: { xtype: 'textfield', allowBlank: false } }
                 ]                                                           
-            }),
+            }),  
+            saveClassButton = Ext.create('Ext.button.Button', {
+                text: 'Сохранить', 
+                handler: function(){
+                    classForm.save();
+                }
+            }),                         
             classForm = Ext.create('App.form.Panel' , {
                 url: 'class.update',
                 padding: 10,
                 border: false,
+                trackResetOnLoad: true,
                 dockedItems: [{
                     xtype: 'toolbar',
                     cls: 'app-form-buttons',
                     dock: 'bottom',
                     ui: 'footer',
                     items: [
-                        { text: 'Сохранить', handler: function(){
-                            classForm.save({
-                                success: function(){
-                                    tabpanel.items.getAt(1).enable();
-                                    deleteClassButton.enable();
-                                    var m = classForm.getForm().getRecord();
-                                    if(m.combo && m.combo.getStore().indexOf(m)<0) {
-                                        m.combo.getStore().add(m);
-                                        m.combo.setValue(m.getId());      
-                                    }                                                                        
-                                    Ext.MessageBox.alert('Cохранение данных', "Данные о классе успешно сохранены.");                                                       }
-                            });
-                        } },
+                        saveClassButton,
                         deleteClassButton
                     ]
-                }],                                           
+                }],  
+                listeners: {
+                    'beforesave': function(){
+                        var m = this.getForm().getRecord(),
+                            records,
+                            fields = [];   
+                        if(!m.getId()) {
+                            records = gridFields.getStore().getRange();
+                            for(var i=0; i<records.length; i++) {
+                                fields.push(records[i].getData());
+                            }
+                            m.set('fields', fields);
+                        }
+                    },
+                    'save': function(){
+                        var m = classForm.getForm().getRecord();
+                        if(m.combo && m.combo.getStore().indexOf(m)<0) {
+                            m.combo.getStore().add(m);
+                            m.combo.setValue(m.getId());      
+                        }
+                        updateTabs( m );                      
+                        Ext.MessageBox.alert('Cохранение данных', "Данные о классе успешно сохранены.");
+                    }
+                },                                         
                 items: [
                     {
                         xtype: 'textfield',
@@ -315,12 +360,16 @@ Ext.define('App.class.view.Panel', {
                     ]
                 },                
                 listeners: {
-                    'select': function(c, m){
+                    'beforeselect': function(c, m){
                         var form = this.up('form'),
-                            model = form.getForm().getRecord();
-                        form.getForm().loadRecord(m);
-                        fieldtypevalues.loadData(m.get('FieldTypeValues') );
-                        form.updateViewFromModel();
+                            model = form.getForm().getRecord();                    
+                        return saveIfDirty(function(ok){
+                            if(!ok) return;
+                            c.view.getSelectionModel().select(m);
+                            form.getForm().loadRecord(m);
+                            fieldtypevalues.loadData(m.get('FieldTypeValues') );
+                            form.updateViewFromModel();                            
+                        });
                     },
                     'deselect': function(c, m){
                         //this.up('form').updateViewFromModel();
@@ -357,26 +406,14 @@ Ext.define('App.class.view.Panel', {
                                                             
                     form.getForm().getRecord().set('FieldTypeValues', data);
                                                             
-                    form.save({
-                        success: function(){
-                            var sm = gridFields.getSelectionModel(),
-                                sel = sm.getSelection(),
-                                m = form.getForm().getRecord();
-                                                                        
-                            sm.deselectAll();
-                                                                   
-                            if(gridFields.getStore().indexOf(m)<0) {
-                                gridFields.getStore().add(m);                                       
-                            }
-                            sm.select(m);
-                            Ext.MessageBox.alert('Cохранение данных', "Данные о поле успешно сохранены.");  
-                        }
-                    });                                                                                
+                    form.save();                                                                                
                 } 
-            }),            
+            }),
             deleteClassFieldButton = Ext.create('Ext.button.Button', { 
+                margin: '0 0 0 5',
                 disabled: true, 
-                text: 'Удалить', 
+                tooltip: 'Удалить поле', 
+                iconCls: 'app-icon-remove',
                 handler: function(){
                     var b = this;
                     Ext.MessageBox.confirm('Подвердите удаление', 'Вы действительно хотите удалить поле?', function(btn){
@@ -388,7 +425,7 @@ Ext.define('App.class.view.Panel', {
                         });                                
                     });                                                            
                 } 
-            }),
+            }),                       
             buttonShowSubtypes = new Ext.button.Button({
                 margin: '0 0 0 5',
                 text: 'Указать подтипы',
@@ -415,6 +452,18 @@ Ext.define('App.class.view.Panel', {
                 margin: '10 0 0 0',
                 hidden: true,
                 plain: true,
+                listeners: {
+                    'beforetabchange': function(p, t){
+                        if(tabpanel.isHidden() || !me.model.getId()) return;
+                        var f = saveIfDirty(function(ok){
+                            if(!ok) {
+                                return;     
+                            }
+                            tabpanel.setActiveTab(t, false);   
+                        });
+                        return f;
+                    }
+                },
                 items: [
                     {
                         title: 'Свойства',
@@ -435,8 +484,10 @@ Ext.define('App.class.view.Panel', {
                                 gridFields.getStore().getProxy().setExtraParam('classId', me.model.getId());
                                 gridFields.getStore().load(function(){
                                     tab.isFieldsLoaded = true;
-                                    var m = this.getAt(0);
-                                    if(m) {  
+                                    var m = this.getAt(0),
+                                        form = tab.down('form');
+                                    if(m) { 
+                                        form.getForm().loadRecord(m); 
                                         gridFields.getSelectionModel().select(m);                                               
                                     } else {
                                         tab.down('form').setNewModel();
@@ -450,6 +501,7 @@ Ext.define('App.class.view.Panel', {
                             {
                                 xtype: 'form',
                                 border: false,
+                                trackResetOnLoad: true,
                                 padding: 10,
                                 updateViewFromModel: function(){
                                     
@@ -496,26 +548,70 @@ Ext.define('App.class.view.Panel', {
                                 layout: {
                                     type: 'hbox'
                                 },
+                                listeners: {
+                                    'save': function(){
+                                        var form = this,
+                                            sm = gridFields.getSelectionModel(),
+                                            sel = sm.getSelection(),
+                                            m = form.getForm().getRecord();
+                                                                                    
+                                        sm.deselectAll();
+                                                                               
+                                        if(gridFields.getStore().indexOf(m)<0) {
+                                            gridFields.getStore().add(m);                                       
+                                        }
+                                        form.loadRecord(m);
+                                        sm.select(m);
+                                        Ext.MessageBox.alert('Cохранение данных', "Данные о поле успешно сохранены.");  
+                                    }
+                                },
                                 items: [
-                                    gridFields,
+                                    { 
+                                        xtype: 'container',
+                                        width: 150,
+                                        items: [
+                                            { 
+                                                xtype: 'container',
+                                                layout: {
+                                                    type: 'hbox',
+                                                    pack: 'end'
+                                                },
+                                                margin: '0 0 5 0',
+                                                items: [                                                
+                                                    {
+                                                        xtype: 'button',
+                                                        iconCls: 'app-icon-refresh',
+                                                        tooltip: 'Обновить список полей',
+                                                        handler: function(){
+                                                            gridFields.getStore().reload();
+                                                        }
+                                                    },
+                                                    { 
+                                                        xtype: 'button',
+                                                        margin: '0 0 0 5',
+                                                        tooltip: 'Добавить поле',
+                                                        iconCls: 'app-icon-add', 
+                                                        handler: function(){
+                                                            var b = this;
+                                                            if(!me.model.getId()) b.up('form').setNewModel();
+                                                            saveIfDirty(function(ok){
+                                                                if(!ok) return;
+                                                                b.up('form').setNewModel();
+                                                            });                                                    
+                                                        } 
+                                                    }, 
+                                                    deleteClassFieldButton
+                                                ]
+                                            },
+                                            gridFields                         
+                                        ]
+                                    },                                
                                     {
                                         xtype: 'panel',
                                         margin: '0 0 0 20',
                                         border: false,
                                         layout: 'anchor',
-                                        dockedItems: [
-                                            {
-                                                xtype: 'toolbar',
-                                                cls: 'app-form-buttons',
-                                                dock: 'top',
-                                                ui: 'footer',
-                                                margin: '0 0 10 0',
-                                                items: [
-                                                    { text: 'Добавить поле', handler: function(){
-                                                            this.up('form').setNewModel();
-                                                    } }
-                                                ]
-                                            },                                                                    
+                                        dockedItems: [                                                                    
                                             {
                                                 xtype: 'toolbar',
                                                 cls: 'app-form-buttons',
@@ -524,8 +620,7 @@ Ext.define('App.class.view.Panel', {
                                                 items: [
                                                     addClassFieldButton,
                                                     commitClassFieldButton,
-                                                    saveClassFieldButton,
-                                                    deleteClassFieldButton
+                                                    saveClassFieldButton
                                                 ]
                                             }
                                         ],                                                                     
@@ -606,8 +701,17 @@ Ext.define('App.class.view.Panel', {
                     }
                 ]
             }                            
-        );                
-
+        );
+        function saveIfDirty(clb){
+            if( tabpanel.isHidden() ) {
+                clb(true);
+                return true;  
+            } else {
+                if(!me.model.getId()) {
+                    return classForm.saveIfDirty(clb);
+                } else return tabpanel.getActiveTab().down('form').saveIfDirty(clb);
+            }
+        };                        
         function deleteClass() {
             Ext.MessageBox.confirm('Подвердите удаление', 'Вы действительно хотите удалить класс?', function(btn){
                 if(btn!='yes') return;
@@ -647,7 +751,7 @@ Ext.define('App.class.view.Panel', {
              } else {
                 gridFields.getSelectionModel().deselectAll();
              }
-                          
+             form.loadRecord(m);             
              gridFields.getSelectionModel().select(m);
         }
         function updateTabs(model) {
@@ -659,7 +763,10 @@ Ext.define('App.class.view.Panel', {
                 gridFields.getStore().removeAll();
                 deleteClassFieldButton.up('form').setNewModel();
                 tabpanel.items.getAt(1).isFieldsLoaded = true;
+                deleteClassButton.disable();
+                saveClassButton.setText('Добавить');
             } else {
+                saveClassButton.setText('Сохранить');
                 deleteClassButton.enable();                        
             }
             tabpanel.show();
