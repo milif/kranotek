@@ -1,4 +1,4 @@
-        Ext.define('App.class.model.Class', {
+        Ext.define('App.group.model.Group', {
             extend: 'Ext.data.Model',
             requires: [
                 'App.proxy.RPC'
@@ -6,25 +6,21 @@
             proxy: {
                 type: 'rpc',
                 api: {
-                    read: 'class.get',
-                    create: 'class.update',
-                    update: 'class.update',
-                    destroy: 'class.delete'
+                    read: 'user.get'
                 }
             },
             fields: [
-                'ClassName', 'ClassInfo', 'System', 'baseclass', 'fields', 'create', 'read', 'rights', 'update', 'write'
+                'Name', 'create', 'read', 'rights', 'update', 'write'
             ],
             validations:[
-                {type: 'length',    field: 'ClassName',     min: 2}
             ],
             statics: {
                 getStore: function(config){
                     var ds = Ext.create('Ext.data.Store', Ext.apply({
-                        model: 'App.class.model.Class',
+                        model: 'App.group.model.Group',
                         proxy: {
                            type: 'rpc',
-                           url: 'class.get'
+                           url: 'user.get'
                         }
                     }, config));
                     return ds;

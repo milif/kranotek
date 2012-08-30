@@ -1,0 +1,34 @@
+<html>
+<head>
+    <title>Панель управления классами</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="../ext/resources/css/ext-all.css">
+    <link rel="stylesheet" type="text/css" href="../app/css/all.css">
+    <script type="text/javascript" src="../ext/ext-debug.js"></script>
+    <script type="text/javascript">
+
+        Ext.application({
+            name: 'App',
+            appFolder: '/www/app/src',
+            requires: [
+                'App.class.view.Panel',
+                'App.proxy.RPC',
+                'App.class.model.Class'
+            ],
+            launch: function() {
+                Ext.Ajax.on('beforerequest', function(a,p){
+                    p.jsonData = Ext.apply({}, p.jsonData, p.params);
+                    p.method = "POST";
+                    p.url = '/www/ajx/' + p.url.replace(/^([^\?]+)/,"$1.php");
+                });
+                Ext.create('App.workspace.view.EditPanel', {
+                    renderTo: 'viewport'
+                });
+            }
+        });
+    </script>
+</head>
+<body style="background: gray;">
+    <div id="viewport" style="width: 600px; margin: 50px auto; background: white; padding: 10px;"></div>
+</body>
+</html>
