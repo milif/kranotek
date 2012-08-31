@@ -10,44 +10,73 @@ Ext.define('App.workspace.view.EditPanel', {
 
 		var me = this,
 			model = App.workspace.model.Workspace,
+            createNewWorkspace = function() {
+                workspaceForm.saveIfDirty(function(ok){
+                    if(!ok) {
+                        return;
+                    }
+                    comboBaseClass.clearValue();
+                });
+            },
 			buttonBaseClassAdd = new Ext.button.Button({
                 xtype: 'button',
+                hidden: true,
                 margin: '0 0 0 5',
                 iconCls: 'app-icon-add',
                 tooltip: 'Добавить',
-                handler: function(){
-
-                }
+                handler: createNewWorkspace
             }),
+            refreshWorkspace = function() {
+                workspaceForm.saveIfDirty(function(ok){
+                    if(!ok) {
+                        return;
+                    }
+                    updateForm( comboBaseStore.findRecord( 'id', comboBaseClass.getValue()) );
+                });
+            },
             buttonBaseClassRefresh = new Ext.button.Button({
                 xtype: 'button',
                 hidden: true,
                 margin: '0 0 0 5',
                 iconCls: 'app-icon-refresh',
                 tooltip: 'Обновить',
-                handler: function(){
-
-                }
+                handler: refreshWorkspace
             }),
+            copyWorkspace = function() {
+                workspaceForm.saveIfDirty(function(ok){
+                    if(!ok) {
+                        return;
+                    }
+                    var record = comboBaseStore.findRecord( 'id', comboBaseClass.getValue()),
+                        data = record.getData();
+                    delete data.id;
+                    comboBaseClass.clearValue();
+                    workspaceForm.getForm().loadRecord(new model(data));
+                    updateGrids();
+                });
+            },
             buttonBaseClassCopy = new Ext.button.Button({
                 xtype: 'button',
                 hidden: true,
                 margin: '0 0 0 5',
                 iconCls: 'app-icon-copy',
                 tooltip: 'Копировать',
-                handler: function(){
-
-                }
+                handler: copyWorkspace
             }),
+            removeWorkspace = function() {
+                workspaceForm.delete({
+                    success: function(){
+                        comboBaseClass.clearValue();
+                    }
+                });
+            },
             buttonBaseClassRemove = new Ext.button.Button({
                 xtype: 'button',
                 hidden: true,
                 margin: '0 0 0 5',
                 iconCls: 'app-icon-remove',
                 tooltip: 'Удалить',
-                handler: function(){
-
-                }
+                handler: removeWorkspace
             }),
             comboBaseStore = model.getStore({
                 listeners: {
@@ -67,8 +96,6 @@ Ext.define('App.workspace.view.EditPanel', {
                     this.clearValue();
                 },
                 listeners: {
-                    'dirtychange': function(me, isDirty){
-                    },
                     'select': function(m, r){
                         updateForm( this.getStore().findRecord( 'id', this.getValue()) );
                     },
@@ -82,7 +109,16 @@ Ext.define('App.workspace.view.EditPanel', {
                 displayField: 'Name',
                 valueField: 'id'
             }),
+            clearGrids = function() {
+                for(var index in availableGridStore) {
+                    if (availableGridStore.hasOwnProperty(index)) {
+                        availableGridStore[index].removeAll();
+                        workingGridStore[index].removeAll();
+                    }
+                }
+            },
             updateGrids = function() {
+                clearGrids();
                 var _data = me.model.getData(),
                     storeLoad = function(records){
                         var index = this._index,
@@ -116,10 +152,11 @@ Ext.define('App.workspace.view.EditPanel', {
             updateForm = function(model) {
                 if(!model) {
                     workspaceForm.getForm().reset();
-                    availableGridStore[tabIndex].removeAll();
-                    workingGridStore[tabIndex].removeAll();
                     buttonBaseClassRemove.hide();
+                    buttonBaseClassAdd.hide();
+                    buttonBaseClassCopy.hide();
                     buttonBaseClassRefresh.hide();
+                    clearGrids();
                     return;
                 }
                 me.model = model;
@@ -128,6 +165,8 @@ Ext.define('App.workspace.view.EditPanel', {
                 updateGrids();
                 buttonBaseClassRemove.show();
                 buttonBaseClassRefresh.show();
+                buttonBaseClassCopy.show();
+                buttonBaseClassAdd.show();
             },
             gridColumns = {
                 classes: [{ flex: 1, sortable: true, dataIndex: 'ClassName'}],
@@ -251,7 +290,7 @@ Ext.define('App.workspace.view.EditPanel', {
             getFormAccess = function(index) {
                 formAccess[index] = Ext.create('Ext.form.Panel', {
                     border: false,
-                    padding: 20,
+                    padding: '20px 10px',
                     defaultType: 'checkboxfield',
                     defaults: {
                         inputValue: true,
@@ -287,6 +326,16 @@ Ext.define('App.workspace.view.EditPanel', {
                 });
                 return formAccess[index];
             },
+            moveToWorkingGrid = function() {
+                var records = availableGrid[tabIndex].getSelectionModel().getSelection();
+                workingGridStore[tabIndex].add(records);
+                availableGridStore[tabIndex].remove(records);
+            },
+            moveToAvailableGrid = function() {
+                var records = workingGrid[tabIndex].getSelectionModel().getSelection();
+                availableGridStore[tabIndex].add(records);
+                workingGridStore[tabIndex].remove(records);
+            },
             getDndGrids = function(index){
                 return [
                     {
@@ -303,6 +352,34 @@ Ext.define('App.workspace.view.EditPanel', {
                                 height: 300,
                                 border: false,
                                 items: getAvailableGrid(index)
+                            }
+                        ]
+                    },
+                    {
+                        border: false,
+                        width: 30,
+                        flex: false,
+                        layout: 'vbox',
+                        items: [
+                            {
+                                border: false,
+                                flex: 1
+                            },
+                            {
+                                xtype: 'button',
+                                margin: '0 0 10 5',
+                                iconCls: 'app-icon-right',
+                                handler: moveToWorkingGrid
+                            },
+                            {
+                                xtype: 'button',
+                                margin: '0 0 0 5',
+                                iconCls: 'app-icon-left',
+                                handler: moveToAvailableGrid
+                            },
+                            {
+                                border: false,
+                                flex: 1
                             }
                         ]
                     },
@@ -335,12 +412,12 @@ Ext.define('App.workspace.view.EditPanel', {
                 return {
                     xtype: 'panel',
                     _index: index,
+                    padding: 10,
                     border: false,
                     title: tabTitles[index],
                     layout: {
                         type: 'hbox',
-                        align: 'stretch',
-                        padding: 5
+                        align: 'stretch'
                     },
                     defaults: { flex : 1 }, //auto stretch
                     items: getDndGrids(index)
@@ -349,18 +426,16 @@ Ext.define('App.workspace.view.EditPanel', {
             tabIndex = 'classes',
             workspaceForm = Ext.create('App.form.Panel' , {
                 url: 'workspace.update',
-                padding: 10,
                 border: false,
                 dockedItems: [{
                     xtype: 'toolbar',
-                    cls: 'app-form-buttons',
                     dock: 'bottom',
                     ui: 'footer',
                     items: [
                         { text: 'Сохранить', handler: function(){
                             workspaceForm.save({
                                 success: function(){
-                                    console.log('success');
+
                                 }
                             });
                         } }
@@ -382,16 +457,21 @@ Ext.define('App.workspace.view.EditPanel', {
                                 accessData[index] = fields;
                             }
                         }
-                        console.log(accessData);
                         m.set('access', accessData);
-                        console.log(m);
+                    },
+                    'save': function() {
+                        var m = workspaceForm.getForm().getRecord();
+                        if(comboBaseClass && comboBaseClass.getStore().indexOf(m)<0) {
+                            comboBaseClass.getStore().add(m);
+                            comboBaseClass.setValue(m.getId());
+                        }
+                        Ext.MessageBox.alert('Cохранение данных', "Данные о классе успешно сохранены.");
                     }
                 },
                 items: [
                     {
                         xtype: 'form',
                         border: false,
-                        padding: 10,
                         items: [
                             {
                                 layout: 'hbox',
@@ -437,20 +517,24 @@ Ext.define('App.workspace.view.EditPanel', {
                         listeners: {
                             tabchange: function (panel, tab) {
                                 tabIndex = tab._index;
-                                // updateGrids();
                             }
                         }
                     }
                 ]
             });
 
+        me.model = new model();
 
 		config = Ext.apply({
             border: false,
-            minWidth: 600,
             items: [
                 workspaceForm
-            ]
+            ],
+            listeners: {
+                afterrender: function() {
+                    updateGrids();
+                }
+            }
         }, config );
 
 		me.callParent([config]);

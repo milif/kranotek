@@ -2,8 +2,8 @@
 .x-form-trigger.app-form-plus-trigger {
     background-image: url(../i/form-plus-trigger.png);
     }
-    
-/* app-form */    
+
+/* app-form */
 .app-form-required {
     color:red;
     font-weight:bold;
@@ -11,7 +11,7 @@
 .x-docked.app-form-buttons {
     margin-left: 105px;
     }
-/* icons */    
+/* icons */
 .app-icon-add {
     background-image: url(../i/glyphicons/png/16x16/glyphicons_190_circle_plus.png);
     }
@@ -21,6 +21,15 @@
 .app-icon-refresh {
     background-image: url(../i/glyphicons/png/16x16/glyphicons_081_refresh.png);
     }
+.app-icon-copy {
+    background-image: url(../i/glyphicons/png/16x16/glyphicons_153_more_windows.png);
+    }
+.app-icon-right {
+    background-image: url(../i/glyphicons/png/16x16/glyphicons_223_thin_right_arrow.png);
+    }
+.app-icon-left {
+    background-image: url(../i/glyphicons/png/16x16/glyphicons_224_thin_arrow_left.png);
+    }
 /* mask */
 .app-masked.x-item-disabled {
     opacity: 0.3;
@@ -28,4 +37,4 @@
 .app-masked .x-mask {
     background: none;
     }
-    
+

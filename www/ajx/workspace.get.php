@@ -11,11 +11,11 @@ echo json_encode(array(
                     array(
                         'id'=>'Class1',
                         'read'=>true,
-                        'write'=>true,
-                        'create'=>true,
-                        'update'=>true,
-                        'rights'=>true,
-                        'groupRights'=>true
+                        'write'=>false,
+                        'create'=>false,
+                        'update'=>false,
+                        'rights'=>false,
+                        'groupRights'=>false
                     ),
                     array(
                         'id'=>'Class2',
