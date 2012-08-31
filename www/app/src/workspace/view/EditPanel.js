@@ -10,8 +10,57 @@ Ext.define('App.workspace.view.EditPanel', {
 
 		var me = this,
 			model = App.workspace.model.Workspace,
+            saveIfDirty = function(clb) {
+                var me = workspaceForm,
+                    f = me.getForm(),
+                    m = f.getRecord();
+
+                if(isDirty()) {
+                    Ext.MessageBox.show({
+                       title: 'Сохранить изменения?',
+                       msg: 'Данные формы изменены, хотите их сохранить?',
+                       buttons: Ext.MessageBox.YESNOCANCEL,
+                       fn: function(v){
+                            if(v=='yes') {
+                                var ok = false;
+                                me.save({
+                                    success: function(){
+                                       ok = true;
+                                    },
+                                    callback: function(){
+                                        clb(ok, m);
+                                    }
+                                });
+                                return;
+                            } else if(v == 'no') {
+                                f.loadRecord(m);
+                                clb(true, m);
+                            } else {
+                                clb(false, m);
+                            }
+                       },
+                       icon: Ext.MessageBox.QUESTION
+                    });
+                    return true;
+                } else {
+                    clb(true, m);
+                }
+                return false;
+            },
+            isDirty = function() {
+                var result = false,
+                    textFields = ['Name', 'Info', 'MaxShadows'];
+                for(var field in textFields) {
+                    if (textFields.hasOwnProperty(field)) {
+                        if(workspaceForm.getForm().findField(textFields[field]).isDirty()) {
+                            result = true;
+                        }
+                    }
+                }
+                return result;
+            },
             createNewWorkspace = function() {
-                workspaceForm.saveIfDirty(function(ok){
+                saveIfDirty(function(ok){
                     if(!ok) {
                         return;
                     }
@@ -20,30 +69,34 @@ Ext.define('App.workspace.view.EditPanel', {
             },
 			buttonBaseClassAdd = new Ext.button.Button({
                 xtype: 'button',
-                hidden: true,
+                disabled: true,
                 margin: '0 0 0 5',
                 iconCls: 'app-icon-add',
                 tooltip: 'Добавить',
                 handler: createNewWorkspace
             }),
             refreshWorkspace = function() {
-                workspaceForm.saveIfDirty(function(ok){
+                saveIfDirty(function(ok){
                     if(!ok) {
                         return;
                     }
-                    updateForm( comboBaseStore.findRecord( 'id', comboBaseClass.getValue()) );
+                    var value = comboBaseClass.getValue();
+                    comboBaseClass.clearValue();
+                    comboBaseStore.load(function(){
+                        comboBaseClass.setValue(value);
+                    });
                 });
             },
             buttonBaseClassRefresh = new Ext.button.Button({
                 xtype: 'button',
-                hidden: true,
+                disabled: true,
                 margin: '0 0 0 5',
                 iconCls: 'app-icon-refresh',
                 tooltip: 'Обновить',
                 handler: refreshWorkspace
             }),
             copyWorkspace = function() {
-                workspaceForm.saveIfDirty(function(ok){
+                saveIfDirty(function(ok){
                     if(!ok) {
                         return;
                     }
@@ -52,27 +105,32 @@ Ext.define('App.workspace.view.EditPanel', {
                     delete data.id;
                     comboBaseClass.clearValue();
                     workspaceForm.getForm().loadRecord(new model(data));
+                    workspaceForm.getForm().clearInvalid();
                     updateGrids();
                 });
             },
             buttonBaseClassCopy = new Ext.button.Button({
                 xtype: 'button',
-                hidden: true,
+                disabled: true,
                 margin: '0 0 0 5',
                 iconCls: 'app-icon-copy',
                 tooltip: 'Копировать',
                 handler: copyWorkspace
             }),
             removeWorkspace = function() {
-                workspaceForm.delete({
-                    success: function(){
-                        comboBaseClass.clearValue();
-                    }
+                var b = this;
+                Ext.MessageBox.confirm('Подвердите удаление', 'Вы действительно хотите удалить поле?', function(btn){
+                    if(btn!='yes') return;
+                    workspaceForm.delete({
+                        success: function(){
+                            comboBaseClass.clearValue();
+                        }
+                    });
                 });
             },
             buttonBaseClassRemove = new Ext.button.Button({
                 xtype: 'button',
-                hidden: true,
+                disabled: true,
                 margin: '0 0 0 5',
                 iconCls: 'app-icon-remove',
                 tooltip: 'Удалить',
@@ -93,15 +151,27 @@ Ext.define('App.workspace.view.EditPanel', {
                 trigger2Cls: Ext.baseCSSPrefix + 'form-trigger',
                 defaultMargins: { right: 20 },
                 onTrigger1Click: function(){
-                    this.clearValue();
+                    saveIfDirty(function(ok){
+                        if(!ok) return;
+                        comboBaseClass.clearValue();
+                    });
                 },
                 listeners: {
-                    'select': function(m, r){
-                        updateForm( this.getStore().findRecord( 'id', this.getValue()) );
+                    'beforeselect': function() {
+                        var self = this,
+                            _isDirty = isDirty();
+                        if(_isDirty) {
+                            saveIfDirty(function(){
+                            });
+                        }
+                        return !_isDirty;
                     },
                     'change': function() {
-                        if(!this.getValue()) {
+                        var self = this;
+                        if(!self.getValue()) {
                             updateForm();
+                        } else {
+                            updateForm( self.getStore().findRecord( 'id', self.getValue()) );
                         }
                     }
                 },
@@ -149,24 +219,26 @@ Ext.define('App.workspace.view.EditPanel', {
                     }
                 }
             },
-            updateForm = function(model) {
-                if(!model) {
-                    workspaceForm.getForm().reset();
-                    buttonBaseClassRemove.hide();
-                    buttonBaseClassAdd.hide();
-                    buttonBaseClassCopy.hide();
-                    buttonBaseClassRefresh.hide();
+            updateForm = function(_model) {
+                if(!_model) {
+                    me.model = new model({});
+                    workspaceForm.getForm().loadRecord(me.model);
+                    workspaceForm.getForm().clearInvalid();
+                    buttonBaseClassRemove.disable();
+                    buttonBaseClassAdd.disable();
+                    buttonBaseClassCopy.disable();
+                    buttonBaseClassRefresh.disable();
                     clearGrids();
                     return;
                 }
-                me.model = model;
-                workspaceForm.getForm().loadRecord(model);
+                me.model = _model;
+                workspaceForm.getForm().loadRecord(me.model);
                 workspaceForm.getForm().clearInvalid();
                 updateGrids();
-                buttonBaseClassRemove.show();
-                buttonBaseClassRefresh.show();
-                buttonBaseClassCopy.show();
-                buttonBaseClassAdd.show();
+                buttonBaseClassRemove.enable();
+                buttonBaseClassRefresh.enable();
+                buttonBaseClassCopy.enable();
+                buttonBaseClassAdd.enable();
             },
             gridColumns = {
                 classes: [{ flex: 1, sortable: true, dataIndex: 'ClassName'}],
@@ -215,6 +287,7 @@ Ext.define('App.workspace.view.EditPanel', {
                 _form.getForm().reset();
                 if(record) {
                     _form.getForm().loadRecord(record);
+                    _form.getForm().clearInvalid();
                 }
             },
             availableGrid = {},
@@ -242,6 +315,11 @@ Ext.define('App.workspace.view.EditPanel', {
                     listeners: {
                         selectionchange: function(rowModel, record) {
                             workingGrid[index].getSelectionModel().deselectAll();
+                            if(record.length > 0) {
+                                moveRightBt[index].enable();
+                            } else {
+                                moveRightBt[index].disable();
+                            }
                         }
                     }
                 });
@@ -279,6 +357,18 @@ Ext.define('App.workspace.view.EditPanel', {
                                 return false;
                             }
 
+                            var accessFields = formAccess[index].getForm().getFields();
+                            if(!record[0]) {
+                                accessFields.each(function(field){
+                                    field.disable();
+                                });
+                                moveLeftBt[index].disable();
+                            } else {
+                                accessFields.each(function(field){
+                                    field.enable();
+                                });
+                                moveLeftBt[index].enable();
+                            }
                             updateAccessForm(index, record[0]);
                             workingGridPreviousRecord[index] = record[0] ? record[0].get('id') : undefined;
                         }
@@ -290,11 +380,13 @@ Ext.define('App.workspace.view.EditPanel', {
             getFormAccess = function(index) {
                 formAccess[index] = Ext.create('Ext.form.Panel', {
                     border: false,
+                    trackResetOnLoad: true,
                     padding: '20px 10px',
                     defaultType: 'checkboxfield',
                     defaults: {
                         inputValue: true,
-                        uncheckedValue: false
+                        uncheckedValue: false,
+                        disabled: true
                     },
                     items: [
                         {
@@ -336,6 +428,28 @@ Ext.define('App.workspace.view.EditPanel', {
                 availableGridStore[tabIndex].add(records);
                 workingGridStore[tabIndex].remove(records);
             },
+            moveLeftBt = {},
+            getMoveLeftBt = function(index) {
+                moveLeftBt[index] = Ext.create('Ext.Button', {
+                    margin: '0 0 0 5',
+                    disabled: true,
+                    text: '<',
+                    iconCls: 'app-icon-left',
+                    handler: moveToAvailableGrid
+                });
+                return moveLeftBt[index];
+            },
+            moveRightBt = {},
+            getMoveRightBt = function(index) {
+                moveRightBt[index] = Ext.create('Ext.Button', {
+                    margin: '0 0 10 5',
+                    disabled: true,
+                    text: '>',
+                    iconCls: 'app-icon-right',
+                    handler: moveToWorkingGrid
+                });
+                return moveRightBt[index];
+            },
             getDndGrids = function(index){
                 return [
                     {
@@ -365,18 +479,8 @@ Ext.define('App.workspace.view.EditPanel', {
                                 border: false,
                                 flex: 1
                             },
-                            {
-                                xtype: 'button',
-                                margin: '0 0 10 5',
-                                iconCls: 'app-icon-right',
-                                handler: moveToWorkingGrid
-                            },
-                            {
-                                xtype: 'button',
-                                margin: '0 0 0 5',
-                                iconCls: 'app-icon-left',
-                                handler: moveToAvailableGrid
-                            },
+                            getMoveRightBt(index),
+                            getMoveLeftBt(index),
                             {
                                 border: false,
                                 flex: 1
@@ -425,6 +529,7 @@ Ext.define('App.workspace.view.EditPanel', {
             },
             tabIndex = 'classes',
             workspaceForm = Ext.create('App.form.Panel' , {
+                trackResetOnLoad: true,
                 url: 'workspace.update',
                 border: false,
                 dockedItems: [{
@@ -471,6 +576,7 @@ Ext.define('App.workspace.view.EditPanel', {
                 items: [
                     {
                         xtype: 'form',
+                        trackResetOnLoad: true,
                         border: false,
                         items: [
                             {
