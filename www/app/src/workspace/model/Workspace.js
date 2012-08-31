@@ -16,11 +16,11 @@
                 }
             },
             fields: [
-                'Name', 'Info', 'MaxShadows'
+                'Name', 'Info', 'MaxShadows', 'access'
             ],
-            hasMany: { model: 'App.user.model.User', name: 'user' },
-            hasMany: { model: 'App.user.model.User', name: 'group' },
-            hasMany: { model: 'App.class.model.Class', name: 'classes' },
+            // hasMany: { model: 'App.user.model.User', name: 'user' },
+            // hasMany: { model: 'App.user.model.User', name: 'group' },
+            // hasMany: { model: 'App.class.model.Class', name: 'classes' },
             validations:[
             ],
             statics: {

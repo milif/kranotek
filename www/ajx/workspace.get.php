@@ -6,46 +6,48 @@ echo json_encode(array(
             'Name'=>'Name1',
             'Info'=>'some info here 1',
             'MaxShadows'=>'123',
-            'classes'=>array(
-                array(
-                    'id'=>'Class1',
-                    'read'=>true,
-                    'write'=>true,
-                    'create'=>true,
-                    'update'=>true,
-                    'rights'=>true,
-                    'groupRights'=>true
+            'access'=>array(
+                'classes'=>array(
+                    array(
+                        'id'=>'Class1',
+                        'read'=>true,
+                        'write'=>true,
+                        'create'=>true,
+                        'update'=>true,
+                        'rights'=>true,
+                        'groupRights'=>true
+                    ),
+                    array(
+                        'id'=>'Class2',
+                        'read'=>true,
+                        'write'=>true,
+                        'create'=>true,
+                        'update'=>true,
+                        'rights'=>true,
+                        'groupRights'=>true
+                    )
                 ),
-                array(
-                    'id'=>'Class2',
+                'group'=>array(array(
+                    'id'=>'Group1',
+                    'Name'=>'Groupname1',
                     'read'=>true,
                     'write'=>true,
                     'create'=>true,
                     'update'=>true,
                     'rights'=>true,
                     'groupRights'=>true
-                )
-            ),
-            'group'=>array(array(
-                'id'=>'Group1',
-                'Name'=>'Groupname1',
-                'read'=>true,
-                'write'=>true,
-                'create'=>true,
-                'update'=>true,
-                'rights'=>true,
-                'groupRights'=>true
-            )),
-            'user'=>array(array(
-                'id'=>'User1',
-                'Username'=>'Username1',
-                'read'=>true,
-                'write'=>true,
-                'create'=>true,
-                'update'=>true,
-                'rights'=>true,
-                'groupRights'=>true
-            ))
+                )),
+                'user'=>array(array(
+                    'id'=>'User1',
+                    'Username'=>'Username1',
+                    'read'=>true,
+                    'write'=>true,
+                    'create'=>true,
+                    'update'=>true,
+                    'rights'=>true,
+                    'groupRights'=>true
+                ))
+            )
         ),
         array(
             'id'=>'Worspace2',

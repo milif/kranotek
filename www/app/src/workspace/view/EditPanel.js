@@ -4,14 +4,11 @@ Ext.define('App.workspace.view.EditPanel', {
         'Ext.grid.*',
         'Ext.data.*',
         'Ext.dd.*',
-        'App.class.model.Class',
-        'App.class.model.ClassField',
         'App.workspace.model.Workspace'
     ],
     constructor: function(config){
 
 		var me = this,
-			modelClass = App.class.model.Class,
 			model = App.workspace.model.Workspace,
 			buttonBaseClassAdd = new Ext.button.Button({
                 xtype: 'button',
@@ -86,20 +83,24 @@ Ext.define('App.workspace.view.EditPanel', {
                 valueField: 'id'
             }),
             updateGrids = function() {
+                var _data = me.model.getData();
                 availableGridStore[tabIndex].removeAll();
                 workingGridStore[tabIndex].removeAll();
                 availableGridStore[tabIndex].load(function(){
-                    if(me.model[tabIndex]) {
-                        me.model[tabIndex]().each(function(row){
-                            var _record = availableGridStore[tabIndex].findRecord('id', row.get('id'));
-                            for(var field in row.raw) {
-                                if (row.raw.hasOwnProperty(field)) {
-                                    _record.set(field, row.raw[field]);
+                    if(_data.access && _data.access[tabIndex]) {
+                        for(var rowIndex in _data.access[tabIndex]) {
+                            if (_data.access[tabIndex].hasOwnProperty(rowIndex)) {
+                                var row = _data.access[tabIndex][rowIndex];
+                                var _record = availableGridStore[tabIndex].findRecord('id', row.id);
+                                for(var field in row) {
+                                    if (row.hasOwnProperty(field)) {
+                                        _record.set(field, row[field]);
+                                    }
                                 }
+                                workingGridStore[tabIndex].add(_record);
+                                availableGridStore[tabIndex].remove(_record);
                             }
-                            workingGridStore[tabIndex].add(_record);
-                            availableGridStore[tabIndex].remove(_record);
-                        });
+                        }
                     }
                 });
             },
@@ -341,33 +342,27 @@ Ext.define('App.workspace.view.EditPanel', {
                     ui: 'footer',
                     items: [
                         { text: 'Сохранить', handler: function(){
-                            // var _data = {};
-                            // if(workspaceForm.classes) {
-                            //     _data.classes = workspaceForm.classes();
-                            // }
-                            // if(workspaceForm.user) {
-                            //     _data.user = workspaceForm.user();
-                            // }
-                            // if(workspaceForm.group) {
-                            //     _data.group = workspaceForm.group();
-                            // }
-                            // var _values = workspaceForm.getValues();
-                            // for(var field in _values) {
-                            //     if (_values.hasOwnProperty(field)) {
-                            //         _data[field] = _values[field];
-                            //     }
-                            // }
-                            // console.log(_data);
-
-                            // me.model[tabIndex]().sync();
-
-
-                            // workspaceForm.save({
-                                // success: function(){
+                            workspaceForm.save({
+                                success: function(){
+                                    console.log('success');
                                 }
-                            // });
+                            });
+                        } }
+                    ],
+                    listeners: {
+                        'beforesave': function() {
+                            var m = this.getForm().getRecord(),
+                                records,
+                                fields = [];
+                            if(!m.getId()) {
+                                records = workingGridStore.user.getRange();
+                                for(var i=0; i<records.length; i++) {
+                                    fields.push(records[i].getData());
+                                }
+                                m.set('user', fields);
+                            }
                         }
-                    ]
+                    }
                 }],
                 items: [
                     {
