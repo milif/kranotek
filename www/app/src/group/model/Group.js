@@ -6,7 +6,7 @@
             proxy: {
                 type: 'rpc',
                 api: {
-                    read: 'user.get'
+                    read: 'group.get'
                 }
             },
             fields: [
@@ -20,7 +20,7 @@
                         model: 'App.group.model.Group',
                         proxy: {
                            type: 'rpc',
-                           url: 'user.get'
+                           url: 'group.get'
                         }
                     }, config));
                     return ds;

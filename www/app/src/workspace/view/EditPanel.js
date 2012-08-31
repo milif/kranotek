@@ -83,26 +83,35 @@ Ext.define('App.workspace.view.EditPanel', {
                 valueField: 'id'
             }),
             updateGrids = function() {
-                var _data = me.model.getData();
-                availableGridStore[tabIndex].removeAll();
-                workingGridStore[tabIndex].removeAll();
-                availableGridStore[tabIndex].load(function(){
-                    if(_data.access && _data.access[tabIndex]) {
-                        for(var rowIndex in _data.access[tabIndex]) {
-                            if (_data.access[tabIndex].hasOwnProperty(rowIndex)) {
-                                var row = _data.access[tabIndex][rowIndex];
-                                var _record = availableGridStore[tabIndex].findRecord('id', row.id);
-                                for(var field in row) {
-                                    if (row.hasOwnProperty(field)) {
-                                        _record.set(field, row[field]);
+                var _data = me.model.getData(),
+                    storeLoad = function(records){
+                        var index = this._index,
+                            store = this;
+                        for(var rowIndex in _data.access[index]) {
+                            if (_data.access[index].hasOwnProperty(rowIndex)) {
+                                var row = _data.access[index][rowIndex],
+                                    recordIndex = store.findBy(function(rec){
+                                        return rec.get('id') === row.id;
+                                    }),
+                                    record = store.getAt(recordIndex);
+                                if(record) {
+                                    for(var field in row) {
+                                        if (row.hasOwnProperty(field)) {
+                                            record.set(field, row[field]);
+                                        }
                                     }
+                                    workingGridStore[index].add(record);
+                                    availableGridStore[index].remove(record);
                                 }
-                                workingGridStore[tabIndex].add(_record);
-                                availableGridStore[tabIndex].remove(_record);
                             }
                         }
+                    };
+                for(var index in availableGridStore) {
+                    if (availableGridStore.hasOwnProperty(index)) {
+                        var _store = availableGridStore[index];
+                        _store.load(storeLoad);
                     }
-                });
+                }
             },
             updateForm = function(model) {
                 if(!model) {
@@ -127,13 +136,16 @@ Ext.define('App.workspace.view.EditPanel', {
             },
             availableGridStore = {
                 classes: Ext.create('Ext.data.Store', {
-                    model: 'App.class.model.Class'
+                    model: 'App.class.model.Class',
+                    _index: 'classes'
                 }),
                 user: Ext.create('Ext.data.Store', {
-                    model: 'App.user.model.User'
+                    model: 'App.user.model.User',
+                    _index: 'user'
                 }),
                 group: Ext.create('Ext.data.Store', {
-                    model: 'App.group.model.Group'
+                    model: 'App.group.model.Group',
+                    _index: 'group'
                 })
             },
             workingGridStore = {
@@ -150,14 +162,17 @@ Ext.define('App.workspace.view.EditPanel', {
             updateAccessForm = function(index, record) {
                 var _form = formAccess[index];
                 if(workingGridPreviousRecord[index]) {
-                    // var _isDirty = _form.getForm().isDirty();
-                    var _values = _form.getValues();
-                    for(var field in _values) {
-                        if (_values.hasOwnProperty(field)) {
-                            workingGridPreviousRecord[index].set(field, _values[field]);
+                    var previousRecord = workingGridStore[index].findRecord('id', workingGridPreviousRecord[index]);
+                    if(previousRecord) {
+                        var _values = _form.getValues();
+                        for(var field in _values) {
+                            if (_values.hasOwnProperty(field)) {
+                                previousRecord.set(field, _values[field]);
+                            }
                         }
                     }
                 }
+
                 _form.getForm().reset();
                 if(record) {
                     _form.getForm().loadRecord(record);
@@ -224,8 +239,9 @@ Ext.define('App.workspace.view.EditPanel', {
                                 workingGridPreviousRecord[index] = undefined;
                                 return false;
                             }
+
                             updateAccessForm(index, record[0]);
-                            workingGridPreviousRecord[index] = record[0];
+                            workingGridPreviousRecord[index] = record[0] ? record[0].get('id') : undefined;
                         }
                     }
                 });
@@ -348,22 +364,29 @@ Ext.define('App.workspace.view.EditPanel', {
                                 }
                             });
                         } }
-                    ],
-                    listeners: {
-                        'beforesave': function() {
-                            var m = this.getForm().getRecord(),
-                                records,
+                    ]
+                }],
+                listeners: {
+                    'beforesave': function() {
+                        var m = this.getForm().getRecord(),
+                            records,
+                            fields = [],
+                            accessData = {};
+                        for(var index in workingGridStore) {
+                            if (workingGridStore.hasOwnProperty(index)) {
                                 fields = [];
-                            if(!m.getId()) {
-                                records = workingGridStore.user.getRange();
+                                records = workingGridStore[index].getRange();
                                 for(var i=0; i<records.length; i++) {
                                     fields.push(records[i].getData());
                                 }
-                                m.set('user', fields);
+                                accessData[index] = fields;
                             }
                         }
+                        console.log(accessData);
+                        m.set('access', accessData);
+                        console.log(m);
                     }
-                }],
+                },
                 items: [
                     {
                         xtype: 'form',
@@ -414,7 +437,7 @@ Ext.define('App.workspace.view.EditPanel', {
                         listeners: {
                             tabchange: function (panel, tab) {
                                 tabIndex = tab._index;
-                                updateGrids();
+                                // updateGrids();
                             }
                         }
                     }
