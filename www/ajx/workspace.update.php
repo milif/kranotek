@@ -2,7 +2,7 @@
 echo json_encode(array(
     'success'=>true,
     'data'=>
-        array('Name'=>'Name1', 'id'=>'Worspace1'),
+        array('Name'=>'NameSaved', 'id'=>'WorspaceSaved'),
 
     'errors'=>array(array('id'=>'ClassName', 'msg'=>'sdcsd'))
 ));

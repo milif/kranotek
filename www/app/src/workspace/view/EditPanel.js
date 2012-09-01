@@ -34,6 +34,7 @@ Ext.define('App.workspace.view.EditPanel', {
                         return;
                     }
                     comboBaseClass.clearValue();
+                    comboBaseClass.fireEvent('change');
                 });
             },
 			buttonBaseClassAdd = new Ext.button.Button({
@@ -45,23 +46,22 @@ Ext.define('App.workspace.view.EditPanel', {
                 handler: createNewWorkspace
             }),
             doRefresh = function() {
-                comboBaseClass.fireEvent('change');
+                var value = comboBaseClass.getValue();
+                comboBaseClass.clearValue();
+                comboBaseStore.load(function(){
+                    comboBaseClass.setValue(value);
+                });
             },
             refreshWorkspace = function() {
                 saveIfDirty(function(ok){
                     if(!ok) {
                         return;
                     }
-                    var value = comboBaseClass.getValue();
-                    comboBaseClass.clearValue();
-                    comboBaseStore.load(function(){
-                        comboBaseClass.setValue(value);
-                    });
+                    doRefresh();
                 });
             },
             buttonBaseClassRefresh = new Ext.button.Button({
                 xtype: 'button',
-                disabled: true,
                 margin: '0 0 0 5',
                 iconCls: 'app-icon-refresh',
                 tooltip: 'Обновить',
@@ -72,13 +72,11 @@ Ext.define('App.workspace.view.EditPanel', {
                     if(!ok) {
                         return;
                     }
-                    var record = comboBaseStore.findRecord( 'id', comboBaseClass.getValue()),
-                        data = record.getData();
+                    var data = me.model.getData();
+                    if(data);
                     delete data.id;
                     comboBaseClass.clearValue();
-                    workspaceForm.getForm().loadRecord(new model(data));
-                    workspaceForm.getForm().clearInvalid();
-                    updateGrids();
+                    updateForm(new model(data));
                 });
             },
             buttonBaseClassCopy = new Ext.button.Button({
@@ -199,7 +197,6 @@ Ext.define('App.workspace.view.EditPanel', {
                     buttonBaseClassRemove.disable();
                     buttonBaseClassAdd.disable();
                     buttonBaseClassCopy.disable();
-                    buttonBaseClassRefresh.disable();
                     clearGrids();
                     return;
                 }
@@ -208,7 +205,6 @@ Ext.define('App.workspace.view.EditPanel', {
                 workspaceForm.getForm().clearInvalid();
                 updateGrids();
                 buttonBaseClassRemove.enable();
-                buttonBaseClassRefresh.enable();
                 buttonBaseClassCopy.enable();
                 buttonBaseClassAdd.enable();
             },
@@ -296,12 +292,6 @@ Ext.define('App.workspace.view.EditPanel', {
                             ptype: 'gridviewdragdrop',
                             dragGroup: 'availableGridDDGroup',
                             dropGroup: 'workingGridDDGroup'
-                        },
-                        listeners: {
-                            drop: function(node, data, dropRec, dropPosition) {
-                                var dropOn = dropRec ? ' ' + dropPosition + ' ' + dropRec.get('name') : ' on empty view';
-                                // Ext.example.msg("Drag from right to left", 'Dropped ' + data.records[0].get('name') + dropOn);
-                            }
                         }
                     },
                     store            : availableGridStore[index],
@@ -334,12 +324,6 @@ Ext.define('App.workspace.view.EditPanel', {
                             ptype: 'gridviewdragdrop',
                             dragGroup: 'workingGridDDGroup',
                             dropGroup: 'availableGridDDGroup'
-                        },
-                        listeners: {
-                            drop: function(node, data, dropRec, dropPosition) {
-                                var dropOn = dropRec ? ' ' + dropPosition + ' ' + dropRec.get('name') : ' on empty view';
-                                // Ext.example.msg("Drag from left to right", 'Dropped ' + data.records[0].get('name') + dropOn);
-                            }
                         }
                     },
                     store            : workingGridStore[index],
@@ -569,7 +553,7 @@ Ext.define('App.workspace.view.EditPanel', {
                         { text: 'Сохранить', handler: function(){
                             workspaceForm.save({
                                 success: function(){
-                                    doRefresh();
+
                                 }
                             });
                         } }
