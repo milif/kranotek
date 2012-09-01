@@ -19,6 +19,8 @@
                 'Name', 'Info', 'MaxShadows', 'access'
             ],
             validations:[
+                {type: 'length', field: 'Name', min: 3},
+                {type: 'format', field: 'MaxShadows', matcher: /^[-+]?\d*\.?\d*$/i}
             ],
             statics: {
                 getStore: function(config){

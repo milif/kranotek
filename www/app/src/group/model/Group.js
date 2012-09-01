@@ -10,7 +10,7 @@
                 }
             },
             fields: [
-                'Name', 'create', 'read', 'rights', 'update', 'write', 'groupRights'
+                'Name', 'create', 'read', 'rights', 'update', 'write', 'delete'
             ],
             validations:[
             ],

@@ -122,7 +122,7 @@ Ext.define('App.workspace.view.EditPanel', {
             }),
             removeWorkspace = function() {
                 var b = this;
-                Ext.MessageBox.confirm('Подвердите удаление', 'Вы действительно хотите удалить поле?', function(btn){
+                Ext.MessageBox.confirm('Подвердите удаление', 'Вы действительно хотите удалить рабочую область?', function(btn){
                     if(btn!='yes') return;
                     workspaceForm.delete({
                         success: function(){
@@ -160,11 +160,14 @@ Ext.define('App.workspace.view.EditPanel', {
                     });
                 },
                 listeners: {
-                    'beforeselect': function() {
+                    'beforeselect': function(me, r) {
                         var self = this,
                             _isDirty = isDirty();
                         if(_isDirty) {
                             saveIfDirty(function(){
+                                if(!ok) return;
+                                me.setValue(r.getId());
+                                me.collapse();
                             });
                         }
                         return !_isDirty;
@@ -359,7 +362,8 @@ Ext.define('App.workspace.view.EditPanel', {
             workingGridPreviousRecord = {},
             getWorkingGrid = function(index){
                 workingGrid[index] = Ext.create('Ext.grid.Panel', {
-                    // multiSelect: true,
+                    selModel: new Ext.selection.RowModel({
+                    }),
                     hideHeaders: true,
                     viewConfig: {
                         plugins: {
@@ -412,19 +416,55 @@ Ext.define('App.workspace.view.EditPanel', {
                     sm = workingGrid[tabIndex].getSelectionModel(),
                     records = sm.getSelection();
                 if(records.length == 1) {
+                    records[0].beginEdit();
                     var _values = _form.getValues();
                     for(var field in _values) {
                         if (_values.hasOwnProperty(field)) {
                             records[0].set(field, _values[field]);
                         }
                     }
-                    records[0].commit();
+                    records[0].endEdit();
                 }
+                workingGrid[tabIndex].getView().refresh();
             },
             onFormAccessChange = function() {
+                updateCurrentWorkingGridRecord();
                 isWorkingGridChanged = true;
             },
             getFormAccess = function(index) {
+                var items = [];
+                if(index == 'user') {
+                    items.push({
+                        name: 'groupRights',
+                        ref: 'groupRights',
+                        boxLabel: 'Использовать права групп'
+                    });
+                }
+                items.push({
+                    name: 'read',
+                    ref: 'read',
+                    boxLabel: 'Чтение'
+                });
+                items.push({
+                    name: 'write',
+                    ref: 'write',
+                    boxLabel: 'Запись'
+                });
+                items.push({
+                    name: 'create',
+                    ref: 'create',
+                    boxLabel: 'Создание новой записи'
+                });
+                items.push({
+                    name: 'delete',
+                    ref: 'delete',
+                    boxLabel: 'Удаление записи'
+                });
+                items.push({
+                    name: 'rights',
+                    ref: 'rights',
+                    boxLabel: 'Изменение прав доступа'
+                });
                 formAccess[index] = Ext.create('Ext.form.Panel', {
                     border: false,
                     trackResetOnLoad: true,
@@ -438,34 +478,9 @@ Ext.define('App.workspace.view.EditPanel', {
                             change: onFormAccessChange
                         }
                     },
-                    items: [
-                        {
-                            name: 'read',
-                            ref: 'read',
-                            boxLabel: 'Чтение'
-                        },
-                        {
-                            name: 'write',
-                            ref: 'write',
-                            boxLabel: 'Запись'
-                        },
-                        {
-                            name: 'create',
-                            ref: 'create',
-                            boxLabel: 'Создание новой записи'
-                        },
-                        {
-                            name: 'groupRights',
-                            ref: 'groupRights',
-                            boxLabel: 'Удаление записи'
-                        },
-                        {
-                            name: 'rights',
-                            ref: 'rights',
-                            boxLabel: 'Изменение прав доступа'
-                        }
-                    ]
+                    items: items
                 });
+
                 return formAccess[index];
             },
             moveToWorkingGrid = function() {
@@ -483,7 +498,7 @@ Ext.define('App.workspace.view.EditPanel', {
                 moveLeftBt[index] = Ext.create('Ext.Button', {
                     margin: '0 0 0 5',
                     disabled: true,
-                    text: '<',
+                    text: '',
                     iconCls: 'app-icon-left',
                     handler: moveToAvailableGrid
                 });
@@ -494,7 +509,7 @@ Ext.define('App.workspace.view.EditPanel', {
                 moveRightBt[index] = Ext.create('Ext.Button', {
                     margin: '0 0 10 5',
                     disabled: true,
-                    text: '>',
+                    text: '',
                     iconCls: 'app-icon-right',
                     handler: moveToWorkingGrid
                 });

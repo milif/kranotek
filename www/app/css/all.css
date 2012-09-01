@@ -25,9 +25,11 @@
     background-image: url(../i/glyphicons/png/16x16/glyphicons_153_more_windows.png);
     }
 .app-icon-right {
+    background-position: 3px 0;
     background-image: url(../i/glyphicons/png/16x16/glyphicons_223_thin_right_arrow.png);
     }
 .app-icon-left {
+    background-position: 1px 0;
     background-image: url(../i/glyphicons/png/16x16/glyphicons_224_thin_arrow_left.png);
     }
 /* mask */
