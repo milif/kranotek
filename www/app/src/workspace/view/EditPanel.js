@@ -618,8 +618,12 @@ Ext.define('App.workspace.view.EditPanel', {
                                 anchor: '100%'
                             },
                             {
-                                xtype: 'textfield',
+                                xtype: 'numberfield',
                                 name: 'MaxShadows',
+                                hideTrigger: true,
+                                decimalPrecision: 0,
+                                maxValue: 100,
+                                minValue: 0,
                                 labelWidth: 240,
                                 width: 290,
                                 fieldLabel: 'Количество записей истории изменений'
