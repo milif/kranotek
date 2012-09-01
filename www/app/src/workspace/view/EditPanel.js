@@ -11,41 +11,7 @@ Ext.define('App.workspace.view.EditPanel', {
 		var me = this,
 			model = App.workspace.model.Workspace,
             saveIfDirty = function(clb) {
-                var me = workspaceForm,
-                    f = me.getForm(),
-                    m = f.getRecord();
-
-                if(isDirty()) {
-                    Ext.MessageBox.show({
-                       title: 'Сохранить изменения?',
-                       msg: 'Данные формы изменены, хотите их сохранить?',
-                       buttons: Ext.MessageBox.YESNOCANCEL,
-                       fn: function(v){
-                            if(v=='yes') {
-                                var ok = false;
-                                me.save({
-                                    success: function(){
-                                       ok = true;
-                                    },
-                                    callback: function(){
-                                        clb(ok, m);
-                                    }
-                                });
-                                return;
-                            } else if(v == 'no') {
-                                f.loadRecord(m);
-                                clb(true, m);
-                            } else {
-                                clb(false, m);
-                            }
-                       },
-                       icon: Ext.MessageBox.QUESTION
-                    });
-                    return true;
-                } else {
-                    clb(true, m);
-                }
-                return false;
+                return workspaceForm.saveIfDirty(clb, isDirty);
             },
             isDirty = function() {
                 var result = false,
@@ -78,6 +44,9 @@ Ext.define('App.workspace.view.EditPanel', {
                 tooltip: 'Добавить',
                 handler: createNewWorkspace
             }),
+            doRefresh = function() {
+                comboBaseClass.fireEvent('change');
+            },
             refreshWorkspace = function() {
                 saveIfDirty(function(ok){
                     if(!ok) {
@@ -161,16 +130,11 @@ Ext.define('App.workspace.view.EditPanel', {
                 },
                 listeners: {
                     'beforeselect': function(me, r) {
-                        var self = this,
-                            _isDirty = isDirty();
-                        if(_isDirty) {
-                            saveIfDirty(function(){
-                                if(!ok) return;
-                                me.setValue(r.getId());
-                                me.collapse();
-                            });
-                        }
-                        return !_isDirty;
+                        return saveIfDirty(function(ok){
+                            if(!ok) return;
+                            me.setValue(r.getId());
+                            me.collapse();
+                        });
                     },
                     'change': function() {
                         var self = this;
@@ -605,7 +569,7 @@ Ext.define('App.workspace.view.EditPanel', {
                         { text: 'Сохранить', handler: function(){
                             workspaceForm.save({
                                 success: function(){
-
+                                    doRefresh();
                                 }
                             });
                         } }

@@ -4,13 +4,13 @@
                 'Ext.data.Store'
             ],
             xtype: 'form',
-            saveIfDirty: function(clb){
+            saveIfDirty: function(clb, fnValidation){
                 if(this.inSaveIfDirty || this.inSave) return true;
                 this.inSaveIfDirty = true;
                 var me = this,
                     f = this.getForm(),
                     m = f.getRecord();
-                if(f.isDirty()) {
+                if(fnValidation ? fnValidation() : f.isDirty()) {
                     Ext.MessageBox.show({
                        title: 'Сохранить изменения?',
                        msg: 'Данные формы изменены, хотите их сохранить?',
@@ -21,7 +21,7 @@
                                 me.inSaveIfDirty = true;
                                 me.save({
                                     success: function(){
-                                       ok = true; 
+                                       ok = true;
                                     },
                                     callback: function(){
                                         clb(ok, m);
@@ -38,12 +38,12 @@
                             me.inSaveIfDirty = false;
                        },
                        icon: Ext.MessageBox.QUESTION
-                    });            
+                    });
                 } else {
                     clb(true, m);
                     this.inSaveIfDirty = false;
                 }
-                return false;                
+                return false;
             },
             save: function(options){
                 if(this.inSave) return;
@@ -69,14 +69,14 @@
                     this.inSave = false;
                     return;
                 }
-                       
+
                 if(!this.fireEvent('beforesave')) {
                     this.inSave = false;
                     return;
                 }
-                                                                                                                                         
+
                 this.setLoading("Сохранение...");
-                
+
                 form.getRecord().save({
                     success: function(m,b){
                         var r = b.request.proxy.getReader(),
@@ -98,7 +98,7 @@
                         me.setLoading(false);
                         me.inSave = false;
                     }
-                });                        
+                });
             },
             delete: function(options){
                 var me = this,
@@ -116,6 +116,6 @@
                     callback: function(){
                         me.setLoading(false);
                     }
-                });            
-            }            
+                });
+            }
         });
