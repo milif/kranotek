@@ -13,7 +13,7 @@
                 }
             },
             fields: [
-                'ClassName', 'ClassInfo', 'System', 'baseclass', 'fields', 'create', 'read', 'rights', 'update', 'write'
+                'ClassName', 'ClassInfo', 'System', 'baseclass', 'fields', 'create', 'read', 'rights', 'update', 'write', 'groupRights'
             ],
             validations:[
                 {type: 'length',    field: 'ClassName',     min: 2}

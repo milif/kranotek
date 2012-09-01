@@ -57,6 +57,9 @@ Ext.define('App.workspace.view.EditPanel', {
                         }
                     }
                 }
+                if(isWorkingGridChanged) {
+                    result = true;
+                }
                 return result;
             },
             createNewWorkspace = function() {
@@ -211,6 +214,7 @@ Ext.define('App.workspace.view.EditPanel', {
                                 }
                             }
                         }
+                        isWorkingGridChanged = false;
                     };
                 for(var index in availableGridStore) {
                     if (availableGridStore.hasOwnProperty(index)) {
@@ -220,6 +224,7 @@ Ext.define('App.workspace.view.EditPanel', {
                 }
             },
             updateForm = function(_model) {
+                isWorkingGridChanged = false;
                 if(!_model) {
                     me.model = new model({});
                     workspaceForm.getForm().loadRecord(me.model);
@@ -259,15 +264,33 @@ Ext.define('App.workspace.view.EditPanel', {
                     _index: 'group'
                 })
             },
+            onWorkingGridStoreChange = function() {
+                isWorkingGridChanged = true;
+            },
+            onWorkingGridStoreUpdate = function() {
+                isWorkingGridChanged = true;
+            },
             workingGridStore = {
                 classes: Ext.create('Ext.data.Store', {
-                    model: 'App.class.model.Class'
+                    model: 'App.class.model.Class',
+                    listeners: {
+                        datachanged: onWorkingGridStoreChange,
+                        update: onWorkingGridStoreUpdate
+                    }
                 }),
                 user: Ext.create('Ext.data.Store', {
-                    model: 'App.user.model.User'
+                    model: 'App.user.model.User',
+                    listeners: {
+                        datachanged: onWorkingGridStoreChange,
+                        update: onWorkingGridStoreUpdate
+                    }
                 }),
                 group: Ext.create('Ext.data.Store', {
-                    model: 'App.group.model.Group'
+                    model: 'App.group.model.Group',
+                    listeners: {
+                        datachanged: onWorkingGridStoreChange,
+                        update: onWorkingGridStoreUpdate
+                    }
                 })
             },
             updateAccessForm = function(index, record) {
@@ -283,12 +306,18 @@ Ext.define('App.workspace.view.EditPanel', {
                         }
                     }
                 }
-
+                var _fields = _form.getForm().getFields();
+                _fields.each(function(field){
+                    field.suspendEvents();
+                });
                 _form.getForm().reset();
                 if(record) {
                     _form.getForm().loadRecord(record);
                     _form.getForm().clearInvalid();
                 }
+                _fields.each(function(field){
+                    field.resumeEvents();
+                });
             },
             availableGrid = {},
             getAvailableGrid = function(index) {
@@ -326,6 +355,7 @@ Ext.define('App.workspace.view.EditPanel', {
                 return availableGrid[index];
             },
             workingGrid = {},
+            isWorkingGridChanged = false,
             workingGridPreviousRecord = {},
             getWorkingGrid = function(index){
                 workingGrid[index] = Ext.create('Ext.grid.Panel', {
@@ -377,6 +407,23 @@ Ext.define('App.workspace.view.EditPanel', {
                 return workingGrid[index];
             },
             formAccess = {},
+            updateCurrentWorkingGridRecord = function() {
+                var _form = formAccess[tabIndex],
+                    sm = workingGrid[tabIndex].getSelectionModel(),
+                    records = sm.getSelection();
+                if(records.length == 1) {
+                    var _values = _form.getValues();
+                    for(var field in _values) {
+                        if (_values.hasOwnProperty(field)) {
+                            records[0].set(field, _values[field]);
+                        }
+                    }
+                    records[0].commit();
+                }
+            },
+            onFormAccessChange = function() {
+                isWorkingGridChanged = true;
+            },
             getFormAccess = function(index) {
                 formAccess[index] = Ext.create('Ext.form.Panel', {
                     border: false,
@@ -386,7 +433,10 @@ Ext.define('App.workspace.view.EditPanel', {
                     defaults: {
                         inputValue: true,
                         uncheckedValue: false,
-                        disabled: true
+                        disabled: true,
+                        listeners: {
+                            change: onFormAccessChange
+                        }
                     },
                     items: [
                         {
@@ -548,6 +598,7 @@ Ext.define('App.workspace.view.EditPanel', {
                 }],
                 listeners: {
                     'beforesave': function() {
+                        updateCurrentWorkingGridRecord();
                         var m = this.getForm().getRecord(),
                             records,
                             fields = [],
@@ -570,7 +621,7 @@ Ext.define('App.workspace.view.EditPanel', {
                             comboBaseClass.getStore().add(m);
                             comboBaseClass.setValue(m.getId());
                         }
-                        Ext.MessageBox.alert('Cохранение данных', "Данные о классе успешно сохранены.");
+                        Ext.MessageBox.alert('Cохранение данных', "Данные о рабочей областе успешно сохранены.");
                     }
                 },
                 items: [
@@ -621,6 +672,9 @@ Ext.define('App.workspace.view.EditPanel', {
                             getTab('group')
                         ],
                         listeners: {
+                            beforetabchange: function() {
+                                updateCurrentWorkingGridRecord();
+                            },
                             tabchange: function (panel, tab) {
                                 tabIndex = tab._index;
                             }
@@ -638,6 +692,8 @@ Ext.define('App.workspace.view.EditPanel', {
             ],
             listeners: {
                 afterrender: function() {
+                    workspaceForm.getForm().loadRecord(me.model);
+                    workspaceForm.getForm().clearInvalid();
                     updateGrids();
                 }
             }
