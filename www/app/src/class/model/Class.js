@@ -11,9 +11,9 @@
                     update: 'class.update',
                     destroy: 'class.delete'
                 }
-            },              
+            },
             fields: [
-                'ClassName', 'ClassInfo', 'System', 'baseclass'
+                'ClassName', 'ClassInfo', 'System', 'baseclass', 'fields', 'create', 'read', 'rights', 'update', 'write', 'delete'
             ],
             validations:[
                 {type: 'length',    field: 'ClassName',     min: 2}
@@ -25,9 +25,9 @@
                         proxy: {
                            type: 'rpc',
                            url: 'class.get'
-                        }                 
+                        }
                     }, config));
-                    return ds;   
-                }            
+                    return ds;
+                }
             }
-        }); 
+        });
