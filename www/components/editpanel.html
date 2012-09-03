@@ -9,7 +9,7 @@
 
         Ext.application({
             name: 'App',
-            appFolder: '/app/src',
+            appFolder: '../app/src',
             requires: [
                 'App.class.view.Panel',
                 'App.proxy.RPC'
@@ -18,7 +18,7 @@
                 Ext.Ajax.on('beforerequest', function(a,p){
                     p.jsonData = Ext.apply({}, p.jsonData, p.params);
                     p.method = "POST";
-                    p.url = '/ajx/' + p.url.replace(/^([^\?]+)/,"$1.php");
+                    p.url = '../ajx/' + p.url.replace(/^([^\?]+)/,"$1.php");
                 });
                 Ext.create('App.workspace.view.EditPanel', {
                     renderTo: 'viewport'
