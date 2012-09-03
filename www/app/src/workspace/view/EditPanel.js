@@ -300,8 +300,9 @@ Ext.define('App.workspace.view.EditPanel', {
                     margins          : '0 2 0 0',
                     listeners: {
                         selectionchange: function(rowModel, record) {
-                            workingGrid[index].getSelectionModel().deselectAll();
+                            // workingGrid[index].getSelectionModel().deselectAll();
                             if(record.length > 0) {
+                                workingGrid[index].getSelectionModel().deselectAll();
                                 moveRightBt[index].enable();
                             } else {
                                 moveRightBt[index].disable();
@@ -332,8 +333,12 @@ Ext.define('App.workspace.view.EditPanel', {
                     margins          : '0 0 0 3',
                     listeners: {
                         selectionchange: function(rowModel, record) {
-                            availableGrid[index].getSelectionModel().deselectAll();
+                            // availableGrid[index].getSelectionModel().deselectAll();
+                            if(record.length > 0) {
+                                availableGrid[index].getSelectionModel().deselectAll();
+                            }
                             if(record.length > 1) {
+                                electionModel().deselectAll();
                                 updateAccessForm(index);
                                 workingGridPreviousRecord[index] = undefined;
                                 return false;
@@ -464,23 +469,31 @@ Ext.define('App.workspace.view.EditPanel', {
                 return moveRightBt[index];
             },
             getDndGrids = function(index){
-                return [
+                var titles = [
                     {
                         border: false,
-                        items: [
-                            {
-                                border: false,
-                                padding: '5px 0',
-                                html: 'Доступные ' + tabTitles[index].toLowerCase()
-                            },
-                            {
-                                xtype: 'panel',
-                                layout: 'fit',
-                                height: 300,
-                                border: false,
-                                items: getAvailableGrid(index)
-                            }
-                        ]
+                        padding: '5px 0',
+                        html: 'Доступные ' + tabTitles[index].toLowerCase()
+                    },
+                    {
+                        border: false,
+                        width: 30,
+                        flex: false,
+                        html: ''
+                    },
+                    {
+                        border: false,
+                        padding: '5px 0',
+                        html: tabTitles[index] + ' рабочей области'
+                    }
+                ];
+                var grids = [
+                    {
+                        xtype: 'panel',
+                        layout: 'fit',
+                        height: 300,
+                        border: false,
+                        items: getAvailableGrid(index)
                     },
                     {
                         border: false,
@@ -501,19 +514,39 @@ Ext.define('App.workspace.view.EditPanel', {
                         ]
                     },
                     {
+                        xtype: 'panel',
+                        layout: 'fit',
+                        height: 300,
                         border: false,
+                        items: getWorkingGrid(index)
+                    }
+                ];
+
+                return [
+                    {
+                        xtype: 'panel',
+                        border: false,
+                        flex: 2,
                         items: [
                             {
+                                xtype: 'panel',
                                 border: false,
-                                padding: '5px 0',
-                                html: tabTitles[index] + ' рабочей области'
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                defaults: { flex : 1 }, //auto stretch
+                                items: titles
                             },
                             {
                                 xtype: 'panel',
-                                layout: 'fit',
-                                height: 300,
                                 border: false,
-                                items: getWorkingGrid(index)
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                defaults: { flex : 1 }, //auto stretch
+                                items: grids
                             }
                         ]
                     },
