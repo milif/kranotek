@@ -102,7 +102,8 @@
             },
             delete: function(options){
                 var me = this,
-                    m = this.getForm().getRecord();
+                    f = this.getForm(),
+                    m = f.getRecord();
 
                 this.setLoading("Удаление...");
                 m.destroy({
@@ -111,6 +112,7 @@
                         for(var i=0; i<stores.length; i++) {
                             stores[i].remove(this);
                         }
+                        m.isDeleted = true;
                         if(options.success) options.success.call(this);
                     },
                     callback: function(){
