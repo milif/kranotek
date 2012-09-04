@@ -77,6 +77,8 @@ Ext.define('App.workspace.view.EditPanel', {
                     delete data.id;
                     comboBaseClass.clearValue();
                     updateForm(new model(data));
+                    buttonBaseClassCopy.disable();
+                    buttonBaseClassRemove.disable();
                 });
             },
             buttonBaseClassCopy = new Ext.button.Button({
@@ -141,6 +143,8 @@ Ext.define('App.workspace.view.EditPanel', {
                         } else {
                             updateForm( self.getStore().findRecord( 'id', self.getValue()) );
                         }
+                        buttonBaseClassCopy.enable();
+                        buttonBaseClassRemove.enable();
                     }
                 },
                 store: comboBaseStore,
@@ -300,7 +304,6 @@ Ext.define('App.workspace.view.EditPanel', {
                     margins          : '0 2 0 0',
                     listeners: {
                         selectionchange: function(rowModel, record) {
-                            // workingGrid[index].getSelectionModel().deselectAll();
                             if(record.length > 0) {
                                 workingGrid[index].getSelectionModel().deselectAll();
                                 moveRightBt[index].enable();
@@ -333,7 +336,6 @@ Ext.define('App.workspace.view.EditPanel', {
                     margins          : '0 0 0 3',
                     listeners: {
                         selectionchange: function(rowModel, record) {
-                            // availableGrid[index].getSelectionModel().deselectAll();
                             if(record.length > 0) {
                                 availableGrid[index].getSelectionModel().deselectAll();
                             }
@@ -615,8 +617,8 @@ Ext.define('App.workspace.view.EditPanel', {
                         var m = workspaceForm.getForm().getRecord();
                         if(comboBaseClass && comboBaseClass.getStore().indexOf(m)<0) {
                             comboBaseClass.getStore().add(m);
-                            comboBaseClass.setValue(m.getId());
                         }
+                        comboBaseClass.setValue(m.getId());
                         Ext.MessageBox.alert('Cохранение данных', "Данные о рабочей областе успешно сохранены.");
                     }
                 },
