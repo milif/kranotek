@@ -2,7 +2,54 @@
 echo json_encode(array(
     'success'=>true,
     'data'=>
-        array('Name'=>'NameSaved', 'id'=>'WorspaceSaved'),
+        array(
+          'Name'=>'NameSaved',
+          'id'=>'WorspaceSaved',
+          'Info'=>'saved info here',
+          'MaxShadows'=>'11',
+           'access'=>array(
+                'classes'=>array(
+                    array(
+                        'id'=>'Class1',
+                        'read'=>true,
+                        'write'=>false,
+                        'create'=>false,
+                        'update'=>false,
+                        'rights'=>false,
+                        'groupRights'=>false
+                    ),
+                    array(
+                        'id'=>'Class2',
+                        'read'=>true,
+                        'write'=>false,
+                        'create'=>false,
+                        'update'=>false,
+                        'rights'=>false,
+                        'groupRights'=>false
+                    )
+                ),
+                'group'=>array(array(
+                    'id'=>'Group1',
+                    'Name'=>'Groupname1',
+                    'read'=>false,
+                    'write'=>false,
+                    'create'=>false,
+                    'update'=>false,
+                    'rights'=>false,
+                    'groupRights'=>false
+                )),
+                'user'=>array(array(
+                    'id'=>'User1',
+                    'Username'=>'Username1',
+                    'read'=>false,
+                    'write'=>false,
+                    'create'=>false,
+                    'update'=>false,
+                    'rights'=>false,
+                    'groupRights'=>false
+                ))
+            )
+        ),
 
     'errors'=>array(array('id'=>'ClassName', 'msg'=>'sdcsd'))
 ));

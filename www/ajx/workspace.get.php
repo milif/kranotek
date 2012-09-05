@@ -4,8 +4,8 @@ echo json_encode(array(
         array(
             'id'=>'Worspace1',
             'Name'=>'Name1',
-            'Info'=>'some info here 1',
-            'MaxShadows'=>'123',
+            'Info'=>'load info here',
+            'MaxShadows'=>'1',
             'access'=>array(
                 'classes'=>array(
                     array(
