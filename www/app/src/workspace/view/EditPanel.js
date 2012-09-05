@@ -62,6 +62,7 @@ Ext.define('App.workspace.view.EditPanel', {
             },
             buttonBaseClassRefresh = new Ext.button.Button({
                 xtype: 'button',
+                disabled: true,
                 margin: '0 0 0 5',
                 iconCls: 'app-icon-refresh',
                 tooltip: 'Обновить',
@@ -140,11 +141,15 @@ Ext.define('App.workspace.view.EditPanel', {
                         var self = this;
                         if(!self.getValue()) {
                             updateForm();
+                            buttonBaseClassCopy.disable();
+                            buttonBaseClassRemove.disable();
+                            buttonBaseClassRefresh.disable();
                         } else {
                             updateForm( self.getStore().findRecord( 'id', self.getValue()) );
+                            buttonBaseClassCopy.enable();
+                            buttonBaseClassRemove.enable();
+                            buttonBaseClassRefresh.enable();
                         }
-                        buttonBaseClassCopy.enable();
-                        buttonBaseClassRemove.enable();
                     }
                 },
                 store: comboBaseStore,
