@@ -207,6 +207,7 @@ Ext.define('App.workspace.view.EditPanel', {
                     buttonBaseClassAdd.disable();
                     buttonBaseClassCopy.disable();
                     clearGrids();
+                    updateGrids();
                     return;
                 }
                 me.model = _model;
