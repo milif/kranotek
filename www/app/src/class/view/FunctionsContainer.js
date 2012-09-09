@@ -9,11 +9,10 @@ Ext.define('App.class.view.FunctionsContainer', {
     ],
     constructor: function(config){
 
+        var ClassParamFunctionFields = ['id', 'type', 'name', 'info', 'isArray', 'required', 'qty'];
         Ext.define('App.class.model.ClassParamFunction', {
             extend: 'Ext.data.Model',
-            fields: [
-                'id', 'type', 'name', 'info', 'isArray', 'required', 'qty'
-            ],
+            fields: ClassParamFunctionFields,
             validations:[
             ]
         });
@@ -81,10 +80,14 @@ Ext.define('App.class.view.FunctionsContainer', {
                 }
                 return fields;
             },
-            getNextSelectionIndex = function(grid, isPrevious) {
+            getSelectedIndex = function (grid) {
                 var selection = grid.getSelectionModel().getSelection(),
                     record = selection && selection[0],
-                    index = grid.getStore().findExact('id', record.get('id')),
+                    index = grid.getStore().findExact('id', record.get('id'));
+                return index;
+            },
+            getNextSelectionIndex = function(grid, isPrevious) {
+                var index = getSelectedIndex(grid),
                     count = grid.getStore().getCount(),
                     nextIndex = isPrevious ? (index - 1) : (index + 1);
                 if(nextIndex >= 0 && nextIndex < count) {
@@ -92,10 +95,47 @@ Ext.define('App.class.view.FunctionsContainer', {
                 }
                 return -1;
             },
+            replaceRecords = function(grid, isPrevious) {
+                var index = getSelectedIndex(grid),
+                    store = grid.getStore(),
+                    nextIndex = getNextSelectionIndex(grid, isPrevious);
+                if(nextIndex < 0) { return; }
+                var record = store.getAt(index);
+                    nextRecord = store.getAt(nextIndex);
+
+                var oldData = {};
+                for(var i in ClassParamFunctionFields) {
+                    if(ClassParamFunctionFields.hasOwnProperty(i)) {
+                        var field = ClassParamFunctionFields[i];
+                        oldData[field] = record.get(field);
+                    }
+                }
+                for(var i in ClassParamFunctionFields) {
+                    if(ClassParamFunctionFields.hasOwnProperty(i)) {
+                        var field = ClassParamFunctionFields[i];
+                        record.set(field, nextRecord.get(field));
+                    }
+                }
+                for(var i in ClassParamFunctionFields) {
+                    if(ClassParamFunctionFields.hasOwnProperty(i)) {
+                        var field = ClassParamFunctionFields[i];
+                        nextRecord.set(field, oldData[field]);
+                    }
+                }
+                return true;
+            },
             selectNextItemInStore = function(grid, isPrevious) {
                 var nextIndex = getNextSelectionIndex(grid, isPrevious);
                 var nextRecord = grid.getStore().getAt(nextIndex);
                 grid.getSelectionModel().select(nextRecord);
+            },
+            onGridOrderButtonClick = function(grid, isPrevious) {
+                var selection = grid.getSelectionModel().getSelection(),
+                    record = selection && selection[0],
+                    nextIndex = getNextSelectionIndex(grid, isPrevious);
+                if(!record) {return;}
+                replaceRecords(grid, isPrevious);
+                selectNextItemInStore(grid, isPrevious);
             },
             getGridLayout = function(grid) {
                 grid.upButton = Ext.create('Ext.button.Button', {
@@ -103,14 +143,14 @@ Ext.define('App.class.view.FunctionsContainer', {
                     cls: 'app-icon-up',
                     margin: '0 0 5px 0',
                     handler: function() {
-                        selectNextItemInStore(grid, true);
+                        onGridOrderButtonClick(grid, true);
                     }
                 });
                 grid.downButton = Ext.create('Ext.button.Button', {
                     disabled: true,
                     cls: 'app-icon-down',
                     handler: function() {
-                        selectNextItemInStore(grid, false);
+                        onGridOrderButtonClick(grid, false);
                     }
                 });
                 var declaration = {
