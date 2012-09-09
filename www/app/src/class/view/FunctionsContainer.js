@@ -81,6 +81,77 @@ Ext.define('App.class.view.FunctionsContainer', {
                 }
                 return fields;
             },
+            getNextSelectionIndex = function(grid, isPrevious) {
+                var selection = grid.getSelectionModel().getSelection(),
+                    record = selection && selection[0],
+                    index = grid.getStore().findExact('id', record.get('id')),
+                    count = grid.getStore().getCount(),
+                    nextIndex = isPrevious ? (index - 1) : (index + 1);
+                if(nextIndex >= 0 && nextIndex < count) {
+                    return nextIndex;
+                }
+                return -1;
+            },
+            selectNextItemInStore = function(grid, isPrevious) {
+                var nextIndex = getNextSelectionIndex(grid, isPrevious);
+                var nextRecord = grid.getStore().getAt(nextIndex);
+                grid.getSelectionModel().select(nextRecord);
+            },
+            getGridLayout = function(grid) {
+                grid.upButton = Ext.create('Ext.button.Button', {
+                    disabled: true,
+                    cls: 'app-icon-up',
+                    margin: '0 0 5px 0',
+                    handler: function() {
+                        selectNextItemInStore(grid, true);
+                    }
+                });
+                grid.downButton = Ext.create('Ext.button.Button', {
+                    disabled: true,
+                    cls: 'app-icon-down',
+                    handler: function() {
+                        selectNextItemInStore(grid, false);
+                    }
+                });
+                var declaration = {
+                    layout: 'hbox',
+                    margin: '10 0',
+                    items: [
+                        grid,
+                        {
+                            layout: 'vbox',
+                            height: 100,
+                            padding: '0 0 0 3px',
+                            border: false,
+                            items: [
+                                { border: false, flex: 1 },
+                                grid.upButton,
+                                grid.downButton,
+                                { border: false, flex: 1 }
+                            ]
+                        }
+                    ]
+                };
+                grid.on('selectionchange', function(rowModel, record) {
+                    var _record = record && record[0];
+                    if(_record) {
+                        if(getNextSelectionIndex(grid, true) >= 0) {
+                            grid.upButton.enable();
+                        } else {
+                            grid.upButton.disable();
+                        }
+                        if(getNextSelectionIndex(grid, false) >= 0) {
+                            grid.downButton.enable();
+                        } else {
+                            grid.downButton.disable();
+                        }
+                    } else {
+                        grid.upButton.disable();
+                        grid.downButton.disable();
+                    }
+                });
+                return declaration;
+            },
             functionListCreate = function() {
                 me.model = new model();
                 functionList.getForm().loadRecord(me.model);
@@ -318,7 +389,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                 multiSelect: false,
                 hideHeaders: true,
                 height: 100,
-                margin: '10px 0',
+                flex: 1,
                 viewConfig: {
                     plugins: {
                         ptype: 'gridviewdragdrop',
@@ -466,7 +537,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                             functionParamsRefreshButton
                         ]
                     },
-                    functionParamsGrid,
+                    getGridLayout(functionParamsGrid),
                     {
                         ref: 'formPanel',
                         hidden: true,
@@ -520,7 +591,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                 multiSelect: false,
                 hideHeaders: true,
                 height: 100,
-                margin: '10px 0',
+                flex: 1,
                 viewConfig: {
                     plugins: {
                         ptype: 'gridviewdragdrop',
@@ -595,7 +666,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                             functionReturnRefreshButton
                         ]
                     },
-                    functionReturnGrid,
+                    getGridLayout(functionReturnGrid),
                     {
                         ref: 'formPanel',
                         hidden: true,

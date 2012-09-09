@@ -45,6 +45,15 @@ echo json_encode(array(
           'info'=>'info145'
         ),
         array(
+          'id'=>'1234',
+          'type'=>'Type1',
+          'name'=>'Name1454',
+          'required'=>false,
+          'isArray'=>false,
+          'qty'=>1454,
+          'info'=>'info1454'
+        ),
+        array(
           'id'=>'1123',
           'type'=>'Type2',
           'name'=>'Name1145',
