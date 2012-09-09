@@ -350,7 +350,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                             {
                                 flex: 1,
                                 border: false,
-                                style: 'font-weight: bold',
+                                style: 'padding-top:4px; font-weight: bold',
                                 html: 'Список функций'
                             },
                             functionListAddButton,
@@ -570,7 +570,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                             {
                                 flex: 1,
                                 border: false,
-                                style: 'font-weight: bold',
+                                style: 'padding-top:4px; font-weight: bold',
                                 html: 'Получает'
                             },
                             functionParamsAddButton,
@@ -699,7 +699,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                             {
                                 flex: 1,
                                 border: false,
-                                style: 'font-weight: bold',
+                                style: 'padding-top:4px; font-weight: bold',
                                 html: 'Возвращяет'
                             },
                             functionReturnAddButton,
