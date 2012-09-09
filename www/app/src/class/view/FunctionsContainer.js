@@ -90,6 +90,10 @@ Ext.define('App.class.view.FunctionsContainer', {
 
                 functionParamsGridStore.removeAll();
                 functionReturnGridStore.removeAll();
+                functionParams.getForm().loadRecord(new modelParam());
+                functionReturn.getForm().loadRecord(new modelParam());
+                functionParamsShowForm(false);
+                functionReturnShowForm(false);
                 functionParams.show();
                 functionReturn.show();
             },
