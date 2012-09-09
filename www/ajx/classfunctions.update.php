@@ -1,0 +1,42 @@
+<?
+echo json_encode(array(
+    'success'=>true,
+    'data'=>array(
+      'id'=>'885',
+      'type'=>'type45UPDATE',
+      'name'=>'Name45UPDATE',
+      'info'=>'Info45UPDATE',
+      'params'=>array(
+        array(
+          'id'=>'123',
+          'type'=>'Type5UPDATE',
+          'name'=>'Name145UPDATE',
+          'required'=>true,
+          'isArray'=>true,
+          'qty'=>145,
+          'info'=>'info145UPDATE'
+        ),
+        array(
+          'id'=>'1123',
+          'type'=>'Type5UPDATE',
+          'name'=>'Name1145UPDATE',
+          'required'=>true,
+          'isArray'=>true,
+          'qty'=>1145,
+          'info'=>'info1145UPDATE'
+        )
+      ),
+      'return'=>array(
+        array(
+          'id'=>'123',
+          'type'=>'Type5UPDATE',
+          'name'=>'Name1UPDATE',
+          'required'=>true,
+          'isArray'=>true,
+          'qty'=>23,
+          'info'=>'infoUPDATE'
+        )
+      )
+    ),
+    'errors'=>array(array('id'=>'ClassName', 'msg'=>'sdcsd'))
+));
