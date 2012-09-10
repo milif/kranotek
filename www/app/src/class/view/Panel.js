@@ -717,11 +717,10 @@ Ext.define('App.class.view.Panel', {
                                                         iconCls: 'app-icon-add', 
                                                         handler: function(){
                                                             var b = this;
-                                                            fieldForm.show();
-                                                            if(!me.model.getId()) b.up('form').setNewModel();
-                                                            saveIfDirty(function(ok){
+                                                            if(!me.model.getId()) addField();
+                                                            else saveIfDirty(function(ok){
                                                                 if(!ok) return;
-                                                                b.up('form').setNewModel();
+                                                                addField();
                                                             });                                                    
                                                         } 
                                                     }, 
@@ -739,6 +738,12 @@ Ext.define('App.class.view.Panel', {
                 ]
             }                            
         );
+        
+        function addField(){
+            fieldForm.show();
+            tabpanel.getActiveTab().down('form').setNewModel();        
+        }
+        
         function saveIfDirty(clb){
             if( tabpanel.isHidden() ) {
                 clb(true);
