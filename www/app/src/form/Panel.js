@@ -91,13 +91,15 @@
                     },
                     failure: function(a,b,c){
                         var res = b.request.proxy.getReader().rawData;
-                        if(res.msg) Ext.MessageBox.show({
+                        if(!res || res.msg) Ext.MessageBox.show({
                             title: 'Ошибка выполнения запроса',
-                            msg: res.msg,
+                            msg: res ? res.msg : 'Ошибка сервера',
                             icon: Ext.MessageBox.ERROR
                         });
-                        form.markInvalid(res.errors);
-                        form.getRecord().reject();
+                        if(res) {
+                            form.markInvalid(res.errors);
+                            form.getRecord().reject();
+                        }
                     },
                     callback: function(){
                         if(options.callback) options.callback.call(this);
@@ -123,14 +125,15 @@
                     },
                     failure: function(a,b,c){
                         var res = b.request.proxy.getReader().rawData;
-                        if(res.msg) Ext.MessageBox.show({
+                        if(!res || res.msg) Ext.MessageBox.show({
                             title: 'Ошибка выполнения запроса',
-                            msg: res.msg,
+                            msg: res ? res.msg : 'Ошибка сервера',
                             icon: Ext.MessageBox.ERROR
                         });
                     },                    
                     callback: function(){
                         me.setLoading(false);
+                        if(options.callback) options.callback.call(this);
                     }
                 });
             }
