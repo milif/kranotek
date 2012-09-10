@@ -131,6 +131,7 @@
                             msg: res ? res.msg : 'Ошибка сервера',
                             icon: Ext.MessageBox.ERROR,
                             buttons: Ext.Msg.OK
+                        });
                     },                    
                     callback: function(){
                         me.setLoading(false);
