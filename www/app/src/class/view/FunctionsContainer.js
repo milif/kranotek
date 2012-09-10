@@ -485,6 +485,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                     if(!record) { return; }
                     me.modelParams = new modelParamsItem();
                     functionParamsGridStore.remove(record);
+                    functionParams.save();
                     functionParamsItemForm.loadRecord(me.modelParams);
                     functionParamsItemForm.clearInvalid();
                     functionParamsShowForm();
@@ -656,11 +657,13 @@ Ext.define('App.class.view.FunctionsContainer', {
                 var updatedRecord = functionParams.getForm().getRecord();
                 functionParamsGridStore.loadData(updatedRecord.get('params'));
 
-                functionParamsGrid.getSelectionModel().deselectAll();
-                var newRecordToSelectIndex = functionParamsGridStore.findExact('id', gridRecord.get('id'));
-                if(newRecordToSelectIndex >= 0) {
-                    var newRecordToSelect = functionParamsGridStore.getAt(newRecordToSelectIndex);
-                    functionParamsGrid.getSelectionModel().select(newRecordToSelect);
+                if(gridRecord) {
+                    functionParamsGrid.getSelectionModel().deselectAll();
+                    var newRecordToSelectIndex = functionParamsGridStore.findExact('id', gridRecord.get('id'));
+                    if(newRecordToSelectIndex >= 0) {
+                        var newRecordToSelect = functionParamsGridStore.getAt(newRecordToSelectIndex);
+                        functionParamsGrid.getSelectionModel().select(newRecordToSelect);
+                    }
                 }
 
                 functionParamsOrderDirty = false;
@@ -686,9 +689,11 @@ Ext.define('App.class.view.FunctionsContainer', {
                         if(formValues['id']) {
                             var index = functionParamsGridStore.findExact('id', formValues['id']),
                                 record = functionParamsGridStore.getAt(index);
-                            for(var i in formValues) {
-                                if(formValues.hasOwnProperty(i)) {
-                                    record[i].set(formValues[i]);
+                            if(record) {
+                                for(var i in formValues) {
+                                    if(formValues.hasOwnProperty(i)) {
+                                        record.set(i, formValues[i]);
+                                    }
                                 }
                             }
                         } else {
@@ -759,6 +764,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                     if(!record) { return; }
                     me.modelReturn = new modelParamsItem();
                     functionReturnGridStore.remove(record);
+                    functionReturn.save();
                     functionReturnItemForm.loadRecord(me.modelReturn);
                     functionReturnItemForm.clearInvalid();
                     functionReturnShowForm();
@@ -890,9 +896,11 @@ Ext.define('App.class.view.FunctionsContainer', {
                         if(formValues['id']) {
                             var index = functionReturnGridStore.findExact('id', formValues['id']),
                                 record = functionReturnGridStore.getAt(index);
-                            for(var i in formValues) {
-                                if(formValues.hasOwnProperty(i)) {
-                                    record[i].set(formValues[i]);
+                            if(record) {
+                                for(var i in formValues) {
+                                    if(formValues.hasOwnProperty(i)) {
+                                        record.set(i, formValues[i]);
+                                    }
                                 }
                             }
                         } else {
