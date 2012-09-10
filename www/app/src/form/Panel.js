@@ -71,6 +71,7 @@
                 }
 
                 if(!this.fireEvent('beforesave')) {
+                    if(options.callback) options.callback.call(this);
                     this.inSave = false;
                     return;
                 }
@@ -90,6 +91,11 @@
                     },
                     failure: function(a,b,c){
                         var res = b.request.proxy.getReader().rawData;
+                        if(res.msg) Ext.MessageBox.show({
+                            title: 'Ошибка выполнения запроса',
+                            msg: res.msg,
+                            icon: Ext.MessageBox.ERROR
+                        });
                         form.markInvalid(res.errors);
                         form.getRecord().reject();
                     },
@@ -115,6 +121,14 @@
                         m.isDeleted = true;
                         if(options.success) options.success.call(this);
                     },
+                    failure: function(a,b,c){
+                        var res = b.request.proxy.getReader().rawData;
+                        if(res.msg) Ext.MessageBox.show({
+                            title: 'Ошибка выполнения запроса',
+                            msg: res.msg,
+                            icon: Ext.MessageBox.ERROR
+                        });
+                    },                    
                     callback: function(){
                         me.setLoading(false);
                     }
