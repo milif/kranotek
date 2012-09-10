@@ -916,7 +916,7 @@ Ext.define('App.class.view.FunctionsContainer', {
 
                         var _return = getGridData(functionReturnGridStore);
                         m.set('id', me.model.get('id'));
-                        m.set('params', _return);
+                        m.set('return', _return);
                     },
                     'save': onFunctionReturnSave
                 },
