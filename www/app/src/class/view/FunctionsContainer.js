@@ -254,10 +254,12 @@ Ext.define('App.class.view.FunctionsContainer', {
                         if(_record) {
                             me.model = _record;
                             functionListOnChange(_record);
+                            functionListRemoveButton.enable();
                         } else {
                             functionList.child('form').hide();
                             functionParams.hide();
                             functionReturn.hide();
+                            functionListRemoveButton.disable();
                         }
                     }
                 }
@@ -297,11 +299,21 @@ Ext.define('App.class.view.FunctionsContainer', {
             functionListLoad = function() {
                 saveIfDirty(doFullReload);
             },
-            functionListRefreshButton = new Ext.button.Button({
+            functionListRemove = function() {
+                Ext.MessageBox.confirm('Подвердите удаление', 'Вы действительно хотите удалить функцию?', function(btn){
+                    if(btn!='yes') return;
+                    functionList.delete({
+                        success: function(){
+                        }
+                    });
+                });
+            },
+            functionListRemoveButton = new Ext.button.Button({
+                disabled: true,
                 margin: '0 0 0 5',
-                iconCls: 'app-icon-refresh',
-                tooltip: 'Обновить',
-                handler: functionListLoad
+                iconCls: 'app-icon-remove',
+                tooltip: 'Удалить',
+                handler: functionListRemove
             }),
             functionList = Ext.create('App.form.Panel' , {
                 trackResetOnLoad: true,
@@ -354,7 +366,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                                 html: 'Список функций'
                             },
                             functionListAddButton,
-                            functionListRefreshButton
+                            functionListRemoveButton
                         ]
                     },
                     functionListGrid,
@@ -407,11 +419,25 @@ Ext.define('App.class.view.FunctionsContainer', {
                 tooltip: 'Добавить',
                 handler: functionParamsCreate
             }),
-            functionParamsRefreshButton = new Ext.button.Button({
+            functionParamsRemove = function() {
+                Ext.MessageBox.confirm('Подвердите удаление', 'Вы действительно хотите удалить параметр?', function(btn){
+                    if(btn!='yes') return;
+                    var records = functionParamsGrid.getSelectionModel().getSelection(),
+                        record = records && records[0];
+                    if(!record) { return; }
+                    me.modelParams = new modelParam();
+                    functionParamsGridStore.remove(record);
+                    functionParams.getForm().loadRecord(me.modelReturn);
+                    functionParams.getForm().clearInvalid();
+                    functionParamsShowForm();
+                });
+            },
+            functionParamsRemoveButton = new Ext.button.Button({
+                disabled: true,
                 margin: '0 0 0 5',
-                iconCls: 'app-icon-refresh',
-                tooltip: 'Обновить',
-                handler: functionListLoad
+                iconCls: 'app-icon-remove',
+                tooltip: 'Удалить',
+                handler: functionParamsRemove
             }),
             functionParamsGridStore = Ext.create('Ext.data.Store', {
                 model: modelParam,
@@ -462,6 +488,11 @@ Ext.define('App.class.view.FunctionsContainer', {
                         updateForm(functionParams.getForm(), record && record[0]);
                         me.modelParams = record && record[0] || me.modelParams;
                         functionParamsShowForm(me.modelParams);
+                        if(record && record[0]) {
+                            functionParamsRemoveButton.enable();
+                        } else {
+                            functionParamsRemoveButton.disable();
+                        }
                     }
                 }
             }),
@@ -574,7 +605,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                                 html: 'Получает'
                             },
                             functionParamsAddButton,
-                            functionParamsRefreshButton
+                            functionParamsRemoveButton
                         ]
                     },
                     getGridLayout(functionParamsGrid),
@@ -609,11 +640,25 @@ Ext.define('App.class.view.FunctionsContainer', {
                 tooltip: 'Добавить',
                 handler: functionReturnCreate
             }),
-            functionReturnRefreshButton = new Ext.button.Button({
+            functionReturnRemove = function() {
+                Ext.MessageBox.confirm('Подвердите удаление', 'Вы действительно хотите удалить параметр?', function(btn){
+                    if(btn!='yes') return;
+                    var records = functionReturnGrid.getSelectionModel().getSelection(),
+                        record = records && records[0];
+                    if(!record) { return; }
+                    me.modelReturn = new modelParam();
+                    functionReturnGridStore.remove(record);
+                    functionReturn.getForm().loadRecord(me.modelReturn);
+                    functionReturn.getForm().clearInvalid();
+                    functionReturnShowForm();
+                });
+            },
+            functionReturnRemoveButton = new Ext.button.Button({
+                disabled: true,
                 margin: '0 0 0 5',
-                iconCls: 'app-icon-refresh',
-                tooltip: 'Обновить',
-                handler: functionListLoad
+                iconCls: 'app-icon-remove',
+                tooltip: 'Удалить',
+                handler: functionReturnRemove
             }),
             functionReturnGridStore = Ext.create('Ext.data.Store', {
                 model: modelParam,
@@ -664,6 +709,11 @@ Ext.define('App.class.view.FunctionsContainer', {
                         updateForm(functionReturn.getForm(), record && record[0]);
                         me.modelReturn = record && record[0] || me.modelReturn;
                         functionReturnShowForm(me.modelReturn);
+                        if(record && record[0]) {
+                            functionReturnRemoveButton.enable();
+                        } else {
+                            functionReturnRemoveButton.disable();
+                        }
                     }
                 }
             }),
@@ -703,7 +753,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                                 html: 'Возвращяет'
                             },
                             functionReturnAddButton,
-                            functionReturnRefreshButton
+                            functionReturnRemoveButton
                         ]
                     },
                     getGridLayout(functionReturnGrid),
