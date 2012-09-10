@@ -321,7 +321,8 @@ Ext.define('App.class.view.Panel', {
                                     fn: function(){
                                         tabpanel.setActiveTab(1);
                                     },
-                                    icon: Ext.MessageBox.ERROR
+                                    icon: Ext.MessageBox.ERROR,
+                                    buttons: Ext.Msg.OK
                                 });
                                 return false;
                             }

@@ -94,7 +94,8 @@
                         if(!res || res.msg) Ext.MessageBox.show({
                             title: 'Ошибка выполнения запроса',
                             msg: res ? res.msg : 'Ошибка сервера',
-                            icon: Ext.MessageBox.ERROR
+                            icon: Ext.MessageBox.ERROR,
+                            buttons: Ext.Msg.OK
                         });
                         if(res) {
                             form.markInvalid(res.errors);
@@ -128,8 +129,8 @@
                         if(!res || res.msg) Ext.MessageBox.show({
                             title: 'Ошибка выполнения запроса',
                             msg: res ? res.msg : 'Ошибка сервера',
-                            icon: Ext.MessageBox.ERROR
-                        });
+                            icon: Ext.MessageBox.ERROR,
+                            buttons: Ext.Msg.OK
                     },                    
                     callback: function(){
                         me.setLoading(false);
