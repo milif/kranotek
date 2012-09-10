@@ -257,8 +257,8 @@ Ext.define('App.class.view.FunctionsContainer', {
                 functionReturn.getForm().loadRecord(new modelReturn());
                 functionParamsShowForm(false);
                 functionReturnShowForm(false);
-                functionParams.show();
-                functionReturn.show();
+                functionParams.hide();
+                functionReturn.hide();
             },
             functionListAddButton = new Ext.button.Button({
                 iconCls: 'app-icon-add',
@@ -327,10 +327,12 @@ Ext.define('App.class.view.FunctionsContainer', {
                 displayField: 'type',
                 valueField: 'type'
             }),
+            isfunctionListSaveFormOnly = false,
             functionListSaveBt = Ext.create('Ext.Button', {
                 anchor: false,
                 text: 'Сохранить',
                 handler: function() {
+                    isfunctionListSaveFormOnly = true;
                     functionList.save();
                 }
             }),
@@ -378,22 +380,24 @@ Ext.define('App.class.view.FunctionsContainer', {
                     sel = sm.getSelection(),
                     m = form.getForm().getRecord();
 
-                sm.deselectAll();
-
-                if(functionListGrid.getStore().indexOf(m)<0) {
-                    functionListGrid.getStore().add(m);
-                    sm.select(m);
+                if(!isfunctionListSaveFormOnly) {
+                    sm.deselectAll();
+                    if(functionListGrid.getStore().indexOf(m)<0) {
+                        functionListGrid.getStore().add(m);
+                        sm.select(m);
+                    }
                 }
                 form.loadRecord(m);
-                sm.select(m);
 
-
-                functionListOnChange(me.model);
+                if(!isfunctionListSaveFormOnly) {
+                    sm.select(m);
+                    functionListOnChange(me.model);
+                    functionParamsOrderDirty = false;
+                    functionReturnOrderDirty = false;
+                }
                 functionListGrid.getView().refresh();
 
-                functionParamsOrderDirty = false;
-                functionReturnOrderDirty = false;
-
+                isfunctionListSaveFormOnly = false;
                 Ext.MessageBox.alert('Cохранение данных', "Данные успешно сохранены.");
             },
             functionList = Ext.create('App.form.Panel' , {
@@ -403,10 +407,12 @@ Ext.define('App.class.view.FunctionsContainer', {
                 listeners: {
                     'beforesave': function() {
                         var m = this.getForm().getRecord();
-                        var _params = getGridData(functionParamsGridStore);
-                        m.set('params', _params);
-                        var _return = getGridData(functionReturnGridStore);
-                        m.set('return', _return);
+                        if(!isfunctionListSaveFormOnly) {
+                            var _params = getGridData(functionParamsGridStore);
+                            m.set('params', _params);
+                            var _return = getGridData(functionReturnGridStore);
+                            m.set('return', _return);
+                        }
                         me.model = m;
                     },
                     'save': onFunctionListSave
