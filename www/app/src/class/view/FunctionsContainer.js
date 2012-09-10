@@ -10,8 +10,56 @@ Ext.define('App.class.view.FunctionsContainer', {
     constructor: function(config){
 
         var ClassParamFunctionFields = ['id', 'type', 'name', 'info', 'isArray', 'required', 'qty'];
-        Ext.define('App.class.model.ClassParamFunction', {
+        Ext.define('App.class.model.ClassParam', {
             extend: 'Ext.data.Model',
+            requires: [
+                'App.proxy.RPC'
+            ],
+            proxy: {
+                type: 'rpc',
+                api: {
+                    read: 'classfunctions.get',
+                    create: 'classfunctions.update',
+                    update: 'classfunctions.update',
+                    destroy: 'classfunctions.delete'
+                }
+            },
+            fields: ['id', 'params'],
+            validations:[
+            ]
+        });
+        Ext.define('App.class.model.ClassReturn', {
+            extend: 'Ext.data.Model',
+            requires: [
+                'App.proxy.RPC'
+            ],
+            proxy: {
+                type: 'rpc',
+                api: {
+                    read: 'classfunctions.get',
+                    create: 'classfunctions.update',
+                    update: 'classfunctions.update',
+                    destroy: 'classfunctions.delete'
+                }
+            },
+            fields: ['id', 'return'],
+            validations:[
+            ]
+        });
+        Ext.define('App.class.model.ClassParamItem', {
+            extend: 'Ext.data.Model',
+            requires: [
+                'App.proxy.RPC'
+            ],
+            proxy: {
+                type: 'rpc',
+                api: {
+                    read: 'classfunctions.get',
+                    create: 'classfunctions.update',
+                    update: 'classfunctions.update',
+                    destroy: 'classfunctions.delete'
+                }
+            },
             fields: ClassParamFunctionFields,
             validations:[
             ]
@@ -26,20 +74,22 @@ Ext.define('App.class.view.FunctionsContainer', {
                     }
                 }
             }),
-            modelParam = App.class.model.ClassParamFunction,
-            saveIfDirty = function(clb) {
-                return functionList.saveIfDirty(clb, isDirty);
+            modelParam = App.class.model.ClassParam,
+            modelReturn = App.class.model.ClassReturn,
+            modelParamsItem = App.class.model.ClassParamItem,
+            saveIfDirty = function(clb, fn) {
+                return functionList.saveIfDirty(clb, fn || isDirty);
             },
             clearDirtyData = function() {
-                me.modelParams && functionParams.getForm().loadRecord(me.modelParams);
-                me.modelReturn && functionReturn.getForm().loadRecord(me.modelReturn);
+                me.modelParams && functionParamsItemForm.loadRecord(me.modelParams);
+                me.modelReturn && functionReturnItemForm.loadRecord(me.modelReturn);
             },
             isDirty = function() {
                 if(functionParamsOrderDirty ||
                     functionReturnOrderDirty ||
-                    isFormDirty(functionList, ['type', 'name', 'info']) ||
-                    isFormDirty(functionParams, ['type', 'name', 'info', 'isArray', 'required', 'qty']) ||
-                    isFormDirty(functionReturn, ['type', 'name', 'info', 'isArray', 'required', 'qty'])
+                    isFormDirty(functionList.getForm(), ['type', 'name', 'info']) ||
+                    isFormDirty(functionParamsItemForm, ['type', 'name', 'info', 'isArray', 'required', 'qty']) ||
+                    isFormDirty(functionReturnItemForm, ['type', 'name', 'info', 'isArray', 'required', 'qty'])
                 ) {
                     return true;
                 }
@@ -50,7 +100,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                 var result = false;
                 for(var field in dataFields) {
                     if (dataFields.hasOwnProperty(field)) {
-                        var _field = form.getForm().findField(dataFields[field]);
+                        var _field = form.findField(dataFields[field]);
                         if(_field && _field.isDirty()) {
                             result = true;
                         }
@@ -194,6 +244,8 @@ Ext.define('App.class.view.FunctionsContainer', {
             },
             functionListCreate = function() {
                 me.model = new model();
+                me.modelParams = new modelParamsItem();
+                me.modelReturn = new modelParamsItem();
                 functionList.getForm().loadRecord(me.model);
                 functionList.getForm().clearInvalid();
                 functionListGrid.getSelectionModel().deselectAll();
@@ -202,7 +254,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                 functionParamsGridStore.removeAll();
                 functionReturnGridStore.removeAll();
                 functionParams.getForm().loadRecord(new modelParam());
-                functionReturn.getForm().loadRecord(new modelParam());
+                functionReturn.getForm().loadRecord(new modelReturn());
                 functionParamsShowForm(false);
                 functionReturnShowForm(false);
                 functionParams.show();
@@ -216,8 +268,7 @@ Ext.define('App.class.view.FunctionsContainer', {
             functionListOnChange = function(_record) {
                 updateForm(functionList.getForm(), _record);
                 functionParams.getForm().loadRecord(new modelParam());
-                functionReturn.getForm().loadRecord(new modelParam());
-
+                functionReturn.getForm().loadRecord(new modelReturn());
                 functionParamsGrid.getSelectionModel().deselectAll();
                 functionReturnGrid.getSelectionModel().deselectAll();
                 functionParamsGridStore.loadData(_record.get('params'));
@@ -286,17 +337,23 @@ Ext.define('App.class.view.FunctionsContainer', {
             doFullReload = function(ok) {
                 if(!ok) {return;}
                 me.model = new model();
+
                 functionListTypeStore.load();
                 functionList.getForm().loadRecord(me.model);
                 functionList.getForm().clearInvalid();
+
                 functionParams.getForm().loadRecord(new modelParam());
                 functionParams.getForm().clearInvalid();
-                functionReturn.getForm().loadRecord(new modelParam());
+
+                functionReturn.getForm().loadRecord(new modelReturn());
                 functionReturn.getForm().clearInvalid();
+
                 functionsStore.load();
                 functionListGrid.getSelectionModel().deselectAll();
             },
             functionListLoad = function() {
+                functionParamsItemForm = functionParams.child('[ref="formPanel"]').child().getForm();
+                functionReturnItemForm = functionReturn.child('[ref="formPanel"]').child().getForm();
                 saveIfDirty(doFullReload);
             },
             functionListRemove = function() {
@@ -315,6 +372,30 @@ Ext.define('App.class.view.FunctionsContainer', {
                 tooltip: 'Удалить',
                 handler: functionListRemove
             }),
+            onFunctionListSave = function() {
+                var form = functionList,
+                    sm = functionListGrid.getSelectionModel(),
+                    sel = sm.getSelection(),
+                    m = form.getForm().getRecord();
+
+                sm.deselectAll();
+
+                if(functionListGrid.getStore().indexOf(m)<0) {
+                    functionListGrid.getStore().add(m);
+                    sm.select(m);
+                }
+                form.loadRecord(m);
+                sm.select(m);
+
+
+                functionListOnChange(me.model);
+                functionListGrid.getView().refresh();
+
+                functionParamsOrderDirty = false;
+                functionReturnOrderDirty = false;
+
+                Ext.MessageBox.alert('Cохранение данных', "Данные успешно сохранены.");
+            },
             functionList = Ext.create('App.form.Panel' , {
                 trackResetOnLoad: true,
                 url: 'classfunctions.update',
@@ -328,30 +409,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                         m.set('return', _return);
                         me.model = m;
                     },
-                    'save': function() {
-                        var form = this,
-                            sm = functionListGrid.getSelectionModel(),
-                            sel = sm.getSelection(),
-                            m = form.getForm().getRecord();
-
-                        sm.deselectAll();
-
-                        if(functionListGrid.getStore().indexOf(m)<0) {
-                            functionListGrid.getStore().add(m);
-                            sm.select(m);
-                        }
-                        form.loadRecord(m);
-                        sm.select(m);
-
-
-                        functionListOnChange(me.model);
-                        functionListGrid.getView().refresh();
-
-                        functionParamsOrderDirty = false;
-                        functionReturnOrderDirty = false;
-
-                        Ext.MessageBox.alert('Cохранение данных', "Данные о поле успешно сохранены.");
-                    }
+                    'save': onFunctionListSave
                 },
                 items: [
                     {
@@ -407,9 +465,9 @@ Ext.define('App.class.view.FunctionsContainer', {
             }),
 
             functionParamsCreate = function() {
-                me.modelParams = new modelParam();
-                functionParams.getForm().loadRecord(me.modelParams);
-                functionParams.getForm().clearInvalid();
+                me.modelParams = new modelParamsItem();
+                functionParamsItemForm.loadRecord(me.modelParams);
+                functionParamsItemForm.clearInvalid();
                 functionParamsGrid.getSelectionModel().deselectAll();
                 functionParams.show();
                 functionParamsShowForm(me.modelParams);
@@ -425,10 +483,10 @@ Ext.define('App.class.view.FunctionsContainer', {
                     var records = functionParamsGrid.getSelectionModel().getSelection(),
                         record = records && records[0];
                     if(!record) { return; }
-                    me.modelParams = new modelParam();
+                    me.modelParams = new modelParamsItem();
                     functionParamsGridStore.remove(record);
-                    functionParams.getForm().loadRecord(me.modelReturn);
-                    functionParams.getForm().clearInvalid();
+                    functionParamsItemForm.loadRecord(me.modelParams);
+                    functionParamsItemForm.clearInvalid();
                     functionParamsShowForm();
                 });
             },
@@ -440,7 +498,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                 handler: functionParamsRemove
             }),
             functionParamsGridStore = Ext.create('Ext.data.Store', {
-                model: modelParam,
+                model: modelParamsItem,
                 _index: 'classes'
             }),
             functionParamsShowForm = function(state) {
@@ -451,6 +509,12 @@ Ext.define('App.class.view.FunctionsContainer', {
                 }
             },
             functionParamsOrderDirty = false,
+            isDirtyFunctionParams = function() {
+                return isFormDirty(functionParamsItemForm, ['type', 'name', 'info', 'isArray', 'required', 'qty']);
+            },
+            saveFunctionParamsIfDirty = function(clb) {
+                return functionParams.saveIfDirty(clb, isDirtyFunctionParams);
+            },
             functionParamsGrid = Ext.create('Ext.grid.Panel', {
                 multiSelect: false,
                 hideHeaders: true,
@@ -474,18 +538,17 @@ Ext.define('App.class.view.FunctionsContainer', {
                 margins          : '0 2 0 0',
                 listeners: {
                     beforeselect: function(rowModel, record, rowIndex) {
-                        saveIfDirty(function(ok, m) {
+                        saveFunctionParamsIfDirty(function(ok, m) {
                             if(!ok) {
                                 return;
                             }
                             me.modelParams = m;
-                            clearDirtyData();
                             functionParamsGrid.getSelectionModel().select(record);
                         });
-                        return !isDirty();
+                        return !isDirtyFunctionParams();
                     },
                     selectionchange: function(rowModel, record) {
-                        updateForm(functionParams.getForm(), record && record[0]);
+                        updateForm(functionParamsItemForm, record && record[0]);
                         me.modelParams = record && record[0] || me.modelParams;
                         functionParamsShowForm(me.modelParams);
                         if(record && record[0]) {
@@ -505,11 +568,10 @@ Ext.define('App.class.view.FunctionsContainer', {
                 valueField: 'type'
             }),
             functionParamsSaveBt = Ext.create('Ext.Button', {
-                // disabled: true,
                 anchor: false,
                 text: 'Сохранить',
                 handler: function() {
-                    functionList.save();
+                    functionParams.save();
                 }
             }),
             isRequiredCheckbox = {
@@ -584,6 +646,28 @@ Ext.define('App.class.view.FunctionsContainer', {
                     }
                 ];
             },
+            onFunctionParamsSave = function() {
+                var _values = functionParamsItemForm.getValues();
+                var _formRecord = functionParamsItemForm.getRecord();
+
+                var gridRecordIndex = functionParamsGridStore.findExact('id', _formRecord.get('id'));
+                var gridRecord = functionParamsGridStore.getAt(gridRecordIndex);
+
+                var updatedRecord = functionParams.getForm().getRecord();
+                functionParamsGridStore.loadData(updatedRecord.get('params'));
+
+                functionParamsGrid.getSelectionModel().deselectAll();
+                var newRecordToSelectIndex = functionParamsGridStore.findExact('id', gridRecord.get('id'));
+                if(newRecordToSelectIndex >= 0) {
+                    var newRecordToSelect = functionParamsGridStore.getAt(newRecordToSelectIndex);
+                    functionParamsGrid.getSelectionModel().select(newRecordToSelect);
+                }
+
+                functionParamsOrderDirty = false;
+
+                Ext.MessageBox.alert('Cохранение данных', "Данные успешно сохранены.");
+            },
+            functionParamsItemForm = undefined,
             functionParams = Ext.create('App.form.Panel' , {
                 trackResetOnLoad: true,
                 border: false,
@@ -592,6 +676,32 @@ Ext.define('App.class.view.FunctionsContainer', {
                     border: false
                 },
                 hidden: true,
+                listeners: {
+                    'beforesave': function() {
+                        var m = this.getForm().getRecord();
+
+                        var formValues = functionParamsItemForm.getValues();
+                        formValues['id'] = functionParamsItemForm.getRecord().get('id');
+
+                        if(formValues['id']) {
+                            var index = functionParamsGridStore.findExact('id', formValues['id']),
+                                record = functionParamsGridStore.getAt(index);
+                            for(var i in formValues) {
+                                if(formValues.hasOwnProperty(i)) {
+                                    record[i].set(formValues[i]);
+                                }
+                            }
+                        } else {
+                            var newRecord = new modelParamsItem(formValues);
+                            functionParamsGridStore.add(newRecord);
+                        }
+
+                        var _params = getGridData(functionParamsGridStore);
+                        m.set('id', me.model.get('id'));
+                        m.set('params', _params);
+                    },
+                    'save': onFunctionParamsSave
+                },
                 items: [
                     {
                         xtype: 'panel',
@@ -615,6 +725,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                         items: [
                             {
                                 xtype: 'form',
+                                trackResetOnLoad: true,
                                 border: false,
                                 defaults: {
                                     anchor: '100%',
@@ -628,9 +739,9 @@ Ext.define('App.class.view.FunctionsContainer', {
                 ]
             }),
             functionReturnCreate = function() {
-                me.modelReturn = new modelParam();
-                functionReturn.getForm().loadRecord(me.modelReturn);
-                functionReturn.getForm().clearInvalid();
+                me.modelReturn = new modelParamsItem();
+                functionReturnItemForm.loadRecord(me.modelReturn);
+                functionReturnItemForm.clearInvalid();
                 functionReturnGrid.getSelectionModel().deselectAll();
                 functionReturn.show();
                 functionReturnShowForm(me.modelReturn);
@@ -646,10 +757,10 @@ Ext.define('App.class.view.FunctionsContainer', {
                     var records = functionReturnGrid.getSelectionModel().getSelection(),
                         record = records && records[0];
                     if(!record) { return; }
-                    me.modelReturn = new modelParam();
+                    me.modelReturn = new modelParamsItem();
                     functionReturnGridStore.remove(record);
-                    functionReturn.getForm().loadRecord(me.modelReturn);
-                    functionReturn.getForm().clearInvalid();
+                    functionReturnItemForm.loadRecord(me.modelReturn);
+                    functionReturnItemForm.clearInvalid();
                     functionReturnShowForm();
                 });
             },
@@ -661,7 +772,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                 handler: functionReturnRemove
             }),
             functionReturnGridStore = Ext.create('Ext.data.Store', {
-                model: modelParam,
+                model: modelParamsItem,
                 _index: 'classes'
             }),
             functionReturnShowForm = function(state) {
@@ -672,6 +783,13 @@ Ext.define('App.class.view.FunctionsContainer', {
                 }
             },
             functionReturnOrderDirty = false,
+            functionReturnItemForm = undefined,
+            isDirtyFunctionReturn = function() {
+                return isFormDirty(functionReturnItemForm, ['type', 'name', 'info', 'isArray', 'required', 'qty']);
+            },
+            saveFunctionReturnIfDirty = function(clb) {
+                return functionReturn.saveIfDirty(clb, isDirtyFunctionReturn);
+            },
             functionReturnGrid = Ext.create('Ext.grid.Panel', {
                 multiSelect: false,
                 hideHeaders: true,
@@ -695,18 +813,17 @@ Ext.define('App.class.view.FunctionsContainer', {
                 margins          : '0 2 0 0',
                 listeners: {
                     beforeselect: function(rowModel, record, rowIndex) {
-                        saveIfDirty(function(ok, m) {
+                        saveFunctionReturnIfDirty(function(ok, m) {
                             if(!ok) {
                                 return;
                             }
                             me.modelReturn = m;
-                            clearDirtyData();
                             functionReturnGrid.getSelectionModel().select(record);
                         });
-                        return !isDirty();
+                        return !isDirtyFunctionReturn();
                     },
                     selectionchange: function(rowModel, record) {
-                        updateForm(functionReturn.getForm(), record && record[0]);
+                        updateForm(functionReturnItemForm, record && record[0]);
                         me.modelReturn = record && record[0] || me.modelReturn;
                         functionReturnShowForm(me.modelReturn);
                         if(record && record[0]) {
@@ -725,11 +842,34 @@ Ext.define('App.class.view.FunctionsContainer', {
                 displayField: 'type',
                 valueField: 'type'
             }),
+            onFunctionReturnSave = function() {
+                var _values = functionReturnItemForm.getValues();
+                var _formRecord = functionReturnItemForm.getRecord();
+
+                var gridRecordIndex = functionReturnGridStore.findExact('id', _formRecord.get('id'));
+                var gridRecord = functionReturnGridStore.getAt(gridRecordIndex);
+
+                var updatedRecord = functionReturn.getForm().getRecord();
+                functionReturnGridStore.loadData(updatedRecord.get('return'));
+
+                functionReturnGrid.getSelectionModel().deselectAll();
+                if(gridRecord) {
+                    var newRecordToSelectIndex = functionReturnGridStore.findExact('id', gridRecord.get('id'));
+                    if(newRecordToSelectIndex >= 0) {
+                        var newRecordToSelect = functionReturnGridStore.getAt(newRecordToSelectIndex);
+                        functionReturnGrid.getSelectionModel().select(newRecordToSelect);
+                    }
+                }
+
+                functionReturnOrderDirty = false;
+
+                Ext.MessageBox.alert('Cохранение данных', "Данные успешно сохранены.");
+            },
             functionReturnSaveBt = Ext.create('Ext.Button', {
                 anchor: false,
                 text: 'Сохранить',
                 handler: function() {
-                    functionList.save();
+                    functionReturn.save();
                 }
             }),
             functionReturn = Ext.create('App.form.Panel' , {
@@ -740,6 +880,32 @@ Ext.define('App.class.view.FunctionsContainer', {
                     border: false
                 },
                 hidden: true,
+                listeners: {
+                    'beforesave': function() {
+                        var m = this.getForm().getRecord();
+
+                        var formValues = functionReturnItemForm.getValues();
+                        formValues['id'] = functionReturnItemForm.getRecord().get('id');
+
+                        if(formValues['id']) {
+                            var index = functionReturnGridStore.findExact('id', formValues['id']),
+                                record = functionReturnGridStore.getAt(index);
+                            for(var i in formValues) {
+                                if(formValues.hasOwnProperty(i)) {
+                                    record[i].set(formValues[i]);
+                                }
+                            }
+                        } else {
+                            var newRecord = new modelParamsItem(formValues);
+                            functionReturnGridStore.add(newRecord);
+                        }
+
+                        var _return = getGridData(functionReturnGridStore);
+                        m.set('id', me.model.get('id'));
+                        m.set('params', _return);
+                    },
+                    'save': onFunctionReturnSave
+                },
                 items: [
                     {
                         xtype: 'panel',
@@ -763,6 +929,7 @@ Ext.define('App.class.view.FunctionsContainer', {
                         items: [
                             {
                                 xtype: 'form',
+                                trackResetOnLoad: true,
                                 border: false,
                                 defaults: {
                                     anchor: '100%',
