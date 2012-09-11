@@ -381,14 +381,12 @@ Ext.define('App.class.view.Panel', {
                 },                
                 listeners: {
                     'beforeselect': function(c, m){
-                        var form = this.up('form');                   
-                        return saveIfDirty(function(ok){
+                        var form = this.up('form');  
+                        if(!me.model.getId()) selectField(form, m);
+                        else return saveIfDirty(function(ok){
                             if(!ok) return;
                             c.view.getSelectionModel().select(m);
-                            fieldtypevalues.loadData(m.get('FieldTypeValues') );
-                            form.getForm().loadRecord(m);
-                            
-                            form.updateViewFromModel();                            
+                            selectField(form, m);                          
                         });
                     },
                     'deselect': function(c, m){
@@ -740,11 +738,17 @@ Ext.define('App.class.view.Panel', {
             }                            
         );
         
+        function selectField(form, m){
+            
+            fieldtypevalues.loadData(m.get('FieldTypeValues') );
+            form.getForm().loadRecord(m);
+                            
+            form.updateViewFromModel();      
+        }        
         function addField(){
             fieldForm.show();
             tabpanel.getActiveTab().down('form').setNewModel();        
         }
-        
         function saveIfDirty(clb){
             if( tabpanel.isHidden() ) {
                 clb(true);
