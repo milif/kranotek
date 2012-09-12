@@ -81,15 +81,15 @@ Ext.define('App.class.view.FunctionsContainer', {
                 return functionList.saveIfDirty(clb, fn || isDirty);
             },
             clearDirtyData = function() {
-                me.modelParams && functionParamsItemForm.loadRecord(me.modelParams);
-                me.modelReturn && functionReturnItemForm.loadRecord(me.modelReturn);
+                paramsPanel.model && paramsPanel.itemForm.loadRecord(paramsPanel.model);
+                returnPanel.model && returnPanel.itemForm.loadRecord(returnPanel.model);
             },
             isDirty = function() {
-                if(functionParamsOrderDirty ||
-                    functionReturnOrderDirty ||
+                if(paramsPanel.orderDirty ||
+                    returnPanel.orderDirty ||
                     isFormDirty(functionList.getForm(), ['type', 'name', 'info']) ||
-                    isFormDirty(functionParamsItemForm, ['type', 'name', 'info', 'isArray', 'required', 'qty']) ||
-                    isFormDirty(functionReturnItemForm, ['type', 'name', 'info', 'isArray', 'required', 'qty'])
+                    isFormDirty(paramsPanel.itemForm, ['type', 'name', 'info', 'isArray', 'required', 'qty']) ||
+                    isFormDirty(returnPanel.itemForm, ['type', 'name', 'info', 'isArray', 'required', 'qty'])
                 ) {
                     return true;
                 }
@@ -244,21 +244,21 @@ Ext.define('App.class.view.FunctionsContainer', {
             },
             functionListCreate = function() {
                 me.model = new model();
-                me.modelParams = new modelParamsItem();
-                me.modelReturn = new modelParamsItem();
+                paramsPanel.model = new modelParamsItem();
+                returnPanel.model = new modelParamsItem();
                 functionList.getForm().loadRecord(me.model);
                 functionList.getForm().clearInvalid();
                 functionListGrid.getSelectionModel().deselectAll();
                 functionList.child('form').show();
 
-                functionParamsGridStore.removeAll();
-                functionReturnGridStore.removeAll();
-                functionParams.getForm().loadRecord(new modelParam());
-                functionReturn.getForm().loadRecord(new modelReturn());
-                functionParamsShowForm(false);
-                functionReturnShowForm(false);
-                functionParams.hide();
-                functionReturn.hide();
+                paramsPanel.gridStore.removeAll();
+                returnPanel.gridStore.removeAll();
+                paramsPanel.panel.getForm().loadRecord(new modelParam());
+                returnPanel.panel.getForm().loadRecord(new modelReturn());
+                paramsPanel.showForm(false);
+                returnPanel.showForm(false);
+                paramsPanel.panel.hide();
+                returnPanel.panel.hide();
             },
             functionListAddButton = new Ext.button.Button({
                 iconCls: 'app-icon-add',
@@ -267,17 +267,17 @@ Ext.define('App.class.view.FunctionsContainer', {
             }),
             functionListOnChange = function(_record) {
                 updateForm(functionList.getForm(), _record);
-                functionParams.getForm().loadRecord(new modelParam());
-                functionReturn.getForm().loadRecord(new modelReturn());
-                functionParamsGrid.getSelectionModel().deselectAll();
-                functionReturnGrid.getSelectionModel().deselectAll();
-                functionParamsGridStore.loadData(_record.get('params'));
-                functionReturnGridStore.loadData(_record.get('return'));
+                paramsPanel.panel.getForm().loadRecord(new modelParam());
+                returnPanel.panel.getForm().loadRecord(new modelReturn());
+                paramsPanel.grid.getSelectionModel().deselectAll();
+                returnPanel.grid.getSelectionModel().deselectAll();
+                paramsPanel.gridStore.loadData(_record.get('params'));
+                returnPanel.gridStore.loadData(_record.get('return'));
                 functionList.child('form').show();
-                functionParamsShowForm(false);
-                functionReturnShowForm(false);
-                functionParams.show();
-                functionReturn.show();
+                paramsPanel.showForm(false);
+                returnPanel.showForm(false);
+                paramsPanel.panel.show();
+                returnPanel.panel.show();
             },
             functionListGrid = Ext.create('Ext.grid.Panel', {
                 multiSelect: false,
@@ -308,8 +308,8 @@ Ext.define('App.class.view.FunctionsContainer', {
                             functionListRemoveButton.enable();
                         } else {
                             functionList.child('form').hide();
-                            functionParams.hide();
-                            functionReturn.hide();
+                            paramsPanel.panel.hide();
+                            returnPanel.panel.hide();
                             functionListRemoveButton.disable();
                         }
                     }
@@ -344,18 +344,18 @@ Ext.define('App.class.view.FunctionsContainer', {
                 functionList.getForm().loadRecord(me.model);
                 functionList.getForm().clearInvalid();
 
-                functionParams.getForm().loadRecord(new modelParam());
-                functionParams.getForm().clearInvalid();
+                paramsPanel.panel.getForm().loadRecord(new modelParam());
+                paramsPanel.panel.getForm().clearInvalid();
 
-                functionReturn.getForm().loadRecord(new modelReturn());
-                functionReturn.getForm().clearInvalid();
+                returnPanel.panel.getForm().loadRecord(new modelReturn());
+                returnPanel.panel.getForm().clearInvalid();
 
                 functionsStore.load();
                 functionListGrid.getSelectionModel().deselectAll();
             },
             functionListLoad = function() {
-                functionParamsItemForm = functionParams.child('[ref="formPanel"]').child().getForm();
-                functionReturnItemForm = functionReturn.child('[ref="formPanel"]').child().getForm();
+                paramsPanel.itemForm = paramsPanel.panel.child('[ref="formPanel"]').child().getForm();
+                returnPanel.itemForm = returnPanel.panel.child('[ref="formPanel"]').child().getForm();
                 saveIfDirty(doFullReload);
             },
             functionListRemove = function() {
@@ -392,8 +392,8 @@ Ext.define('App.class.view.FunctionsContainer', {
                 if(!isfunctionListSaveFormOnly) {
                     sm.select(m);
                     functionListOnChange(me.model);
-                    functionParamsOrderDirty = false;
-                    functionReturnOrderDirty = false;
+                    paramsPanel.orderDirty = false;
+                    returnPanel.orderDirty = false;
                 }
                 functionListGrid.getView().refresh();
 
@@ -408,9 +408,9 @@ Ext.define('App.class.view.FunctionsContainer', {
                     'beforesave': function() {
                         var m = this.getForm().getRecord();
                         if(!isfunctionListSaveFormOnly) {
-                            var _params = getGridData(functionParamsGridStore);
+                            var _params = getGridData(paramsPanel.gridStore);
                             m.set('params', _params);
-                            var _return = getGridData(functionReturnGridStore);
+                            var _return = getGridData(returnPanel.gridStore);
                             m.set('return', _return);
                         }
                         me.model = m;
@@ -470,492 +470,296 @@ Ext.define('App.class.view.FunctionsContainer', {
                 ]
             }),
 
-            functionParamsCreate = function() {
-                me.modelParams = new modelParamsItem();
-                functionParamsItemForm.loadRecord(me.modelParams);
-                functionParamsItemForm.clearInvalid();
-                functionParamsGrid.getSelectionModel().deselectAll();
-                functionParams.show();
-                functionParamsShowForm(me.modelParams);
-            },
-            functionParamsAddButton = new Ext.button.Button({
-                iconCls: 'app-icon-add',
-                tooltip: 'Добавить',
-                handler: functionParamsCreate
-            }),
-            functionParamsRemove = function() {
-                Ext.MessageBox.confirm('Подвердите удаление', 'Вы действительно хотите удалить параметр?', function(btn){
-                    if(btn!='yes') return;
-                    var records = functionParamsGrid.getSelectionModel().getSelection(),
-                        record = records && records[0];
-                    if(!record) { return; }
-                    me.modelParams = new modelParamsItem();
-                    functionParamsGridStore.remove(record);
-                    functionParams.save();
-                    functionParamsItemForm.loadRecord(me.modelParams);
-                    functionParamsItemForm.clearInvalid();
-                    functionParamsShowForm();
+            columnPanel = function(options) {
+                var that = this;
+                var type = options.type;
+
+                this.create = function() {
+                    that.model = new modelParamsItem();
+                    that.itemForm.loadRecord(that.model);
+                    that.itemForm.clearInvalid();
+                    that.grid.getSelectionModel().deselectAll();
+                    that.panel.show();
+                    that.showForm(that.model);
+                };
+                this.addButton = new Ext.button.Button({
+                    iconCls: 'app-icon-add',
+                    tooltip: 'Добавить',
+                    handler: this.create
                 });
-            },
-            functionParamsRemoveButton = new Ext.button.Button({
-                disabled: true,
-                margin: '0 0 0 5',
-                iconCls: 'app-icon-remove',
-                tooltip: 'Удалить',
-                handler: functionParamsRemove
-            }),
-            functionParamsGridStore = Ext.create('Ext.data.Store', {
-                model: modelParamsItem,
-                _index: 'classes'
-            }),
-            functionParamsShowForm = function(state) {
-                var items = functionParams.query('[ref="formPanel"]'),
-                    formPanel = items && items[0];
-                if(formPanel) {
-                    (state) ? formPanel.show() : formPanel.hide();
-                }
-            },
-            functionParamsOrderDirty = false,
-            isDirtyFunctionParams = function() {
-                return isFormDirty(functionParamsItemForm, ['type', 'name', 'info', 'isArray', 'required', 'qty']);
-            },
-            saveFunctionParamsIfDirty = function(clb) {
-                return functionParams.saveIfDirty(clb, isDirtyFunctionParams);
-            },
-            functionParamsGrid = Ext.create('Ext.grid.Panel', {
-                multiSelect: false,
-                hideHeaders: true,
-                height: 100,
-                flex: 1,
-                viewConfig: {
-                    plugins: {
-                        ptype: 'gridviewdragdrop',
-                        dragGroup: 'functionParamsGridDDGroup',
-                        dropGroup: 'functionParamsGridDDGroup'
-                    },
-                    listeners: {
-                        drop: function(node, data, dropRec, dropPosition) {
-                            functionParamsOrderDirty = true;
-                        }
+                this.remove = function() {
+                    Ext.MessageBox.confirm('Подвердите удаление', 'Вы действительно хотите удалить параметр?', function(btn){
+                        if(btn!='yes') return;
+                        var records = that.grid.getSelectionModel().getSelection(),
+                            record = records && records[0];
+                        if(!record) { return; }
+                        that.model = new modelParamsItem();
+                        that.gridStore.remove(record);
+                        that.panel.save();
+                        that.itemForm.loadRecord(that.model);
+                        that.itemForm.clearInvalid();
+                        that.showForm();
+                    });
+                };
+                this.removeButton = new Ext.button.Button({
+                    disabled: true,
+                    margin: '0 0 0 5',
+                    iconCls: 'app-icon-remove',
+                    tooltip: 'Удалить',
+                    handler: this.remove
+                });
+                this.gridStore = Ext.create('Ext.data.Store', {
+                    model: modelParamsItem,
+                    _index: 'classes'
+                });
+                this.showForm = function(state) {
+                    var items = that.panel.query('[ref="formPanel"]'),
+                        formPanel = items && items[0];
+                    if(formPanel) {
+                        (state) ? formPanel.show() : formPanel.hide();
                     }
-                },
-                store            : functionParamsGridStore,
-                columns          : [{ flex: 1, sortable: true, dataIndex: 'name'}],
-                stripeRows       : true,
-                margins          : '0 2 0 0',
-                listeners: {
-                    beforeselect: function(rowModel, record, rowIndex) {
-                        saveFunctionParamsIfDirty(function(ok, m) {
-                            if(!ok) {
-                                return;
+                };
+                this.orderDirty = false,
+                this.itemForm = undefined,
+                this.isDirty = function() {
+                    return isFormDirty(that.itemForm, ['type', 'name', 'info', 'isArray', 'required', 'qty']);
+                };
+                this.saveIfDirty = function(clb) {
+                    return that.panel.saveIfDirty(clb, that.isDirty);
+                };
+                this.grid = Ext.create('Ext.grid.Panel', {
+                    multiSelect: false,
+                    hideHeaders: true,
+                    height: 100,
+                    flex: 1,
+                    viewConfig: {
+                        plugins: {
+                            ptype: 'gridviewdragdrop',
+                            dragGroup: 'GridDDGroup'+type,
+                            dropGroup: 'GridDDGroup'+type
+                        },
+                        listeners: {
+                            drop: function(node, data, dropRec, dropPosition) {
+                                that.orderDirty = true;
                             }
-                            me.modelParams = m;
-                            functionParamsGrid.getSelectionModel().select(record);
-                        });
-                        return !isDirtyFunctionParams();
+                        }
                     },
-                    selectionchange: function(rowModel, record) {
-                        updateForm(functionParamsItemForm, record && record[0]);
-                        me.modelParams = record && record[0] || me.modelParams;
-                        functionParamsShowForm(me.modelParams);
-                        if(record && record[0]) {
-                            functionParamsRemoveButton.enable();
-                        } else {
-                            functionParamsRemoveButton.disable();
+                    store            : that.gridStore,
+                    columns          : [{ flex: 1, sortable: true, dataIndex: 'name'}],
+                    stripeRows       : true,
+                    margins          : '0 2 0 0',
+                    listeners: {
+                        beforeselect: function(rowModel, record, rowIndex) {
+                            that.saveIfDirty(function(ok, m) {
+                                if(!ok) {
+                                    return;
+                                }
+                                that.model = m;
+                                that.grid.getSelectionModel().select(record);
+                            });
+                            return !that.isDirty();
+                        },
+                        selectionchange: function(rowModel, record) {
+                            updateForm(that.itemForm, record && record[0]);
+                            that.model = record && record[0] || that.model;
+                            that.showForm(that.model);
+                            if(record && record[0]) {
+                                that.removeButton.enable();
+                            } else {
+                                that.removeButton.disable();
+                            }
                         }
                     }
-                }
-            }),
-            functionParamsTypeCombo = Ext.create('widget.combo', {
-                emptyText: '',
-                forceSelection: true,
-                store: functionListTypeStore,
-                name: 'type',
-                displayField: 'type',
-                valueField: 'type'
-            }),
-            functionParamsSaveBt = Ext.create('Ext.Button', {
-                anchor: false,
-                text: 'Сохранить',
-                handler: function() {
-                    functionParams.save();
-                }
-            }),
-            isRequiredCheckbox = {
-                xtype: 'checkboxfield',
-                name: 'required',
-                boxLabel: 'Обязательное',
-                inputValue: true,
-                uncheckedValue: false,
-                listeners: {
-                    change: function() {}
-                }
-            },
-            isArrayCheckbox = {
-                xtype: 'checkboxfield',
-                name: 'isArray',
-                boxLabel: 'Массив',
-                inputValue: true,
-                uncheckedValue: false,
-                flex: 1,
-                listeners: {
-                    change: function() {}
-                }
-            },
-            nameField = {
-                xtype: 'textfield',
-                allowBlank: false,
-                name: 'name'
-            },
-            arrayLenghtField = {
-                xtype: 'numberfield',
-                hideTrigger: true,
-                decimalPrecision: 0,
-                width: 60,
-                name: 'qty'
-            },
-            getParamsForm = function(type) {
-                return [
-                    {
-                        layout: 'hbox',
-                        padding: '0 0 3px 0',
-                        items: [
-                            {
-                                html: 'Название',
-                                style: 'padding: 6px 0 0 0; font-weight: bold',
-                                border: false,
-                                flex: 1
-                            },
-                            isRequiredCheckbox
-                        ]
-                    },
-                    nameField,
-                    {
-                        html: 'Тип данных',
-                        style: 'padding: 0 0 3px 0; font-weight: bold'
-                    },
-                    (type == 'params') ? functionParamsTypeCombo : functionReturnTypeCombo,
-                    {
-                        layout: 'hbox',
-                        padding: '10px 0',
-                        items: [
-                            isArrayCheckbox,
-                            arrayLenghtField
-                        ]
-                    },
-                    {
-                        html: 'Описание',
-                        style: 'padding: 0 0 3px 0; font-weight: bold'
-                    },
-                    {
-                        xtype: 'textareafield',
-                        name: 'info'
+                });
+                this.typeCombo = Ext.create('widget.combo', {
+                    emptyText: '',
+                    forceSelection: true,
+                    store: functionListTypeStore,
+                    name: 'type',
+                    displayField: 'type',
+                    valueField: 'type'
+                });
+                this.isRequiredCheckbox = {
+                    xtype: 'checkboxfield',
+                    name: 'required',
+                    boxLabel: 'Обязательное',
+                    inputValue: true,
+                    uncheckedValue: false,
+                    listeners: {
+                        change: function() {}
                     }
-                ];
-            },
-            onFunctionParamsSave = function() {
-                var _values = functionParamsItemForm.getValues();
-                var _formRecord = functionParamsItemForm.getRecord();
-
-                var gridRecordIndex = functionParamsGridStore.findExact('id', _formRecord.get('id'));
-                var gridRecord = functionParamsGridStore.getAt(gridRecordIndex);
-
-                var updatedRecord = functionParams.getForm().getRecord();
-                functionParamsGridStore.loadData(updatedRecord.get('params'));
-
-                if(gridRecord) {
-                    functionParamsGrid.getSelectionModel().deselectAll();
-                    var newRecordToSelectIndex = functionParamsGridStore.findExact('id', gridRecord.get('id'));
-                    if(newRecordToSelectIndex >= 0) {
-                        var newRecordToSelect = functionParamsGridStore.getAt(newRecordToSelectIndex);
-                        functionParamsGrid.getSelectionModel().select(newRecordToSelect);
+                };
+                this.isArrayCheckbox = {
+                    xtype: 'checkboxfield',
+                    name: 'isArray',
+                    boxLabel: 'Массив',
+                    inputValue: true,
+                    uncheckedValue: false,
+                    flex: 1,
+                    listeners: {
+                        change: function() {}
                     }
-                }
-
-                functionParamsOrderDirty = false;
-
-                Ext.MessageBox.alert('Cохранение данных', "Данные успешно сохранены.");
-            },
-            functionParamsItemForm = undefined,
-            functionParams = Ext.create('App.form.Panel' , {
-                trackResetOnLoad: true,
-                border: false,
-                defaults: {
-                    anchor: '100%',
-                    border: false
+                };
+                this.nameField = {
+                    xtype: 'textfield',
+                    allowBlank: false,
+                    name: 'name'
+                };
+                this.arrayLenghtField = {
+                    xtype: 'numberfield',
+                    hideTrigger: true,
+                    decimalPrecision: 0,
+                    width: 60,
+                    name: 'qty'
+                };
+                this.getForm = function() {
+                    return [
+                        {
+                            layout: 'hbox',
+                            padding: '0 0 3px 0',
+                            items: [
+                                {
+                                    html: 'Название',
+                                    style: 'padding: 6px 0 0 0; font-weight: bold',
+                                    border: false,
+                                    flex: 1
+                                },
+                                that.isRequiredCheckbox
+                            ]
+                        },
+                        that.nameField,
+                        {
+                            html: 'Тип данных',
+                            style: 'padding: 0 0 3px 0; font-weight: bold'
+                        },
+                        that.typeCombo,
+                        {
+                            layout: 'hbox',
+                            padding: '10px 0',
+                            items: [
+                                that.isArrayCheckbox,
+                                that.arrayLenghtField
+                            ]
+                        },
+                        {
+                            html: 'Описание',
+                            style: 'padding: 0 0 3px 0; font-weight: bold'
+                        },
+                        {
+                            xtype: 'textareafield',
+                            name: 'info'
+                        }
+                    ];
                 },
-                hidden: true,
-                listeners: {
-                    'beforesave': function() {
-                        var m = this.getForm().getRecord();
+                this.onSave = function() {
+                    var _values = that.itemForm.getValues();
+                    var _formRecord = that.itemForm.getRecord();
 
-                        var formValues = functionParamsItemForm.getValues();
-                        formValues['id'] = functionParamsItemForm.getRecord().get('id');
+                    var gridRecordIndex = that.gridStore.findExact('id', _formRecord.get('id'));
+                    var gridRecord = that.gridStore.getAt(gridRecordIndex);
 
-                        if(formValues['id']) {
-                            var index = functionParamsGridStore.findExact('id', formValues['id']),
-                                record = functionParamsGridStore.getAt(index);
-                            if(record) {
-                                for(var i in formValues) {
-                                    if(formValues.hasOwnProperty(i)) {
-                                        record.set(i, formValues[i]);
+                    var updatedRecord = that.panel.getForm().getRecord();
+                    that.gridStore.loadData(updatedRecord.get(type));
+
+                    that.grid.getSelectionModel().deselectAll();
+                    if(gridRecord) {
+                        var newRecordToSelectIndex = that.gridStore.findExact('id', gridRecord.get('id'));
+                        if(newRecordToSelectIndex >= 0) {
+                            var newRecordToSelect = that.gridStore.getAt(newRecordToSelectIndex);
+                            that.grid.getSelectionModel().select(newRecordToSelect);
+                        }
+                    }
+
+                    that.orderDirty = false;
+
+                    Ext.MessageBox.alert('Cохранение данных', "Данные успешно сохранены.");
+                };
+                this.saveBt = Ext.create('Ext.Button', {
+                    anchor: false,
+                    text: 'Сохранить',
+                    handler: function() {
+                        that.panel.save();
+                    }
+                });
+                this.panel = Ext.create('App.form.Panel' , {
+                    trackResetOnLoad: true,
+                    border: false,
+                    defaults: {
+                        anchor: '100%',
+                        border: false
+                    },
+                    hidden: true,
+                    listeners: {
+                        'beforesave': function() {
+                            var m = this.getForm().getRecord();
+
+                            var formValues = that.itemForm.getValues();
+                            formValues['id'] = that.itemForm.getRecord().get('id');
+
+                            if(formValues['id']) {
+                                var index = that.gridStore.findExact('id', formValues['id']),
+                                    record = that.gridStore.getAt(index);
+                                if(record) {
+                                    for(var i in formValues) {
+                                        if(formValues.hasOwnProperty(i)) {
+                                            record.set(i, formValues[i]);
+                                        }
                                     }
                                 }
+                            } else {
+                                var newRecord = new modelParamsItem(formValues);
+                                that.gridStore.add(newRecord);
                             }
-                        } else {
-                            var newRecord = new modelParamsItem(formValues);
-                            functionParamsGridStore.add(newRecord);
-                        }
 
-                        var _params = getGridData(functionParamsGridStore);
-                        m.set('id', me.model.get('id'));
-                        m.set('params', _params);
+                            var _return = getGridData(that.gridStore);
+                            m.set('id', me.model.get('id'));
+                            m.set(type, _return);
+                        },
+                        'save': that.onSave
                     },
-                    'save': onFunctionParamsSave
-                },
-                items: [
-                    {
-                        xtype: 'panel',
-                        border: false,
-                        layout: 'hbox',
-                        items: [
-                            {
-                                flex: 1,
-                                border: false,
-                                style: 'padding-top:4px; font-weight: bold',
-                                html: 'Получает'
-                            },
-                            functionParamsAddButton,
-                            functionParamsRemoveButton
-                        ]
-                    },
-                    getGridLayout(functionParamsGrid),
-                    {
-                        ref: 'formPanel',
-                        hidden: true,
-                        items: [
-                            {
-                                xtype: 'form',
-                                trackResetOnLoad: true,
-                                border: false,
-                                defaults: {
-                                    anchor: '100%',
-                                    border: false
+                    items: [
+                        {
+                            xtype: 'panel',
+                            border: false,
+                            layout: 'hbox',
+                            items: [
+                                {
+                                    flex: 1,
+                                    border: false,
+                                    style: 'padding-top:4px; font-weight: bold',
+                                    html: (type == 'params') ? 'Принимает' : 'Возвращяет'
                                 },
-                                items: getParamsForm('params')
-                            },
-                            functionParamsSaveBt
-                        ]
-                    }
-                ]
-            }),
-            functionReturnCreate = function() {
-                me.modelReturn = new modelParamsItem();
-                functionReturnItemForm.loadRecord(me.modelReturn);
-                functionReturnItemForm.clearInvalid();
-                functionReturnGrid.getSelectionModel().deselectAll();
-                functionReturn.show();
-                functionReturnShowForm(me.modelReturn);
-            },
-            functionReturnAddButton = new Ext.button.Button({
-                iconCls: 'app-icon-add',
-                tooltip: 'Добавить',
-                handler: functionReturnCreate
-            }),
-            functionReturnRemove = function() {
-                Ext.MessageBox.confirm('Подвердите удаление', 'Вы действительно хотите удалить параметр?', function(btn){
-                    if(btn!='yes') return;
-                    var records = functionReturnGrid.getSelectionModel().getSelection(),
-                        record = records && records[0];
-                    if(!record) { return; }
-                    me.modelReturn = new modelParamsItem();
-                    functionReturnGridStore.remove(record);
-                    functionReturn.save();
-                    functionReturnItemForm.loadRecord(me.modelReturn);
-                    functionReturnItemForm.clearInvalid();
-                    functionReturnShowForm();
+                                that.addButton,
+                                that.removeButton
+                            ]
+                        },
+                        getGridLayout(that.grid),
+                        {
+                            ref: 'formPanel',
+                            hidden: true,
+                            items: [
+                                {
+                                    xtype: 'form',
+                                    trackResetOnLoad: true,
+                                    border: false,
+                                    defaults: {
+                                        anchor: '100%',
+                                        border: false
+                                    },
+                                    items: that.getForm()
+                                },
+                                that.saveBt
+                            ]
+                        }
+                    ]
                 });
+
+
+                return this;
             },
-            functionReturnRemoveButton = new Ext.button.Button({
-                disabled: true,
-                margin: '0 0 0 5',
-                iconCls: 'app-icon-remove',
-                tooltip: 'Удалить',
-                handler: functionReturnRemove
-            }),
-            functionReturnGridStore = Ext.create('Ext.data.Store', {
-                model: modelParamsItem,
-                _index: 'classes'
-            }),
-            functionReturnShowForm = function(state) {
-                var items = functionReturn.query('[ref="formPanel"]'),
-                    formPanel = items && items[0];
-                if(formPanel) {
-                    (state) ? formPanel.show() : formPanel.hide();
-                }
-            },
-            functionReturnOrderDirty = false,
-            functionReturnItemForm = undefined,
-            isDirtyFunctionReturn = function() {
-                return isFormDirty(functionReturnItemForm, ['type', 'name', 'info', 'isArray', 'required', 'qty']);
-            },
-            saveFunctionReturnIfDirty = function(clb) {
-                return functionReturn.saveIfDirty(clb, isDirtyFunctionReturn);
-            },
-            functionReturnGrid = Ext.create('Ext.grid.Panel', {
-                multiSelect: false,
-                hideHeaders: true,
-                height: 100,
-                flex: 1,
-                viewConfig: {
-                    plugins: {
-                        ptype: 'gridviewdragdrop',
-                        dragGroup: 'functionReturnGridDDGroup',
-                        dropGroup: 'functionReturnGridDDGroup'
-                    },
-                    listeners: {
-                        drop: function(node, data, dropRec, dropPosition) {
-                            functionReturnOrderDirty = true;
-                        }
-                    }
-                },
-                store            : functionReturnGridStore,
-                columns          : [{ flex: 1, sortable: true, dataIndex: 'name'}],
-                stripeRows       : true,
-                margins          : '0 2 0 0',
-                listeners: {
-                    beforeselect: function(rowModel, record, rowIndex) {
-                        saveFunctionReturnIfDirty(function(ok, m) {
-                            if(!ok) {
-                                return;
-                            }
-                            me.modelReturn = m;
-                            functionReturnGrid.getSelectionModel().select(record);
-                        });
-                        return !isDirtyFunctionReturn();
-                    },
-                    selectionchange: function(rowModel, record) {
-                        updateForm(functionReturnItemForm, record && record[0]);
-                        me.modelReturn = record && record[0] || me.modelReturn;
-                        functionReturnShowForm(me.modelReturn);
-                        if(record && record[0]) {
-                            functionReturnRemoveButton.enable();
-                        } else {
-                            functionReturnRemoveButton.disable();
-                        }
-                    }
-                }
-            }),
-            functionReturnTypeCombo = Ext.create('widget.combo', {
-                emptyText: '',
-                forceSelection: true,
-                store: functionListTypeStore,
-                name: 'type',
-                displayField: 'type',
-                valueField: 'type'
-            }),
-            onFunctionReturnSave = function() {
-                var _values = functionReturnItemForm.getValues();
-                var _formRecord = functionReturnItemForm.getRecord();
+            paramsPanel = new columnPanel({type:'params'}),
+            returnPanel = new columnPanel({type:'return'});
 
-                var gridRecordIndex = functionReturnGridStore.findExact('id', _formRecord.get('id'));
-                var gridRecord = functionReturnGridStore.getAt(gridRecordIndex);
-
-                var updatedRecord = functionReturn.getForm().getRecord();
-                functionReturnGridStore.loadData(updatedRecord.get('return'));
-
-                functionReturnGrid.getSelectionModel().deselectAll();
-                if(gridRecord) {
-                    var newRecordToSelectIndex = functionReturnGridStore.findExact('id', gridRecord.get('id'));
-                    if(newRecordToSelectIndex >= 0) {
-                        var newRecordToSelect = functionReturnGridStore.getAt(newRecordToSelectIndex);
-                        functionReturnGrid.getSelectionModel().select(newRecordToSelect);
-                    }
-                }
-
-                functionReturnOrderDirty = false;
-
-                Ext.MessageBox.alert('Cохранение данных', "Данные успешно сохранены.");
-            },
-            functionReturnSaveBt = Ext.create('Ext.Button', {
-                anchor: false,
-                text: 'Сохранить',
-                handler: function() {
-                    functionReturn.save();
-                }
-            }),
-            functionReturn = Ext.create('App.form.Panel' , {
-                trackResetOnLoad: true,
-                border: false,
-                defaults: {
-                    anchor: '100%',
-                    border: false
-                },
-                hidden: true,
-                listeners: {
-                    'beforesave': function() {
-                        var m = this.getForm().getRecord();
-
-                        var formValues = functionReturnItemForm.getValues();
-                        formValues['id'] = functionReturnItemForm.getRecord().get('id');
-
-                        if(formValues['id']) {
-                            var index = functionReturnGridStore.findExact('id', formValues['id']),
-                                record = functionReturnGridStore.getAt(index);
-                            if(record) {
-                                for(var i in formValues) {
-                                    if(formValues.hasOwnProperty(i)) {
-                                        record.set(i, formValues[i]);
-                                    }
-                                }
-                            }
-                        } else {
-                            var newRecord = new modelParamsItem(formValues);
-                            functionReturnGridStore.add(newRecord);
-                        }
-
-                        var _return = getGridData(functionReturnGridStore);
-                        m.set('id', me.model.get('id'));
-                        m.set('return', _return);
-                    },
-                    'save': onFunctionReturnSave
-                },
-                items: [
-                    {
-                        xtype: 'panel',
-                        border: false,
-                        layout: 'hbox',
-                        items: [
-                            {
-                                flex: 1,
-                                border: false,
-                                style: 'padding-top:4px; font-weight: bold',
-                                html: 'Возвращяет'
-                            },
-                            functionReturnAddButton,
-                            functionReturnRemoveButton
-                        ]
-                    },
-                    getGridLayout(functionReturnGrid),
-                    {
-                        ref: 'formPanel',
-                        hidden: true,
-                        items: [
-                            {
-                                xtype: 'form',
-                                trackResetOnLoad: true,
-                                border: false,
-                                defaults: {
-                                    anchor: '100%',
-                                    border: false
-                                },
-                                items: getParamsForm('return')
-                            },
-                            functionReturnSaveBt
-                        ]
-                    }
-                ]
-            });
 
         config = Ext.apply({
             border: false,
@@ -971,10 +775,10 @@ Ext.define('App.class.view.FunctionsContainer', {
                 items: [
                     functionList,
                     {
-                        items: functionParams
+                        items: paramsPanel.panel
                     },
                     {
-                        items: functionReturn
+                        items: returnPanel.panel
                     }
                 ]
             },
