@@ -91,13 +91,8 @@
                     },
                     failure: function(a,b,c){
                         var res = b.request.proxy.getReader().rawData;
-                        if(!res || res.msg) Ext.MessageBox.show({
-                            title: 'Ошибка выполнения запроса',
-                            msg: res ? res.msg : 'Ошибка сервера',
-                            icon: Ext.MessageBox.ERROR,
-                            buttons: Ext.Msg.OK
-                        });
-                        if(res) {
+                   
+                        if(res && !b.error) {
                             form.markInvalid(res.errors);
                             form.getRecord().reject();
                         }
@@ -125,13 +120,7 @@
                         if(options.success) options.success.call(this);
                     },
                     failure: function(a,b,c){
-                        var res = b.request.proxy.getReader().rawData;
-                        if(!res || res.msg) Ext.MessageBox.show({
-                            title: 'Ошибка выполнения запроса',
-                            msg: res ? res.msg : 'Ошибка сервера',
-                            icon: Ext.MessageBox.ERROR,
-                            buttons: Ext.Msg.OK
-                        });
+
                     },                    
                     callback: function(){
                         me.setLoading(false);
