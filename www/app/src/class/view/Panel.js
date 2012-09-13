@@ -2,7 +2,8 @@ Ext.define('App.class.view.Panel', {
     extend: 'Ext.panel.Panel',
     requires: [
         'App.class.model.Class',
-        'App.class.model.ClassField'
+        'App.class.model.ClassField',
+        'App.ui.Hint'
     ],
     constructor: function(config){
     
@@ -21,7 +22,12 @@ Ext.define('App.class.view.Panel', {
                     {"id": 6, "value":"Text"},
                     {"id": 7, "value":"Subtype"}
                 ]
-            }),                   
+            }), 
+            hint = new App.ui.Hint({
+                flex: 1,
+                margin: '10 0 0 0',
+                hidden: true
+            }),
             comboBaseStore = model.getStore({
                 listeners: {
                     'update': function(me, model){
@@ -51,6 +57,7 @@ Ext.define('App.class.view.Panel', {
                             comboChildClass.disable();
                             buttonBaseClassRemove.disable();
                             tabpanel.hide();
+                            hint.hide();
                         } else {
                             buttonBaseClassRemove.enable();                        
                         }                        
@@ -219,6 +226,18 @@ Ext.define('App.class.view.Panel', {
                     buttonChildClassRemove                              
                 ]
             }),
+            fieldFieldName = Ext.create('Ext.form.field.Text', {
+                name: 'Name',
+                fieldLabel: 'Имя',
+                afterLabelTextTpl: required,
+                allowBlank: false
+            });
+            fieldClassName = Ext.create('Ext.form.field.Text', {
+                name: 'ClassName',
+                fieldLabel: 'Название',
+                afterLabelTextTpl: required,
+                allowBlank: false  
+            });         
             fieldTypeCellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
                 clicksToEdit: 2
             }),
@@ -296,8 +315,7 @@ Ext.define('App.class.view.Panel', {
                     dock: 'bottom',
                     ui: 'footer',
                     items: [
-                        saveClassButton,
-                        deleteClassButton
+                        saveClassButton
                     ]
                 }],  
                 listeners: {
@@ -305,8 +323,22 @@ Ext.define('App.class.view.Panel', {
                         var m = this.getForm().getRecord(),
                             records,
                             fields = [];   
-                        if(!m.getId()) {
+                        if(!m.getId() && !m.get('baseclass')) {
                             records = gridFields.getStore().getRange();
+                            
+                            if(records.length == 0) {
+                                Ext.MessageBox.show({
+                                    title: 'Не указаны поля',
+                                    msg: 'Необходимо добавить поля класса!',
+                                    fn: function(){
+                                        tabpanel.setActiveTab(1);
+                                    },
+                                    icon: Ext.MessageBox.ERROR,
+                                    buttons: Ext.Msg.OK
+                                });
+                                return false;
+                            }
+                            
                             for(var i=0; i<records.length; i++) {
                                 fields.push(records[i].getData());
                             }
@@ -324,13 +356,7 @@ Ext.define('App.class.view.Panel', {
                     }
                 },                                         
                 items: [
-                    {
-                        xtype: 'textfield',
-                        name: 'ClassName',
-                        fieldLabel: 'Название',
-                        afterLabelTextTpl: required,
-                        allowBlank: false                                                  
-                    },
+                    fieldClassName,
                     {
                         xtype: 'checkboxfield',
                         name: 'System',
@@ -361,19 +387,17 @@ Ext.define('App.class.view.Panel', {
                 },                
                 listeners: {
                     'beforeselect': function(c, m){
-                        var form = this.up('form'),
-                            model = form.getForm().getRecord();                    
-                        return saveIfDirty(function(ok){
+                        var form = this.up('form');  
+                        if(!me.model.getId()) selectField(form, m);
+                        else return saveIfDirty(function(ok){
                             if(!ok) return;
                             c.view.getSelectionModel().select(m);
-                            form.getForm().loadRecord(m);
-                            fieldtypevalues.loadData(m.get('FieldTypeValues') );
-                            form.updateViewFromModel();                            
+                            selectField(form, m);                          
                         });
                     },
                     'deselect': function(c, m){
                         //this.up('form').updateViewFromModel();
-                    }                            
+                    }                          
                 },
                 columns: [
                     { text: 'Список полей',  dataIndex: 'Name', flex: 1, menuDisabled: true }
@@ -386,7 +410,21 @@ Ext.define('App.class.view.Panel', {
                 handler: function(){
                     commitFieldOrAdd(this.up('form').getForm());
                 }
-            }),            
+            }),       
+            addNewClassFieldButton = Ext.create('Ext.button.Button', { 
+                xtype: 'button',
+                margin: '0 0 0 5',
+                tooltip: 'Добавить поле',
+                iconCls: 'app-icon-add', 
+                handler: function(){
+                    var b = this;
+                    if(!me.model.getId()) addField();
+                    else saveIfDirty(function(ok){
+                        if(!ok) return;
+                        addField();
+                    });                                                    
+                } 
+            }),                 
             addClassFieldButton = Ext.create('Ext.button.Button', {
                 text: 'Добавить',
                 hidden: true,
@@ -409,6 +447,13 @@ Ext.define('App.class.view.Panel', {
                     form.save();                                                                                
                 } 
             }),
+            refreshClassFieldButton = Ext.create('Ext.button.Button', {
+                iconCls: 'app-icon-refresh',
+                tooltip: 'Обновить список полей',
+                handler: function(){
+                    gridFields.getStore().reload();
+                }
+            }),
             deleteClassFieldButton = Ext.create('Ext.button.Button', { 
                 margin: '0 0 0 5',
                 disabled: true, 
@@ -416,11 +461,18 @@ Ext.define('App.class.view.Panel', {
                 iconCls: 'app-icon-remove',
                 handler: function(){
                     var b = this;
+                    if(!me.model.getId()) {
+                        var m = b.up('form').getForm().getRecord();
+                        m.isDeleted = true;
+                        m.store.remove(m);
+                        b.up('form').updateViewFromModel();
+                        return;
+                    }
                     Ext.MessageBox.confirm('Подвердите удаление', 'Вы действительно хотите удалить поле?', function(btn){
                         if(btn!='yes') return;
                         b.up('form').delete({
                             success: function(){
-                                b.up('form').setNewModel();
+                                b.up('form').updateViewFromModel();
                             }
                         });                                
                     });                                                            
@@ -448,6 +500,89 @@ Ext.define('App.class.view.Panel', {
                     this.windowTypes.show();
                 }
             }),
+            fieldForm = Ext.create('Ext.panel.Panel', {
+               margin: '0 0 0 20',
+               border: false,
+               layout: 'anchor',
+               dockedItems: [                                                                    
+                   {
+                       xtype: 'toolbar',
+                       cls: 'app-form-buttons',
+                       dock: 'bottom',
+                       ui: 'footer',
+                       items: [
+                           addClassFieldButton,
+                           commitClassFieldButton,
+                           saveClassFieldButton
+                       ]
+                    }
+                ],                                                                     
+                flex: 1,
+                items: [
+                    fieldFieldName,
+                    {
+                        xtype: 'textareafield',
+                        name: 'Info',
+                        fieldLabel: 'Описание',
+                        allowBlank: true,
+                        anchor: '100%'
+                    },
+                    {
+                        xtype: 'container',
+                        layout: 'hbox',
+                        items: [
+                            {
+                                xtype: 'combo',
+                                name: 'FieldType',
+                                fieldLabel: 'Тип поля',
+                                emptyText: 'Выберете тип...',
+                                afterLabelTextTpl: required,
+                                allowBlank: false,
+                                store: fieldTypes,
+                                editable: false,
+                                queryMode: 'local',
+                                displayField: 'value',
+                                valueField: 'id',
+                                listeners: {
+                                    change: function(){
+                                        if(this.getValue()=='7') buttonShowSubtypes.show();
+                                        else buttonShowSubtypes.hide();
+                                    }
+                                }
+                            }, 
+                            buttonShowSubtypes                                                   
+                        ]
+                    },                                         
+                    {
+                        xtype: 'textfield',
+                        name: 'DefaultValue',
+                        fieldLabel: 'Значение по умолчанию',
+                        allowBlank: true
+                    },
+                    {
+                        xtype: 'checkboxfield',
+                        name: 'NotNull',
+                        fieldLabel: 'Обязательное'
+                    },                                                                                                                                                
+                    {
+                        xtype: 'checkboxfield',
+                        name: 'System',
+                        disabled: true,
+                        fieldLabel: 'Системное'
+                    },
+                    {
+                        xtype: 'checkboxfield',
+                        name: 'ForbidDuplicates',
+                        fieldLabel: 'Уникальное'
+                    },
+                    {
+                        xtype: 'checkboxfield',
+                        name: 'External',
+                        disabled: true,
+                        fieldLabel: 'Внешнее'
+                    }                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                ]                                                          
+            }),            
             tabpanel = Ext.create('Ext.tab.Panel', {
                 margin: '10 0 0 0',
                 hidden: true,
@@ -476,10 +611,11 @@ Ext.define('App.class.view.Panel', {
                         listeners: {
                             'activate': function(){
                                 if( this.isFieldsLoaded || !me.model || !me.model.getId() ) {
-                                    deleteClassFieldButton.up('form').updateViewFromModel();    
+                                    deleteClassFieldButton.up('form').updateViewFromModel(gridFields.view.getSelectionModel().hasSelection()); 
                                     return;
                                 }
-                                var tab = this;
+                                var tab = this,
+                                    isForm = true;
                                 tab.setLoading(true);
                                 gridFields.getStore().getProxy().setExtraParam('classId', me.model.getId());
                                 gridFields.getStore().load(function(){
@@ -490,10 +626,10 @@ Ext.define('App.class.view.Panel', {
                                         form.getForm().loadRecord(m); 
                                         gridFields.getSelectionModel().select(m);                                               
                                     } else {
-                                        tab.down('form').setNewModel();
+                                        isForm = false;
                                     }
                                     tab.setLoading(false);
-                                    deleteClassFieldButton.up('form').updateViewFromModel();
+                                    deleteClassFieldButton.up('form').updateViewFromModel(isForm);
                                 });
                             }
                         },
@@ -503,7 +639,7 @@ Ext.define('App.class.view.Panel', {
                                 border: false,
                                 trackResetOnLoad: true,
                                 padding: 10,
-                                updateViewFromModel: function(){
+                                updateViewFromModel: function(isForm){
                                     
                                     var form = this.getForm(),
                                         m = form.getRecord(),
@@ -515,11 +651,19 @@ Ext.define('App.class.view.Panel', {
                                     addClassFieldButton.hide();
                                     commitClassFieldButton.hide();
                                     saveClassFieldButton.show();
+                                    refreshClassFieldButton.enable();
+                                    
+                                    if(!m.getId() || m.get('External')) {
+                                        fieldFieldName.enable();
+                                    } else {
+                                        fieldFieldName.disable();
+                                    }
                                     
                                     if(this.isNewClass) {
                                         dd.enable();
-                                        saveClassFieldButton.hide();               
-                                        if(m.store) {
+                                        saveClassFieldButton.hide();
+                                        refreshClassFieldButton.disable();           
+                                        if(m && m.store) {
                                             commitClassFieldButton.show();
                                         } else {
                                             addClassFieldButton.show();
@@ -528,22 +672,27 @@ Ext.define('App.class.view.Panel', {
                                         dd.disable();
                                     }
                                     
-                                    if(!m.store) {
+                                    if(!m || !m.store) {
                                         deleteClassFieldButton.disable();
-                                    }   
+                                    } 
+                                    
+                                    if( isForm ) {
+                                        fieldForm.show();
+                                    } else {
+                                        fieldForm.hide();
+                                    }
                                     
                                     form.clearInvalid();                              
                                       
                                 },                                
                                 setNewModel: function(){
                                     var m = new App.class.model.ClassField({'classId': me.model.getId()}),
-                                        f = this.getForm(),
-                                        model = f.getRecord();
+                                        f = this.getForm();
                                     fieldtypevalues.loadData(m.get('FieldTypeValues'));                                    
                                     f.loadRecord(m);
                                     f.clearInvalid();  
                                     gridFields.getSelectionModel().deselectAll(); 
-                                    this.updateViewFromModel();                                       
+                                    this.updateViewFromModel(true);
                                 },                                                    
                                 layout: {
                                     type: 'hbox'
@@ -553,15 +702,20 @@ Ext.define('App.class.view.Panel', {
                                         var form = this,
                                             sm = gridFields.getSelectionModel(),
                                             sel = sm.getSelection(),
-                                            m = form.getForm().getRecord();
+                                            m = form.getForm().getRecord(),
+                                            isForm = true;
                                                                                     
                                         sm.deselectAll();
                                                                                
                                         if(gridFields.getStore().indexOf(m)<0) {
-                                            gridFields.getStore().add(m);                                       
+                                            gridFields.getStore().add(m);
+                                            isForm = false;
+                                        } else {
+                                            sm.select(m);
                                         }
+                                        if(m.get('FieldTypeValues')) fieldtypevalues.loadData(m.get('FieldTypeValues'));
                                         form.loadRecord(m);
-                                        sm.select(m);
+                                        form.updateViewFromModel(isForm);
                                         Ext.MessageBox.alert('Cохранение данных', "Данные о поле успешно сохранены.");  
                                     }
                                 },
@@ -578,123 +732,15 @@ Ext.define('App.class.view.Panel', {
                                                 },
                                                 margin: '0 0 5 0',
                                                 items: [                                                
-                                                    {
-                                                        xtype: 'button',
-                                                        iconCls: 'app-icon-refresh',
-                                                        tooltip: 'Обновить список полей',
-                                                        handler: function(){
-                                                            gridFields.getStore().reload();
-                                                        }
-                                                    },
-                                                    { 
-                                                        xtype: 'button',
-                                                        margin: '0 0 0 5',
-                                                        tooltip: 'Добавить поле',
-                                                        iconCls: 'app-icon-add', 
-                                                        handler: function(){
-                                                            var b = this;
-                                                            if(!me.model.getId()) b.up('form').setNewModel();
-                                                            saveIfDirty(function(ok){
-                                                                if(!ok) return;
-                                                                b.up('form').setNewModel();
-                                                            });                                                    
-                                                        } 
-                                                    }, 
+                                                    refreshClassFieldButton,
+                                                    addNewClassFieldButton,
                                                     deleteClassFieldButton
                                                 ]
                                             },
                                             gridFields                         
                                         ]
                                     },                                
-                                    {
-                                        xtype: 'panel',
-                                        margin: '0 0 0 20',
-                                        border: false,
-                                        layout: 'anchor',
-                                        dockedItems: [                                                                    
-                                            {
-                                                xtype: 'toolbar',
-                                                cls: 'app-form-buttons',
-                                                dock: 'bottom',
-                                                ui: 'footer',
-                                                items: [
-                                                    addClassFieldButton,
-                                                    commitClassFieldButton,
-                                                    saveClassFieldButton
-                                                ]
-                                            }
-                                        ],                                                                     
-                                        flex: 1,
-                                        items: [
-                                            {
-                                                xtype: 'textfield',
-                                                name: 'Name',
-                                                fieldLabel: 'Имя',
-                                                afterLabelTextTpl: required,
-                                                allowBlank: false
-                                            },
-                                            {
-                                                xtype: 'textareafield',
-                                                name: 'Info',
-                                                fieldLabel: 'Описание',
-                                                allowBlank: true,
-                                                anchor: '100%'
-                                            },
-                                            {
-                                                xtype: 'container',
-                                                layout: 'hbox',
-                                                items: [
-                                                    {
-                                                        xtype: 'combo',
-                                                        name: 'FieldType',
-                                                        fieldLabel: 'Тип поля',
-                                                        emptyText: 'Выберете тип...',
-                                                        afterLabelTextTpl: required,
-                                                        allowBlank: false,
-                                                        store: fieldTypes,
-                                                        editable: false,
-                                                        queryMode: 'local',
-                                                        displayField: 'value',
-                                                        valueField: 'id',
-                                                        listeners: {
-                                                            change: function(){
-                                                                if(this.getValue()=='7') buttonShowSubtypes.show();
-                                                                else buttonShowSubtypes.hide();
-                                                            }
-                                                        }
-                                                    }, 
-                                                    buttonShowSubtypes                                                   
-                                                ]
-                                            },                                         
-                                            {
-                                                xtype: 'textfield',
-                                                name: 'DefaultValue',
-                                                fieldLabel: 'Значение по умолчанию',
-                                                allowBlank: true
-                                            },
-                                            {
-                                                xtype: 'checkboxfield',
-                                                name: 'NotNull',
-                                                fieldLabel: 'Обязательное'
-                                            },                                                                                                                                                
-                                            {
-                                                xtype: 'checkboxfield',
-                                                name: 'System',
-                                                fieldLabel: 'Системное'
-                                            },
-                                            {
-                                                xtype: 'checkboxfield',
-                                                name: 'ForbidDuplicates',
-                                                fieldLabel: 'Уникальное'
-                                            },
-                                            {
-                                                xtype: 'checkboxfield',
-                                                name: 'External',
-                                                disabled: true,
-                                                fieldLabel: 'Внешнее'
-                                            }                                                                                                                                                                                                                                                                                                                                                                                                                                            
-                                        ]                                                          
-                                    }                                                                                                                            
+                                    fieldForm
                                 ]                                                
                             }                                               
                         ]                                            
@@ -702,6 +748,18 @@ Ext.define('App.class.view.Panel', {
                 ]
             }                            
         );
+        
+        function selectField(form, m){
+            
+            fieldtypevalues.loadData(m.get('FieldTypeValues') );
+            form.getForm().loadRecord(m);
+                            
+            form.updateViewFromModel(true);      
+        }        
+        function addField(){
+            fieldForm.show();
+            tabpanel.getActiveTab().down('form').setNewModel();        
+        }
         function saveIfDirty(clb){
             if( tabpanel.isHidden() ) {
                 clb(true);
@@ -745,28 +803,44 @@ Ext.define('App.class.view.Panel', {
                 return;
              } 
              form.getRecord().set('FieldTypeValues', data);                                
-             m.commit();    
+             m.commit();  
+             
+             gridFields.getSelectionModel().deselectAll();
+               
              if(gridFields.getStore().indexOf(m)<0) {
                 gridFields.getStore().add(m);
+                fieldForm.hide();
              } else {
-                gridFields.getSelectionModel().deselectAll();
+                gridFields.getSelectionModel().select(m);
              }
-             form.loadRecord(m);             
-             gridFields.getSelectionModel().select(m);
+             form.loadRecord(m);            
         }
         function updateTabs(model) {
             if(!model) return;
             tabpanel.setActiveTab(0);
             tabpanel.items.getAt(1).isFieldsLoaded = false;
             me.model = model;
+            tabpanel.items.getAt(1).enable();
             if(!model.getId()) {
+                fieldClassName.enable();
                 gridFields.getStore().removeAll();
-                deleteClassFieldButton.up('form').setNewModel();
+                //deleteClassFieldButton.up('form').setNewModel();
+                var m = fieldForm.up('form').getForm().getRecord();
+                if(m) m.isDeleted = true;
                 tabpanel.items.getAt(1).isFieldsLoaded = true;
+                
                 deleteClassButton.disable();
-                saveClassButton.setText('Добавить');
+                hint
+                    .setTitle('Создание класса.')
+                    .setText('Укажите название класса, добавьте описание и поля');
+                hint.show();
+                
+                if(model.get('baseclass')) tabpanel.items.getAt(1).disable();
+                //saveClassButton.setText('Добавить');
             } else {
-                saveClassButton.setText('Сохранить');
+                fieldClassName.disable();
+                hint.hide();
+                //saveClassButton.setText('Сохранить');
                 deleteClassButton.enable();                        
             }
             tabpanel.show();
@@ -821,7 +895,15 @@ Ext.define('App.class.view.Panel', {
                         comboChildClass                                                           
                     ]
                 },
-                
+                {
+                    xtype: 'container',
+                    layout: {
+                        type: 'hbox'
+                    },
+                    items: [
+                        hint
+                    ]                   
+                },
                 tabpanel
 
             ]

@@ -71,6 +71,7 @@
                 }
 
                 if(!this.fireEvent('beforesave')) {
+                    if(options.callback) options.callback.call(this);
                     this.inSave = false;
                     return;
                 }
@@ -90,8 +91,11 @@
                     },
                     failure: function(a,b,c){
                         var res = b.request.proxy.getReader().rawData;
-                        form.markInvalid(res.errors);
-                        form.getRecord().reject();
+                   
+                        if(res && !b.error) {
+                            form.markInvalid(res.errors);
+                            form.getRecord().reject();
+                        }
                     },
                     callback: function(){
                         if(options.callback) options.callback.call(this);
@@ -102,7 +106,8 @@
             },
             delete: function(options){
                 var me = this,
-                    m = this.getForm().getRecord();
+                    f = this.getForm(),
+                    m = f.getRecord();
 
                 this.setLoading("Удаление...");
                 m.destroy({
@@ -111,10 +116,15 @@
                         for(var i=0; i<stores.length; i++) {
                             stores[i].remove(this);
                         }
+                        m.isDeleted = true;
                         if(options.success) options.success.call(this);
                     },
+                    failure: function(a,b,c){
+
+                    },                    
                     callback: function(){
                         me.setLoading(false);
+                        if(options.callback) options.callback.call(this);
                     }
                 });
             }
