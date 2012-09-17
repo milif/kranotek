@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Prototype</title>
+    <meta charset="utf-8">
+    <!-- Bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../vendor/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">  
+        
+    <link href="../vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+    
+  </head>
+  <body style="background: url(background.png); padding: 20px;">
+  
+    <div class="container-fluid" style="background: white;">
+        <h1>Nested list</h1>
+        <div id="nestedlist" style="height: 150px;"></div>
+    </div>
+    
+    <link href="../css/b/nestedlist.css" rel="stylesheet">
+    <link href="../css/b/loading.css" rel="stylesheet">
+    <link href="../css/b/toolbarhover.css" rel="stylesheet">
+    
+    <script src="../vendor/jquery/jquery.js"></script>
+    <script src="../vendor/underscore/underscore.js"></script>
+    <script src="../vendor/backbone/backbone.js"></script>
+    <script src="../vendor/bootstrap/js/bootstrap.js"></script>
+    
+    <script src="../src/App.js"></script>
+    <script src="../src/RPC.js"></script>
+    <script src="../src/CollectionNested.js"></script>
+    
+    <script src="../src/view/NestedList.js"></script>
+    <script src="../src/view/toolbar/ToolbarHover.js"></script>
+    <script src="../src/view/button/Button.js"></script>
+    
+    <script src="../src/modules/class/ModelClass.js"></script>
+    <script src="../src/modules/class/CollectionClass.js"></script>
+    
+    <script>
+        
+        App.env = {
+            apiUrl: '../',
+            apiUrlSuffix: '.php'
+        }
+        
+        var NestedList = App.getView('NestedList'),
+            ClassCollection = App.getCollection('Class'),
+            collection = new ClassCollection(),
+            view = new NestedList({
+                el: $('#nestedlist'),
+                collection: collection
+            });        
+            
+    </script>
+  </body>
+</html>
