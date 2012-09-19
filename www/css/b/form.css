@@ -1,0 +1,11 @@
+.b-form {
+    }
+    .b-form-buttons .btn {
+        margin-left: 10px;
+        } 
+        .b-form-buttons .btn:first-child {
+            margin-left: 0px;
+            }    
+.b-field-item {
+    display: inline-block;
+    }

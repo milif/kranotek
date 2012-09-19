@@ -50,7 +50,7 @@
             var path,
                 parentPath,
                 model
-                resp = App.getCollection('CollectionNested').__super__.add.apply(this, arguments);
+                resp = this.parent().add.apply(this, arguments);
             for(var i=0; i<models.length; i++){
                 model = this.get(models[i].id);
                 path = model.get('path');
@@ -73,7 +73,7 @@
                 delete this._byPath[path];
                 _.reject(this._children[parentPath], function(node){ return node.id == model.id; });
             }        
-            return App.getCollection('CollectionNested').__super__.remove.apply(this, arguments);
+            return this.parent().remove.apply(this, arguments);
         }       
     });
     

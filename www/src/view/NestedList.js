@@ -3,16 +3,14 @@ App.defineView('NestedList', {
     options: {
         path: null,
         collection: null,
-        listMinWidth: 100   
+        listMinWidth: 200   
     },
     
-    tpl: _.template('<div class="container-fluid b-nestedlist">' +
-              '<div class="row-fluid b-nestedlist-lists _lists{cid}"></div>' +
-          '</div>'),
+    tpl: _.template('<div class="b-nestedlist _lists{cid}"></div>'),
     tplList: _.template('<div class="b-nestedlist-lists-hh _list{cid}"><div class="b-nestedlist-lists-h">' +
                     '<table class="table table-hover _items{cid}"></table>' +
                 '</div></div>'),
-    tplItem: _.template('<tr class="b-nestedlist-item _item{cid}"><td >{item}</td></tr>'),
+    tplItem: _.template('<tr class="b-nestedlist-item t-bg _item{cid}"><td class="t-bg" >{item}</td></tr>'),
     init: function(){
     
         var self = this;
@@ -74,7 +72,7 @@ App.defineView('NestedList', {
             listEl,
             currentPath,
             currentLevel,
-            spanIndex,
+            width,
             levelRange,
             scrollTop,
             scrollEl
@@ -82,9 +80,6 @@ App.defineView('NestedList', {
             newList = [];
             
         maxLists = Math.min(level + (isLeaf ? 0 : 1 ), maxLists);
-        
-        maxLists = 12/Math.ceil(12 / maxLists);
-        //spanIndex = 12 / maxLists;
                
         offset = Math.min(level + (isLeaf ? 0 : 1 ) - maxLists, this._state.offset );
         
@@ -112,7 +107,7 @@ App.defineView('NestedList', {
                         }
                     }
                 }));
-                listEl.append(toolbar.$el);
+                toolbar.setPanel(listEl);
                    
                 newList.push(listEl);
             }
@@ -122,15 +117,14 @@ App.defineView('NestedList', {
         }
         
         /* TO DO: Animate */
-        spanIndex = 12 / maxLists;
+        width = (( 100 - (_lists.length -1 ) * 2.5 ) / _lists.length) + '%';
         this._listsEl.children().attr('_hide', 1);
         for (var i=0; i<_lists.length; i++){
             listEl = _lists[i];
             scrollEl = listEl.children().eq(0);
             scrollTop = scrollEl.scrollTop();
             listEl
-                .removeClass('span1 span2 span3 span4 span6 span12')
-                .addClass('span'+spanIndex)
+                .width(width)
                 .appendTo(this._listsEl)
                 .removeAttr('_hide');
             scrollEl.scrollTop(scrollTop);
@@ -204,8 +198,8 @@ App.defineView('NestedList', {
             elNode = this.getNode(path),
             elList = this._lists[path];
 
-        self.setLoading(elNode, true);
-        self.setLoading(elList, true); 
+        App.view.setLoading(elNode, true);
+        App.view.setLoading(elList, true);
                
         this.collection.fetchNode(path, {
             silent: true,
@@ -215,8 +209,8 @@ App.defineView('NestedList', {
                 self.updatePath();
             },
             complete: function(){
-                self.setLoading(elNode, false);
-                self.setLoading(elList, false);
+                App.view.setLoading(elNode, false);
+                App.view.setLoading(elList, false);
             }
         });             
     },

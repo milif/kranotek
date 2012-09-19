@@ -10,3 +10,7 @@
     background: white url(../i/loading.gif) no-repeat 50% 50%;
     opacity: 0.5;
     }
+    .b-loading.mod_small {
+        background-image: url(../i/loading-small.gif);
+        opacity: 1;
+        }

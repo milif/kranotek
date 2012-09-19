@@ -1,18 +1,24 @@
 .b-nestedlist {
     height: 100%;
+    white-space: nowrap;
     }
-    .b-nestedlist-lists {
-        height: 100%;
-        }
     .b-nestedlist-lists-hh {
+        display: inline-block;
         height: 100%;
-        position: relative;        
+        position: relative;
+        margin-left: 2.5%;        
         }
+        .b-nestedlist-lists-hh:first-child {
+            margin-left: 0;
+            }
     .b-nestedlist-lists-h {
         height: 100%;
         overflow-y: auto;
         overflow-x: hidden;
         }
+        .b-nestedlist-lists-h .table {
+            margin-bottom: 0;
+            }
     .b-nestedlist-item:hover {
         cursor: pointer;
         }

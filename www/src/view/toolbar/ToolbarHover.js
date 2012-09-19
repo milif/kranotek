@@ -1,7 +1,7 @@
 App.defineView('ToolbarHover', {
 
     tagName: "div",
-    className: "b-toolbarhover",
+    className: "b-toolbarhover effect-autohide",
 
     tpl: _.template('<div class="b-toolbarhover-h _items{cid}"></div>'),
     init: function(){
@@ -29,5 +29,9 @@ App.defineView('ToolbarHover', {
     },
     add: function(component){
         this._items.append(component.$el);
+    },
+    setPanel: function(el){
+        this.$el.appendTo(el.$el || el);
+        return this;
     }
 });
