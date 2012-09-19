@@ -117,7 +117,7 @@ var App = (function(){
             applyListeners(this, this.listeners);
         },
         parse: function(resp){
-            return resp && resp.model ? resp.model : null;
+            return resp && resp.model ? resp.model : resp;
         },
         parent: parentFn
     }),
