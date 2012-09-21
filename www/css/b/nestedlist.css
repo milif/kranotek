@@ -19,6 +19,9 @@
         .b-nestedlist-lists-h .table {
             margin-bottom: 0;
             }
+            .b-nestedlist-lists-h .table tr:first-child td {
+                border-top: none;
+                }
     .b-nestedlist-item:hover {
         cursor: pointer;
         }
@@ -28,4 +31,17 @@
         }
     .b-nestedlist-item.state_active.state_active-current {
         background: #BBD8E9;
+        }
+    .b-nestedlist-empty {
+        display: none;
+        color: #CCC;
+        position: absolute;
+        top: 50%;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        margin-top:-13px;
+        font-size: 26px;
+        font-weight: bold;
         }

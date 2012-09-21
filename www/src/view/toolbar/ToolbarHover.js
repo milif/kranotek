@@ -1,22 +1,26 @@
 App.defineView('ToolbarHover', {
 
-    tagName: "div",
-    className: "b-toolbarhover effect-autohide",
+    extend: 'Toolbar',
 
-    tpl: _.template('<div class="b-toolbarhover-h _items{cid}"></div>'),
+    hoverTpl: _.template('<div class="b-toolbarhover effect-autohide"><div class="b-toolbarhover-h _toolbar{cid}"></div></div>'),
     init: function(){
     },    
     doRender: function(){
-    
+        
+        this.parent().doRender.apply(this, arguments);
+        
         var self = this;
-
-        this.$el.append($(this.tpl({
+        
+        var el = $(this.hoverTpl({
             cid: this.cid
-        })));
+        }));
         
-        this._items = this.$el.find('._items'+this.cid);        
+        this._toolbar = el.find('._toolbar'+this.cid)
+            .append(this.$el);
         
-        return this;    
+        this.$el = el;
+        
+        return this;
     },
     doPresenter: function(){
         
@@ -26,11 +30,12 @@ App.defineView('ToolbarHover', {
             this._presenterOnce = true;
         }
         
-    },
-    add: function(component){
-        this._items.append(component.$el);
+        this.parent().doPresenter.apply(this, arguments);
+        
+        return this;
     },
     setPanel: function(el){
+        var self = this;
         this.$el.appendTo(el.$el || el);
         return this;
     }

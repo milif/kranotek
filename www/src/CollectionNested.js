@@ -21,6 +21,12 @@
             });
             return pathArray;
         },
+        getParent: function(path){
+            return getPathParent(path);
+        },
+        getNode: function(path){
+            return this._byPath[path];
+        },
         isLeaf: function(path){
             return this._byPath[path] ? this._byPath[path].get('leaf') : false;
         },
@@ -28,7 +34,7 @@
             return this._fetchedNodes[path] && true;
         },
         getChildren: function(path){
-            return this._children[path];
+            return this._children[path] || [];
         },
         fetchNode: function(path, options){
             var self = this,
@@ -37,6 +43,7 @@
             delete this._children[path];
             
             this.fetch($.extend(options, {
+                add: true,
                 params: {
                     path: path ? path : this.rootPath
                 },
@@ -46,11 +53,11 @@
                 }
             }, true));
         },
-        add: function(models){
+        add: function(models, options){
             var path,
                 parentPath,
                 model
-                resp = this.parent().add.apply(this, arguments);
+                resp = this.parent().add.call(this, models, $.extend({}, options, {silent: true}));
             for(var i=0; i<models.length; i++){
                 model = this.get(models[i].id);
                 path = model.get('path');
@@ -59,6 +66,13 @@
                 this._children[parentPath] = this._children[parentPath] || [];
                 this._children[parentPath].push(model);
             }
+            if(!options.silent) {
+                for(var i=0; i<models.length; i++){
+                    model = this.get(models[i].id);
+                    model.trigger('add', model, this, options);
+                }
+                
+            }
             return resp;
         },
         remove: function(models){
@@ -66,12 +80,12 @@
                 parentPath,
                 model;
             for(var i=0; i<models.length; i++){
-                model = this.get(models[i].id);
+                model = models[i];
                 path = model.get('path');
                 parentPath = getPathParent(path);
                 
                 delete this._byPath[path];
-                _.reject(this._children[parentPath], function(node){ return node.id == model.id; });
+                this._children[parentPath] = _.reject(this._children[parentPath], function(node){ return node.id == model.id; });
             }        
             return this.parent().remove.apply(this, arguments);
         }       

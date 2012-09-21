@@ -1,4 +1,4 @@
-(function(ns){
+(function(App){
 
     function Request(api, params){
         var self = this;
@@ -9,9 +9,15 @@
                 dataType: 'json',
                 contentType: 'application/json',
                 success: function(a,b,c){
-                    self.trigger('success', a,b,c);
+                    if(a.success) {
+                        self.trigger('success', a.data,b,c);
+                        return;
+                    }
+                    if(a.error) showError(a);
+                    self.trigger('error', a.data,b,c);
                 },
                 error: function(a,b,c){
+                    showError(a);
                     self.trigger('error', a,b,c);
                 },
                 complete: function(a,b,c){
@@ -28,6 +34,17 @@
         }
     };
     
-    ns.rpc = self;
+    App.rpc = self;
+
+    function showError(resp){
+        var error = typeof resp.error == 'object' ? resp.error : {
+            title: resp.status + ' ' + resp.statusText,
+            msg: 'Ошибка выполнения запроса'
+        };  
+        App.msg.alert({
+            title: error.title,
+            text:  error.msg
+        });        
+    }
     
 })(App);

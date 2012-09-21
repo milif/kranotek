@@ -4,7 +4,7 @@ App.defineView('FieldCheckbox', {
     
     options: {
         label: '',
-        options: null,
+        readonly: false,
         name: null
     },    
         
@@ -25,11 +25,13 @@ App.defineView('FieldCheckbox', {
             name: this.options.name
         }));
         
-        this.$el.find('input')
+        this._inputEl = this.$el.find('input')
             .on('click', function(){
                 self._value = $(this).is(':checked');
                 self.trigger('change');
             });
+        
+        if(this.options.readonly) this._inputEl.attr('disabled', true);
         
         return this;    
     },
@@ -49,5 +51,5 @@ App.defineView('FieldCheckbox', {
         var item = this.$el.find('input');
         if(v) item.attr('checked', true);
         else item.removeAttr('checked');
-    }    
+    }
 });

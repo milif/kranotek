@@ -23,14 +23,6 @@
         
             this._fields = {};
             this._errors = {};        
-        
-            if(this.model) {
-                this._model = this.model.clone();
-                
-                this._model.on('error', function(m, errors){
-                    self.applyErrors(errors);
-                });
-            }
             
             this.on('dirtychange errorchange aftersave', function(isDirty){
                 updateButtons.call(this);                
@@ -44,9 +36,7 @@
                 cid: this.cid
             })));        
             
-            if(this.options.legend) this.$el.prepend(this.legendTpl({
-                text: this.options.legend
-            }));
+            if(this.options.legend) this.setLegend(this.options.legend); 
             
             this._fieldsEl = this.$el.find('._fields'+this.cid);
             this._buttonsEl = this.$el.find('._buttons'+this.cid);
@@ -86,29 +76,23 @@
                 
                 // Important! Remove all models listeners after remove view
                 this.on('remove', function(){
-                    if(this.model) this.model.off(null, null, this);
+                    unbindModel.call(this);
                 });
-                           
+                
+                
                 if(this.model) {
-                    this.model.on('change', function(value){
-                        var attr = this.model.changedAttributes(),
-                            field,
-                            isValid = this._model.set(attr); 
-                        for (var p in  attr){
-                            field = this.getField(p);
-                            if(field) field.setValue(attr[p]);
-                            if(isValid) {
-                                delete this._errors[p];
-                                if(field) field.clearError();                                                              
-                            }
-                        }
-                        checkErrorChange.call(this);
-                        checkDirtyChange.call(this);
-                    }, this);
+                    bindModel.call(this, model);
                 }
             }
         },
+        setModel: function(model){
+            /* TODO CheckIfDirty */
+            unbindModel.call(this);
+            bindModel.call(this, model);
+            return this;      
+        },
         applyErrors: function(errors){
+            if(!errors) return;
             var field;
             for(var i=0;i<errors.length;i++){
                 this._errors[errors[i].name] = errors[i];
@@ -123,21 +107,24 @@
             this._model.set(this._model);
             return this;
         },
+        getModel: function(){
+            return this.model;
+        },
         save: function(){
             var self = this,
-                button = this._buttonSave;
+                button = this._buttonSave,
+                isNew = this.model.isNew();
             button
                 .disable()
                 .setLoading(true);
             this.model.save(this.model.changedAttributes(this._model.attributes),{
                 wait: true,
                 success: function(){
-                    //
-                    //if(isValid) {
-                    //    delete this._errors[p];
-                    //    if(field) field.clearError();
-                    //    checkErrorChange.call(this);                                                                
-                    //}                    
+                    self.trigger( 'save', isNew );
+                },
+                error: function(model, data){
+                    self.applyErrors(data.errors);
+                    self.trigger( 'error', isNew );
                 },
                 complete: function(){
                     button.setLoading(false);
@@ -160,6 +147,17 @@
         getField: function(name){
             return this._fields[name];
         },
+        setLegend: function(text){
+            if(!this._legendEl) {
+                this._legendEl = $(this.legendTpl({
+                    text: text
+                })); 
+                this.$el.prepend(this._legendEl);          
+            } else {
+                this._legendEl.html(text);
+            }
+            return this;
+        },
         add: function(field){
             var self = this,
                 name;
@@ -170,7 +168,9 @@
                 if(this.model) field.setValue(this.model.get(name));
                 field.on('change', function(){
                     if(this.model) {
-                        if(this._model.set(name, field.getValue())) {
+                        if(this._model.set(name, field.getValue(), {
+                            onlynew: true
+                        })) {
                             delete this._errors[name];
                             field.clearError();
                             checkErrorChange.call(this);
@@ -192,7 +192,48 @@
         }    
         
     });
+    function bindModel(model){
+        
+        var self=this,
+            field;
     
+        this.model = model;
+        this._model = this.model.clone();
+        
+        for(var p in model.attributes) {
+            field = this._fields[p];
+            if(field) { 
+                field.setValue(model.attributes[p]);
+                field.clearError();
+            }
+        }
+            
+        this._model.on('error', function(m, errors){
+            self.applyErrors(errors);
+        });        
+        
+        this._model.set(model.attributes);
+        this.model.on('change', function(value){
+            var attr = this.model.changedAttributes(),
+                field,
+                isValid = this._model.set(attr); 
+            for (var p in  attr){
+                field = this.getField(p);
+                if(field) field.setValue(attr[p]);
+                if(isValid) {
+                    delete this._errors[p];
+                    if(field) field.clearError();                                                              
+                }
+            }
+            checkErrorChange.call(this);
+            checkDirtyChange.call(this);
+        }, this);
+        
+        checkDirtyChange.call(this);
+    }    
+    function unbindModel(){
+        if(this.model) this.model.off(null, null, this);
+    }
     function updateButtons(){
         if(this._buttonSave) {
             if(this._isDirty && !this._isError) this._buttonSave.enable();
@@ -218,8 +259,7 @@
             if(!_.isEqual(this._fields[p].getValue(), this.model.attributes[p]) ) {
                 isDirty = true;
                 break;
-            }
-                
+            }   
         }
             
         //var isDirty = this.model.attributes;

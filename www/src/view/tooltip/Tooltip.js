@@ -34,8 +34,11 @@ App.defineView('Tooltip', {
         
     },
     setText: function(text){
+        if(this._tooltip.options.title == text) return;
         this._tooltip.options.title = text;
-        //this._tooltip.setContent();
+        if(this._tooltip.tip().is(':visible')) {
+            this._tooltip.tip().find('.tooltip-inner').html(text);
+        }
         return this;
     },
     hide: function(){

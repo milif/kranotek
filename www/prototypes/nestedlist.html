@@ -35,6 +35,7 @@
     <script src="../src/CollectionNested.js"></script>
     
     <script src="../src/view/NestedList.js"></script>
+    <script src="../src/view/toolbar/Toolbar.js"></script>
     <script src="../src/view/toolbar/ToolbarHover.js"></script>
     <script src="../src/view/button/Button.js"></script>
     
@@ -59,7 +60,7 @@
         }
         
         var NestedList = App.getView('NestedList'),
-            ClassCollection = App.getCollection('Class'),
+            ClassCollection = App.getCollection('CollectionClass'),
             collection = new ClassCollection(),
             view = new NestedList({
                 el: $('#nestedlist'),

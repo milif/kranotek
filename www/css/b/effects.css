@@ -15,10 +15,21 @@
     transition: opacity .2s ease 0.5s, visibility 0.2s ease 0.5s; 
     }
 
+/* Inset */
+
+.effect-inset {
+    text-shadow: 0px 2px 3px rgba(255,255,255,0.5);
+    -webkit-background-clip: text;
+       -moz-background-clip: text; /*TODO*/
+            background-clip: text; /*TODO*/
+    }    
+    
 /* Transition */   
+
 .t-bg {
     -moz-transition: background-color .15s linear;
     -webkit-transition: background-color .15s linear;
     -o-transition: background-color .15s linear;
     transition: background-color .15s linear; 
     }    
+    

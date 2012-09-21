@@ -1,14 +1,15 @@
 var App = (function(){
 
-    /* Global settings*/
+    /* Global settings & overrides */
 
     _.templateSettings = {
         interpolate : /\{(.+?)\}/g
     };
 
     Backbone.sync = function(method, model, options){
-        if(model instanceof Model) options.params = $.extend(model.changedAttributes() || {},  options.params);
         if(method=='create') method = 'update';
+        if(method == 'update' && model instanceof Model) options.params = $.extend(model.attributes || {},  options.params);
+        if(method=='delete' && model instanceof Model) options.params = {id: model.id };  
         return App.rpc.request(model.api + '.' + method, options.params)
             .on('success', options.success, model)
             .on('error', options.error, model)
@@ -22,6 +23,7 @@ var App = (function(){
         collection = {},
         
         systemMsg,
+        isSupportBackgroundClipText = false,
         systemMsgTpl = _.template(
           '<div class="b-systemmsg">' +
              '<div class="alert alert-{type} alert-block">' +
@@ -58,7 +60,18 @@ var App = (function(){
                     });
                 }
                 return this;
-            }
+            },
+            applyInset: function(el){
+                if(isSupportBackgroundClipText && !el.is('._inset')) {
+                    el
+                        .addClass('effect-inset _inset')
+                        .css({
+                            'background-color': el.css('color'),
+                            'color': 'transparent'
+                        });                       
+                }
+                return el;
+            }          
         },
         msg: {
             alert: function(options){
@@ -116,6 +129,17 @@ var App = (function(){
         initialize: function(){
             applyListeners(this, this.listeners);
         },
+        validate: function(attr, options){
+            if (this.validateModel) {
+                if(options.onlynew) {
+                    for(var p in attr) {
+                        if(attr[p]==this.attributes[p]) delete attr[p];
+                    }
+                }
+                return this.validateModel(attr, options);
+            }
+            return false;
+        },
         parse: function(resp){
             return resp && resp.model ? resp.model : resp;
         },
@@ -139,9 +163,16 @@ var App = (function(){
         },
         doRender: emptyFn,                              
         doPresenter: emptyFn,
-        hide: function(){
+        hide: function(isNow){
+            if(isNow) {
+                this.$el.hide();
+                return;
+            }
             if(this.$el.is(':visible')) this.$el.fadeOut(200);
-            else this.$el.hide();
+            else {
+                /*if($('body').has(this.$el).length==0) this.$el.appendTo($('body')).hide().remove();
+                else*/ this.$el.hide();
+            }
             return this;
         },
         setLoading: function(active){
@@ -169,11 +200,28 @@ var App = (function(){
             this._fetched = true;
             return Collection.__super__.fetch.apply(this, arguments);
         },
+        add: function(models){
+            var model;
+            for (var i = 0; i < models.length; i++) {
+                model = this._byId[models[i].id];
+                if(model) model.set(models[i]);
+            }
+            this.parent().add.apply(this, arguments);
+        },
         isFetched: function(){
             return this._fetched;
         },
+        parse: function(resp){
+            return resp && resp.data ? resp.data : resp;
+        },        
         parent: parentFn        
     });
+    
+    (function(){
+        var el = $('<div class="effect-inset"></div>').appendTo('body');
+        isSupportBackgroundClipText = el.css('background-clip')=='text';
+        el.remove();
+    })();
     
     function emptyFn(){
         return this;
@@ -219,7 +267,7 @@ var App = (function(){
                 'margin-top': 0,
                 opacity: 1
             }, 200)
-            .on('click', '.close', close)
+            .find('.close').click(close).end()
             .on({
                 'close': close,
                 'mouseenter': cancelClose,
@@ -239,6 +287,7 @@ var App = (function(){
             msg.fadeOut(200, function(){
                 $(this).remove();
             });
+            return false;
         }
     }
     

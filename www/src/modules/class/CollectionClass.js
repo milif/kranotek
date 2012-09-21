@@ -1,4 +1,7 @@
-App.defineCollection('Class', {
+App.defineCollection('CollectionClass', {
     model: App.getModel('ModelClass'),
-    extend: 'CollectionNested'
+    extend: 'CollectionNested',
+    getName: function(node){
+        return node.get('ClassName');
+    }    
 });

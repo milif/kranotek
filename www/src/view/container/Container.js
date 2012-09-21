@@ -27,7 +27,7 @@ App.defineView('Container', {
         
     },
     add: function(component){
-        this._items.append(component.$el);
+        this._items.append(component.$el || component);
         return this;
     }
 });

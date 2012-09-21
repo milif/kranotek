@@ -9,8 +9,10 @@ App.defineView('Button', {
     options: {
         icon: null,
         text: null,
-        size: 'small',
-        type: null
+        size: null,
+        type: null,
+        tooltip: null,
+        disabled: null
     },
 
     init: function(){
@@ -28,11 +30,20 @@ App.defineView('Button', {
     
         var self = this;
     
-        this.$el.addClass('btn-' + this.options.size);
+        if(this.options.size) this.$el.addClass('btn-' + this.options.size);
     
         if(this.options.icon) this.$el.append('<i class="'+this.options.icon+'"></i>'); 
         if(this.options.text) this.$el.append(this.options.text);    
         if(this.options.type) this.$el.addClass('btn-'+this.options.type);
+        if(this.options.tooltip) {
+            new (App.getView('Tooltip'))({
+                target: this.$el,
+                text: this.options.tooltip,
+                position: 'bottom'
+            });
+        }
+        
+        if(this.options.disabled) this.disable();
         
         return this;    
     },
