@@ -173,17 +173,15 @@
                 listEl,
                 itemEl,
                 scrollEl;
-            for(var i=0; i<this._lists.length;i++){
-                this._lists[i]
-                    .find('._item'+this.cid+'.state_active').removeClass('state_active state_active-current');
-            }
             
             for(var i=-1; i<path.length-1;i++){            
                 listEl = this._lists[path[i] || this.collection.rootPath];
                 if(!listEl) continue;
                 itemEl = listEl
                     .find('._item'+this.cid+'[data-path="'+path[i+1]+'"]');
-                if(itemEl.length>0) {
+                if(itemEl.length>0 && !itemEl.is('.state_active')) {
+                    listEl
+                        .find('._item'+this.cid+'.state_active').removeClass('state_active state_active-current');          
                     scrollEl = listEl.find('._scroll'+this.cid);
                     scrollEl.animate({
                         scrollTop: itemEl.offset().top - itemEl.parent().offset().top - scrollEl.height()/2 + itemEl.height()/2

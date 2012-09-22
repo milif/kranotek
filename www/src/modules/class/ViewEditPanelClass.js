@@ -41,7 +41,6 @@
                                     wait: true,
                                     silent:false
                                 });
-                                //self.collection.remove([self.collection.getNode(node)], {silent: false});
                             }
                         }),
                         buttonAdd = new (App.getView('Button'))({

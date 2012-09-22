@@ -61,7 +61,7 @@ App.defineView('FieldText', {
     },
     setValue: function(v){
         this.parent().setValue.apply(this, arguments);
-        if(!this.options.readonly) {
+        if(!this._isReadOnly) {
             this.$el.find('input').val(this._value);
         } else {
             this.$el.find('._input'+this.cid).text(this._value);
