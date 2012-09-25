@@ -14,6 +14,20 @@
     border-radius: 4px; 
     z-index: 999999;
     }
+    .b-systemmsg-over {
+        position: fixed;
+        bottom: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0,0,0,0.2);
+        }
+        .b-systemmsg-over .b-systemmsg {
+            position: absolute;
+            }
     .b-systemmsg .alert{
         margin: 0;
+        }
+    .b-systemmsg .btn {
+        margin-right: 5px;
         }

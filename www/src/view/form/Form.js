@@ -85,8 +85,22 @@
                 }
             }
         },
+        askIfDirty: function(callback, scope){
+            if(this._isDirty) {
+                var self = this;
+                App.msg.okcancel({
+                    type: 'warning',
+                    title: 'Подтверждение действия',
+                    text: 'Форма имеет не сохраненные данные. Вы можете отменить действие.',         
+                    callback: function(){
+                        callback.call(scope || self);
+                    }
+                });
+                return;
+            }
+            callback.call(scope || this);
+        },
         setModel: function(model){
-            /* TODO CheckIfDirty */
             unbindModel.call(this);
             bindModel.call(this, model);
             return this;      

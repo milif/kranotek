@@ -30,6 +30,7 @@ var App = (function(){
                 '<button type="button" class="close" data-dismiss="alert">×</button>' +
                 '<h4 class="alert-heading">{title}</h4>' +
                 '<p>{text}</p>' +
+                '<p class="_buttons"></p>' +
               '</div>' +
            '</div>'
         );
@@ -77,6 +78,18 @@ var App = (function(){
             alert: function(options){
                 showSystemMsg( $.extend({
                     type: 'error'
+                }, options));
+            },
+            success: function(options){
+                showSystemMsg( $.extend({
+                    type: 'success'
+                }, options));
+            },            
+            okcancel: function(options){
+                showSystemMsg( $.extend({
+                    type: 'info',
+                    modal: true,
+                    buttons: ['ok', 'cancel']
                 }, options));
             }
         },
@@ -250,11 +263,41 @@ var App = (function(){
         }
         return base;
     }
+    
+    /* Мessages */
+    
     function showSystemMsg(options){
         var closeTimeout,
             msg = $(systemMsgTpl(options))
-            .appendTo($('body'));
+            .appendTo($('body')),
+            Button = App.getView('Button'),
+            buttons = options.buttons,
+            buttonsEl = msg.find('._buttons'),
+            btn;
         if(systemMsg) systemMsg.triggerHandler('close');
+        
+        if(buttons) for(var i=0;i<buttons.length;i++){
+            if(buttons[i]=='ok') {
+                btn = new Button({
+                    type: options.type,
+                    text: 'OK',
+                    click: function(){
+                        close();
+                        if(options.callback) options.callback();
+                    }
+                });      
+            } else if(buttons[i]=='cancel'){
+                btn = new Button({
+                    text: 'Отмена',
+                    click: function(){
+                        close();
+                    }
+                });                
+            }
+            if(btn) buttonsEl.append(btn.$el);
+        }
+        else buttonsEl.remove();
+        
         systemMsg = msg
             .css({
                 'opacity': 0,
@@ -263,22 +306,33 @@ var App = (function(){
                 'max-width': msg.width(),
                 'margin-left': - msg.width() / 2
             })
+            .find('.close').click(close).end()
             .animate({
                 'margin-top': 0,
                 opacity: 1
-            }, 200)
-            .find('.close').click(close).end()
+            }, 200)            
             .on({
                 'close': close,
                 'mouseenter': cancelClose,
                 'mouseleave': startClose
             });
+        if(options.modal) {
+            options.isManualClose = true;
+            msg.click(function(e){
+                e.stopPropagation();
+            });
+            msg = msg.wrap('<div class="b-systemmsg-over">').parent()
+                .hide().fadeIn(200)
+                .click(close);
+        }
+                      
         startClose();
             
         function cancelClose(){
             clearTimeout(closeTimeout);
         }
         function startClose(){
+            if(options.isManualClose) return;
             closeTimeout = setTimeout(close, 3000);
         }
         function close(){

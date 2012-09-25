@@ -35,11 +35,16 @@
                             size: 'small',
                             icon: 'icon-remove',
                             click: function(){
-                                /*TODO Ask to delete*/
-                                var node = self.collection.getNode(self._nestedlist.getListNode(path));
-                                if(node) node.destroy({
-                                    wait: true,
-                                    silent:false
+                                App.msg.okcancel({
+                                    title: 'Удаление класса',
+                                    text: 'Вы действительно хотите удалить класс?',
+                                    callback: function(){
+                                        var node = self.collection.getNode(self._nestedlist.getListNode(path));
+                                        if(node) node.destroy({
+                                            wait: true,
+                                            silent:false
+                                        });                                    
+                                    }
                                 });
                             }
                         }),
@@ -162,35 +167,38 @@
         '<div class="b-classeditpanel-nestedlist _nestedlist{cid}"></div>'
     );
     function setCurrentClass(model){
-        if(!model) {
-            this._form.hide();
-            return;
-        }
-        this._form
-            .setLegend('Класс ' + model.get('ClassName'))
-            .setModel(model);
-        this._form.show(); 
-        
-        this._fieldName.setReadOnly(true);
-        this._fieldSystem.show();
-        this._fieldWorkspaceId.show();
-        this._fieldAllWorkspace.hide(true);            
+        this._form.askIfDirty(function(){
+            if(!model) {
+                this._form.hide();
+                return;
+            }
+            this._form
+                .setLegend('Класс ' + model.get('ClassName'))
+                .setModel(model);
+            this._form.show(); 
+            
+            this._fieldName.setReadOnly(true);
+            this._fieldSystem.show();
+            this._fieldWorkspaceId.show();
+            this._fieldAllWorkspace.hide(true);              
+        }, this);          
     }
     function addClassTo(path) {
-        
-        var model = new this.collection.model({
-            'parent': path
-        });
-        this._form
-            .setLegend('Создание нового '+(path!='/'?'дочернего':'')+' класса')
-            .setModel(model);
+        this._form.askIfDirty(function(){        
+            var model = new this.collection.model({
+                'parent': path
+            });
+            this._form
+                .setLegend('Создание нового '+(path!='/'?'дочернего':'')+' класса')
+                .setModel(model);
 
-        this._form.show();
-        
-        this._fieldSystem.hide(true);
-        this._fieldName.setReadOnly(false);
-        this._fieldWorkspaceId.hide(true);
-        this._fieldAllWorkspace.show();
+            this._form.show();
+            
+            this._fieldSystem.hide(true);
+            this._fieldName.setReadOnly(false);
+            this._fieldWorkspaceId.hide(true);
+            this._fieldAllWorkspace.show();
+        }, this);
     }
     
 })();
