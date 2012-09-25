@@ -64,34 +64,40 @@
                          toolbar.buttonAdd = buttonAdd;
                         
                     },
-                    'selectionchange': function(selected, deselected){
-                        var lists = this.getLists(),
-                            buttonDelete,
-                            buttonAdd,
-                            toolbar,
-                            node,
-                            nodeIn,
-                            current = selected[0]
-                            ;
+                    'beforeselectionchange': function(e, selected, deselected){
+                        e.cancel = true;
+                        self._form.askIfDirty(function(){
                             
-                            for(var i=0;i<lists.length;i++){
-                                toolbar = this.getListToolbar(lists[i]);
-                                node = self.collection.getNode(lists[i]);
-                                nodeIn = self.collection.getNode(this.getListNode(lists[i]));
-                                if(this.isSelectedList(lists[i]) && nodeIn && !nodeIn.get('System')) {
-                                    toolbar.buttonDelete.enable();
-                                } else {
-                                    toolbar.buttonDelete.disable();
+                            this.select(selected[0], true);
+                        
+                            var lists = this.getLists(),
+                                buttonDelete,
+                                buttonAdd,
+                                toolbar,
+                                node,
+                                nodeIn,
+                                current = selected[0]
+                                ;
+                                
+                                for(var i=0;i<lists.length;i++){
+                                    toolbar = this.getListToolbar(lists[i]);
+                                    node = self.collection.getNode(lists[i]);
+                                    nodeIn = self.collection.getNode(this.getListNode(lists[i]));
+                                    if(this.isSelectedList(lists[i]) && nodeIn && !nodeIn.get('System')) {
+                                        toolbar.buttonDelete.enable();
+                                    } else {
+                                        toolbar.buttonDelete.disable();
+                                    }
+                                    if(!node || !node.get('System')) {
+                                        toolbar.buttonAdd.enable();
+                                    } else {
+                                        toolbar.buttonAdd.disable();
+                                    }                                
                                 }
-                                if(!node || !node.get('System')) {
-                                    toolbar.buttonAdd.enable();
-                                } else {
-                                    toolbar.buttonAdd.disable();
-                                }                                
-                            }
-                            
-                            setCurrentClass.call(self, self.collection.getNode(current));
-   
+                                
+                                setCurrentClass.call(self, self.collection.getNode(current));                        
+                        }, this);
+
                     }
                 }
             }); 
@@ -167,7 +173,6 @@
         '<div class="b-classeditpanel-nestedlist _nestedlist{cid}"></div>'
     );
     function setCurrentClass(model){
-        this._form.askIfDirty(function(){
             if(!model) {
                 this._form.hide();
                 return;
@@ -180,8 +185,7 @@
             this._fieldName.setReadOnly(true);
             this._fieldSystem.show();
             this._fieldWorkspaceId.show();
-            this._fieldAllWorkspace.hide(true);              
-        }, this);          
+            this._fieldAllWorkspace.hide(true);                      
     }
     function addClassTo(path) {
         this._form.askIfDirty(function(){        

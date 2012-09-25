@@ -257,10 +257,16 @@
         }, 
         select: function(path, isSilent){
             if( path == this._state.path ) return;
-            var current = _.clone(this._state);
+            var current = _.clone(this._state),
+                event = {};
+            if(!isSilent) 
+                this.trigger('beforeselectionchange', event, [path], [current.path]);
+            if(event.cancel) return this;
+            
             this._state.path = path;
             this.updateLists(current);
             if(!isSilent) this.trigger('selectionchange', [path], [current.path]);
+            return this;
         },
         getListToolbar: function(path){
             var listEl = this._lists[path];
