@@ -1,0 +1,43 @@
+.tabbar li.max_width,
+.tabbar li.max_width a {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tabbar .dropdown-menu li {
+    width: 170px;
+}
+
+.tabbar li a.disabled {
+    color: #CCC;
+}
+
+.tabbar li {
+  position: relative;
+}
+
+.tabbar li a.title {
+  padding-right: 18px;
+}
+
+.tabbar li a.tab-close {
+    display: none;
+}
+
+.tabbar li.active a.tab-close {
+    display: block;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 10px;
+    height: 9px;
+    background: url('../i/tab-close.png') no-repeat;
+    cursor: pointer;
+}
+
+.tabbar ul.dropdown-menu li.active a.tab-close {
+    top: 8px;
+}
