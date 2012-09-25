@@ -9,7 +9,7 @@ var App = (function(){
     Backbone.sync = function(method, model, options){
         if(method=='create') method = 'update';
         if(method == 'update' && model instanceof Model) options.params = $.extend(model.attributes || {},  options.params);
-        if(method=='delete' && model instanceof Model) options.params = {id: model.id };  
+        if(method=='delete' && model instanceof Model) options.params = {id: model.id };
         return App.rpc.request(model.api + '.' + method, options.params)
             .on('success', options.success, model)
             .on('error', options.error, model)
@@ -21,7 +21,7 @@ var App = (function(){
     var view = {},
         model ={},
         collection = {},
-        
+
         systemMsg,
         isSupportBackgroundClipText = false,
         systemMsgTpl = _.template(
@@ -52,7 +52,7 @@ var App = (function(){
                                 'background-color': el.css('background-color')
                             })
                             .addClass('mod_small');
-                        
+
                     }
                 } else {
                     el.children('.b-loading').fadeOut(200, function(){
@@ -69,10 +69,10 @@ var App = (function(){
                         .css({
                             'background-color': el.css('color'),
                             'color': 'transparent'
-                        });                       
+                        });
                 }
                 return el;
-            }          
+            }
         },
         msg: {
             alert: function(options){
@@ -112,12 +112,12 @@ var App = (function(){
             return collection[name];
         },
         debounce: function( fn, wait, immediate, useAttribute ){
-        
+
             if(!useAttribute) return _.debounce.call(_, fn, wait, immediate);
-            
+
             var args = {},
                 attrFn = _.uniqueId('_debounce');
-                
+
             function wrap() {
                 var arg = arguments[0] || "null",
                     wrap;
@@ -134,9 +134,9 @@ var App = (function(){
                 }
                 wrap.apply(this, arguments);
             }
-            
+
             return wrap;
-        }       
+        }
     },
     Model = extendFn.call(Backbone.Model, {
         initialize: function(){
@@ -164,7 +164,7 @@ var App = (function(){
             applyListeners(this, options.listeners);
             this.cid = _.uniqueId();
             this.init();
-            if(this.el) this.render();                  
+            if(this.el) this.render();
             this.trigger('init');
         },
         init: emptyFn,
@@ -174,7 +174,7 @@ var App = (function(){
             this.trigger('render');
             return this;
         },
-        doRender: emptyFn,                              
+        doRender: emptyFn,
         doPresenter: emptyFn,
         hide: function(isNow){
             if(isNow) {
@@ -226,16 +226,16 @@ var App = (function(){
         },
         parse: function(resp){
             return resp && resp.data ? resp.data : resp;
-        },        
-        parent: parentFn        
+        },
+        parent: parentFn
     });
-    
+
     (function(){
         var el = $('<div class="effect-inset"></div>').appendTo('body');
         isSupportBackgroundClipText = el.css('background-clip')=='text';
         el.remove();
     })();
-    
+
     function emptyFn(){
         return this;
     }
@@ -249,7 +249,7 @@ var App = (function(){
         }
         child.extend = extendFn;
         return child;
-    }    
+    }
     function applyListeners(obj, listeners){
         if(!listeners) return;
         for(var p in listeners) {
@@ -327,7 +327,7 @@ var App = (function(){
         }
                       
         startClose();
-            
+
         function cancelClose(){
             clearTimeout(closeTimeout);
         }
@@ -344,7 +344,7 @@ var App = (function(){
             return false;
         }
     }
-    
-    
+
+
     return self;
 })();

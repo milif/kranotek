@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Prototype</title>
+    <meta charset="utf-8">
+    <!-- Bootstrap -->
+    <link href="../vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../vendor/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+
+
+
+  </head>
+  <body style="background: url(background.png); ">
+
+    <div class="container-fluid" style="padding-right: 200px;">
+        <h1>Tabbar</h1>
+        <div id="Tabbar"></div>
+    </div>
+
+    <link href="../css/b/form.css" rel="stylesheet">
+    <link href="../css/b/loading.css" rel="stylesheet">
+    <link href="../css/b/toolbarhover.css" rel="stylesheet">
+    <link href="../css/b/effects.css" rel="stylesheet">
+    <link href="../css/b/systemmsg.css" rel="stylesheet">
+    <link href="../css/b/tabbar.css" rel="stylesheet">
+
+    <script src="../vendor/jquery/jquery.js"></script>
+    <script src="../vendor/underscore/underscore.js"></script>
+    <script src="../vendor/backbone/backbone.js"></script>
+    <script src="../vendor/bootstrap/js/bootstrap.js"></script>
+
+    <script src="../src/App.js"></script>
+
+    <script src="../src/view/form/Field.js"></script>
+    <script src="../src/view/form/FieldText.js"></script>
+
+    <script src="../src/view/container/Container.js"></script>
+
+    <script src="../src/view/Tabbar/Tabbar.js"></script>
+
+    <style>
+
+    </style>
+
+    <script>
+
+        App.env = {
+            apiUrl: '../',
+            apiUrlSuffix: '.php'
+        }
+
+        var Tabbar = App.getView('Tabbar'),
+            Container = App.getView('Container'),
+            FieldText = App.getView('FieldText'),
+            tab1 = new Container({})
+                .add(new FieldText({
+                    label: 'Text field 1',
+                    name: 'text'
+                })),
+            tab2 = new Container({
+                fluid: true
+            })
+                .add(App.view.applyInset($('<h2 style="color:#CCC;">CONTAINER 2</h2>'))),
+            tab3 = new Container({
+                fluid: true
+            })
+                .add(App.view.applyInset($('<h2 style="color:#CCC;">CONTAINER 3</h2>'))),
+            tab3_1 = new Container({
+                fluid: true
+            })
+                .add(App.view.applyInset($('<h2 style="color:#CCC;">CONTAINER 3-1</h2>'))),
+            tab3_2 = new Container({
+                fluid: true
+            })
+                .add(App.view.applyInset($('<h2 style="color:#CCC;">CONTAINER 3-2</h2>'))),
+            tab3_3 = new Container({
+                fluid: true
+            })
+                .add(App.view.applyInset($('<h2 style="color:#CCC;">CONTAINER 3-3</h2>'))),
+
+            Tabbar = new Tabbar()
+                .addTab(tab1, 'tab1')
+                .addTab(tab2, 'tab2', 1)
+                .addTab(tab3, 'tab3', 2);
+
+        $('#Tabbar').append(Tabbar.$el);
+
+        // Tabbar.removeTab(2);
+        // Tabbar.removeTab(1);
+        Tabbar.addTab(tab3_1, 'tablooooooooooooooooooooooooooooooooooooong3-1', 3);
+        Tabbar.addTab(tab3_2, 'tablooooooooooooooooooooooooooooooooooooong3-2', 4);
+        Tabbar.addTab(tab3_3, 'tab3-3', 5);
+
+        Tabbar.disableTab(1);
+        Tabbar.disableTab(3);
+        Tabbar.getTab(0);
+        console.log('expect 2 =', Tabbar.getTabIndex(tab3));
+        console.log('expect 0 =', Tabbar.getTabIndex(tab1));
+        // Tabbar.addTab(tab2, 'tab2', 1);
+
+        // Tabbar.removeTab(2);
+
+    </script>
+  </body>
+</html>
