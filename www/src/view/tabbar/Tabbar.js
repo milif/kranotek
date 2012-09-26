@@ -14,6 +14,11 @@
         init: function(){
             var self = this;
 
+            this._tabComponents = {};
+            this._disabledTabs = {};
+            this._prevIndex = undefined;
+            this._currentIndex = undefined;
+
             this.$el.append($('<ul class="nav nav-tabs tabbar"><li class="dropdown more" style="display: none;"><a href="#">more <b class="caret"></b></a><ul class="dropdown-menu"></ul></li></ul>'));
             this.$el.append($('<div class="tab-content"></div>'));
 
@@ -103,7 +108,7 @@
             groupEl.append($('<a href="#" class="title active">'+label+'</a><a class="tab-close"></a>'));
             groupTabsEl.append(component.$el);
             this.activeTab(tabIndex);
-            _tabComponents[tabIndex] = component;
+            this._tabComponents[tabIndex] = component;
 
             _resize.call(this);
 
@@ -124,12 +129,12 @@
         },
 
         getTab: function(index) {
-            return _tabComponents[index];
+            return this._tabComponents[index];
         },
 
         getTabIndex: function(component) {
             var result = null;
-            $.each(_tabComponents, function(index, value) {
+            $.each(this._tabComponents, function(index, value) {
                 if(component === value || component === value.$el) {
                     result = index;
                 }
@@ -151,12 +156,12 @@
             this._groupsMenuEl.children().each(function(){
                 if(parseInt($(this).data('index'), 10) === parseInt(tabIndex, 10)) {
                     if(tabIndex-1 >= 0) {
-                        if(!_disabledTabs[tabIndex-1]) {
+                        if(!self._disabledTabs[tabIndex-1]) {
                             self.activeTab(tabIndex-1);
                             tabActivated = true;
                         }
                     } else if(tabIndex+1 < tabsCount) {
-                        if(!_disabledTabs[tabIndex+1]) {
+                        if(!self._disabledTabs[tabIndex+1]) {
                             self.activeTab(tabIndex+1);
                             tabActivated = true;
                         }
@@ -172,7 +177,7 @@
             menuEl.remove();
             tabEl.remove();
 
-            delete _tabComponents[tabIndex];
+            delete this._tabComponents[tabIndex];
 
             _resize.call(this);
 
@@ -185,7 +190,7 @@
             var menuEl = _getMenuEl.call(this, tabIndex),
                 dropdownListEl = $(this._groupsMenuEl).find('ul.dropdown-menu'),
                 tabEl = _getTabsEl.call(this, tabIndex);
-            if(!menuEl || !tabEl || _disabledTabs[tabIndex]) {
+            if(!menuEl || !tabEl || this._disabledTabs[tabIndex]) {
                 return this;
             }
 
@@ -203,12 +208,12 @@
             });
             tabEl.show();
 
-            _prevIndex = _currentIndex;
-            _currentIndex = tabIndex;
+            this._prevIndex = this._currentIndex;
+            this._currentIndex = tabIndex;
 
             _resize.call(this);
 
-            this.trigger('activetab', _currentIndex, _prevIndex);
+            this.trigger('activetab', this._currentIndex, this._prevIndex);
 
             return this;
         },
@@ -217,7 +222,7 @@
             var menuEl = _getMenuEl.call(this, tabIndex);
             menuEl.find('a').removeClass('active').addClass('disabled');
 
-            _disabledTabs[tabIndex] = true;
+            this._disabledTabs[tabIndex] = true;
 
             this.trigger('enablechangetab', tabIndex, false);
 
@@ -228,7 +233,7 @@
             var menuEl = _getMenuEl.call(this, tabIndex);
             menuEl.find('a').addClass('active').removeClass('disabled');
 
-            delete _disabledTabs[tabIndex];
+            delete this._disabledTabs[tabIndex];
 
             this.trigger('enablechangetab', tabIndex, true);
 
@@ -237,19 +242,14 @@
 
     });
 
-    var _tabComponents = {},
-        _disabledTabs = {},
-        _prevIndex,
-        _currentIndex,
+    function _getMenuEl(index) {
+        return this._groupsMenuEl.find('[data-index='+index+']');
+    }
+    function _getTabsEl(index) {
+        return this._groupsTabsEl.find('[data-index='+index+']');
+    }
 
-        _getMenuEl = function(index) {
-            return this._groupsMenuEl.find('[data-index='+index+']');
-        },
-        _getTabsEl = function(index) {
-            return this._groupsTabsEl.find('[data-index='+index+']');
-        };
-
-    var _resize = function() {
+    function _resize() {
         _fixTabWidths.call(this);
         var self = this,
             menuEl = $(this._groupsMenuEl),
@@ -294,9 +294,9 @@
         dropdownListEl.children().each(function(){
             $(this).show();
         });
-    };
+    }
 
-    var _fixTabWidth = function($el, maxWidth) {
+    function _fixTabWidth($el, maxWidth) {
         if($el.width() >= maxWidth) {
             $el.addClass('max_width');
             $el.find('a.title').width(maxWidth);
@@ -304,9 +304,9 @@
             $el.removeClass('max_width');
             $el.find('a.title').width('auto');
         }
-    };
+    }
 
-    var _fixTabWidths = function(index) {
+    function _fixTabWidths(index) {
         var self = this,
             maxTabWidth = this.options.maxTabWidth;
         if(index || index === 0) {
@@ -317,6 +317,6 @@
                 _fixTabWidth($(this), maxTabWidth);
             });
         }
-    };
+    }
 
 })();
