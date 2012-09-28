@@ -88,15 +88,18 @@
 
         // Tabbar.removeTab(2);
         // Tabbar.removeTab(1);
-        Tabbar.addTab(tab3_1, 'tablooooooooooooooooooooooooooooooooooooong3-1', 3);
-        Tabbar.addTab(tab3_2, 'tablooooooooooooooooooooooooooooooooooooong3-2', 4);
-        Tabbar.addTab(tab3_3, 'tab3-3', 5);
+        Tabbar.addTab(tab3_1, 'tab4_longtitlelongtitlelongtitle', 3);
+        Tabbar.addTab(tab3_2, 'tab5', 4);
+        Tabbar.addTab(tab3_3, 'tab6', 5);
+        Tabbar.addTab(new Container({}).add(new FieldText({label: 'Text field t1'})), 'tab7');
+        Tabbar.addTab(new Container({}).add(new FieldText({label: 'Text field t2'})), 'tab8');
+        Tabbar.addTab(new Container({}).add(new FieldText({label: 'Text field t3'})), 'tab9');
 
         Tabbar.disableTab(1);
         Tabbar.disableTab(3);
         Tabbar.getTab(0);
-        console.log('expect 2 =', Tabbar.getTabIndex(tab3));
-        console.log('expect 0 =', Tabbar.getTabIndex(tab1));
+
+        Tabbar.activeTab(0);
         // Tabbar.addTab(tab2, 'tab2', 1);
 
         // Tabbar.removeTab(2);
