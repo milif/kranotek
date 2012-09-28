@@ -10,7 +10,7 @@
 
         tabbarTpl: _.template('<ul class="nav nav-tabs b-tabbar _tabbar{cid}">'+
             '<li class="dropdown more menu-item" style="display: none;">'+
-                '<a href="#">more <b class="caret"></b></a>'+
+                '<a href="#"><b class="caret"></b></a>'+
                 '<ul class="dropdown-menu"></ul>'+
             '</li>'+
             '</ul>'
@@ -22,6 +22,7 @@
         init: function(){
             var self = this;
 
+            this._tabs = {};
             this._tabComponents = {};
             this._disabledTabs = {};
             this._prevIndex = undefined;
@@ -75,7 +76,7 @@
 
         },
 
-        addTab: function(component, label, tabIndex){
+        addTab: function(component, label, tabIndex, isClosable){
 
             if(!tabIndex && tabIndex !== 0) {
                 var count = 0;
@@ -123,7 +124,12 @@
                 }
             }
 
-            groupEl.append($('<a href="#" class="title state_active">'+label+'</a><a class="tab-close"></a>'));
+            var linkTpl = '<a href="#" class="title state_active">'+label+'</a>';
+            if(isClosable) {
+                linkTpl += '<a class="tab-close"></a>';
+            }
+
+            groupEl.append($(linkTpl));
             groupTabsEl.append(component.$el);
             // this.activeTab(tabIndex);
             this._tabComponents[tabIndex] = component;
@@ -211,11 +217,11 @@
 
             _resize.call(this);
 
-            var dropEl = dropdownListEl.find('[data-index="'+tabIndex+'"]');
-            if(dropEl && dropEl.length) {
-                dropEl.insertBefore(this._groupsMenuEl.children()[0]);
-                _resize.call(this);
-            }
+            // var dropEl = dropdownListEl.find('[data-index="'+tabIndex+'"]');
+            // if(dropEl && dropEl.length) {
+            //     dropEl.insertBefore(this._groupsMenuEl.children()[0]);
+            //     _resize.call(this);
+            // }
 
             this.trigger('activetab', this._currentIndex, this._prevIndex);
 

@@ -80,17 +80,17 @@
                 .add(App.view.applyInset($('<h2 style="color:#CCC;">CONTAINER 3-3</h2>'))),
 
             Tabbar = new Tabbar()
-                .addTab(tab1, 'tab1')
-                .addTab(tab2, 'tab2', 1)
-                .addTab(tab3, 'tab3', 2);
+                .addTab(tab1, 'tab1', undefined, true)
+                .addTab(tab2, 'tab2', 1, true)
+                .addTab(tab3, 'tab3', 2, true);
 
         $('#Tabbar').append(Tabbar.$el);
 
         // Tabbar.removeTab(2);
         // Tabbar.removeTab(1);
-        Tabbar.addTab(tab3_1, 'tab4_longtitlelongtitlelongtitle', 3);
-        Tabbar.addTab(tab3_2, 'tab5', 4);
-        Tabbar.addTab(tab3_3, 'tab6', 5);
+        Tabbar.addTab(tab3_1, 'tab4_longtitlelongtitlelongtitle', 3, true);
+        Tabbar.addTab(tab3_2, 'tab5', 4, true);
+        Tabbar.addTab(tab3_3, 'tab6', 5, true);
         Tabbar.addTab(new Container({}).add(new FieldText({label: 'Text field t1'})), 'tab7');
         Tabbar.addTab(new Container({}).add(new FieldText({label: 'Text field t2'})), 'tab8');
         Tabbar.addTab(new Container({}).add(new FieldText({label: 'Text field t3'})), 'tab9');
