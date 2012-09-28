@@ -172,8 +172,9 @@
             var path = this.collection.pathToArray(this._state.path),
                 listEl,
                 itemEl,
-                scrollEl;
-            
+                scrollEl,
+                lastListEl = this._lists[this._state.path];
+            if(lastListEl) lastListEl.find('._item'+this.cid+'.state_active,').removeClass('state_active state_active-current');
             for(var i=-1; i<path.length-1;i++){            
                 listEl = this._lists[path[i] || this.collection.rootPath];
                 if(!listEl) continue;
@@ -181,7 +182,7 @@
                     .find('._item'+this.cid+'[data-path="'+path[i+1]+'"]');
                 if(itemEl.length>0 && !itemEl.is('.state_active')) {
                     listEl
-                        .find('._item'+this.cid+'.state_active').removeClass('state_active state_active-current');          
+                        .find('._item'+this.cid+'.state_active,').removeClass('state_active state_active-current');          
                     scrollEl = listEl.find('._scroll'+this.cid);
                     scrollEl.animate({
                         scrollTop: itemEl.offset().top - itemEl.parent().offset().top - scrollEl.height()/2 + itemEl.height()/2

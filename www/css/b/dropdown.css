@@ -1,0 +1,20 @@
+.b-dropdown {
+    margin: 0;
+    }
+    .b-dropdown .btn {
+        background: none;
+        text-align: left;
+        border: none;
+        text-shadow: none;
+        -webkit-border-radius: 0;
+             -moz-border-radius: 0;
+                  border-radius: 0;        
+        -webkit-box-shadow: none;
+             -moz-box-shadow: none;
+                  box-shadow: none;        
+        }
+.b-dropdown .dropdown-menu {
+  -webkit-border-radius: 6px 6px 6px 6px;
+     -moz-border-radius: 6px 6px 6px 6px;
+          border-radius: 6px 6px 6px 6px;
+}        

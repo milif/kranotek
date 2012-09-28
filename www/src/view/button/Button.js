@@ -35,6 +35,12 @@ App.defineView('Button', {
         if(this.options.icon) this.$el.append('<i class="'+this.options.icon+'"></i>'); 
         if(this.options.text) this.$el.append(this.options.text);    
         if(this.options.type) this.$el.addClass('btn-'+this.options.type);
+        if(this.options.menu) {
+            this.$el
+                .addClass('dropdown-toggle')
+                .append('&nbsp;<span class="caret"></span>');
+            this.options.menu.setTarget(this);
+        }
         if(this.options.tooltip) {
             new (App.getView('Tooltip'))({
                 target: this.$el,
