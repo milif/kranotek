@@ -24,6 +24,7 @@
     <link href="../css/b/effects.css" rel="stylesheet">
     <link href="../css/b/systemmsg.css" rel="stylesheet">
     <link href="../css/b/tabbar.css" rel="stylesheet">
+    <link href="../css/b/dropdown.css" rel="stylesheet">
 
     <script src="../vendor/jquery/jquery.js"></script>
     <script src="../vendor/underscore/underscore.js"></script>
@@ -37,6 +38,9 @@
 
     <script src="../src/view/container/Container.js"></script>
 
+    <script src="../src/view/Dropdown.js"></script>
+    <script src="../src/view/button/Button.js"></script>
+    <script src="../src/view/tabbar/TabbarButton.js"></script>
     <script src="../src/view/tabbar/Tabbar.js"></script>
 
     <style>
@@ -45,64 +49,42 @@
 
     <script>
 
+    var tabbar;
+        var Tabbar = App.getView('Tabbar'),
+            Container = App.getView('Container'),
+            FieldText = App.getView('FieldText');
+
+    $('document').ready(function() {
         App.env = {
             apiUrl: '../',
             apiUrlSuffix: '.php'
         }
 
-        var Tabbar = App.getView('Tabbar'),
-            Container = App.getView('Container'),
-            FieldText = App.getView('FieldText'),
-            tab1 = new Container({})
-                .add(new FieldText({
-                    label: 'Text field 1',
-                    name: 'text'
-                })),
-            tab2 = new Container({
-                fluid: true
-            })
-                .add(App.view.applyInset($('<h2 style="color:#CCC;">CONTAINER 2</h2>'))),
-            tab3 = new Container({
-                fluid: true
-            })
-                .add(App.view.applyInset($('<h2 style="color:#CCC;">CONTAINER 3</h2>'))),
-            tab3_1 = new Container({
-                fluid: true
-            })
-                .add(App.view.applyInset($('<h2 style="color:#CCC;">CONTAINER 3-1</h2>'))),
-            tab3_2 = new Container({
-                fluid: true
-            })
-                .add(App.view.applyInset($('<h2 style="color:#CCC;">CONTAINER 3-2</h2>'))),
-            tab3_3 = new Container({
-                fluid: true
-            })
-                .add(App.view.applyInset($('<h2 style="color:#CCC;">CONTAINER 3-3</h2>'))),
 
-            Tabbar = new Tabbar()
-                .addTab(tab1, 'tab1', undefined, true)
-                .addTab(tab2, 'tab2', 1, true)
-                .addTab(tab3, 'tab3', 2, true);
+            tabbar = new Tabbar();
+            $('#Tabbar').append(tabbar.$el);
 
-        $('#Tabbar').append(Tabbar.$el);
+            tabbar
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t0'})), 'tab0', 0, true)
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t2'})), 'tab2', 2, true)
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t1'})), 'tab1', 1, true)
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t3'})), 'tab3', 3, true)
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t4'})), 'tab4', 4, true)
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t5'})), 'tab5', 5, true)
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t6'})), 'tab6', 6, true)
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t7'})), 'tab7', 7, true)
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t8'})), 'tab8', 8, true)
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t9'})), 'tab9', 9, true)
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t10'})), 'tab10', 20, true)
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t11'})), 'tab11', 21, true)
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t12'})), 'tab12', 22, true)
+                .disableTab(3)
+                .setTitle(20, 'super long title for tab')
+                .disableTab(9)
+                .removeTab(10);
 
-        // Tabbar.removeTab(2);
-        // Tabbar.removeTab(1);
-        Tabbar.addTab(tab3_1, 'tab4_longtitlelongtitlelongtitle', 3, true);
-        Tabbar.addTab(tab3_2, 'tab5', 4, true);
-        Tabbar.addTab(tab3_3, 'tab6', 5, true);
-        Tabbar.addTab(new Container({}).add(new FieldText({label: 'Text field t1'})), 'tab7');
-        Tabbar.addTab(new Container({}).add(new FieldText({label: 'Text field t2'})), 'tab8');
-        Tabbar.addTab(new Container({}).add(new FieldText({label: 'Text field t3'})), 'tab9');
 
-        Tabbar.disableTab(1);
-        Tabbar.disableTab(3);
-        Tabbar.getTab(0);
-
-        Tabbar.activeTab(0);
-        // Tabbar.addTab(tab2, 'tab2', 1);
-
-        // Tabbar.removeTab(2);
+        });
 
     </script>
   </body>
