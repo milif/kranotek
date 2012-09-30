@@ -41,7 +41,11 @@
             }))
                 .append(component.$el || component);
             if(submenu) {
-                itemEl.addClass('dropdown-submenu');
+                itemEl
+                    .addClass('dropdown-submenu')                    
+                    .click(function(e){
+                        if($(e.target).closest('li').get(0) == this) e.stopPropagation();
+                    });
                 submenu
                     .setTarget(itemEl)
                     .setType('submenu')
