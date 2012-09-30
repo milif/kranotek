@@ -171,7 +171,7 @@ var App = (function(){
         render: function(){
             this.doRender();
             this.doPresenter();
-            this.trigger('render');
+            //this.trigger('render');
             return this;
         },
         doRender: emptyFn,
@@ -196,6 +196,10 @@ var App = (function(){
             this.$el.fadeIn(200);
             return this;
         },
+        layout: function(){
+            this.doLayout();
+        },
+        doLayout: emptyFn,
         parent: parentFn
     }),
     Collection = extendFn.call(Backbone.Collection, {

@@ -1,0 +1,42 @@
+.b-grid {
+    position: relative;
+    }
+    .b-grid-head {
+        width: 100%;
+        overflow: hidden;
+        }
+    .b-grid-h {
+        width: 100%;
+        overflow: hidden;
+        }        
+    .b-grid-body {
+        position: relative;
+        min-height: 100px;
+        overflow: auto;      
+        }    
+    .b-grid .table {
+        table-layout: fixed;
+        margin:0;
+        }
+    .b-grid-td-h,
+    .b-grid-th-h {
+        overflow: hidden;
+        white-space: nowrap;
+        -o-text-overflow: ellipsis;
+        text-overflow: ellipsis;
+        }
+    .b-grid-row.state_active .b-grid-td{
+        background-color: #D9EDF7;
+        }
+    .b-grid-empty {
+        display: none;
+        color: #CCC;
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        font-size: 26px;
+        line-height: 26px;
+        font-weight: bold;
+        }

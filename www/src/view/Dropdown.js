@@ -140,7 +140,7 @@
         
         setTimeout(function(){
             $(window).on(self._windowListeners);
-        },0);          
+        },0);     
         
         if(this._type == 'submenu') {
             showIn.call(this,e);

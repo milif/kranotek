@@ -7,7 +7,6 @@
             listMinWidth: 200,
             emptyText: 'Нет данных'
         },
-        
         tpl: _.template('<div class="b-nestedlist _lists{cid}"></div>'),
         tplList: _.template('<div class="b-nestedlist-lists-hh _list{cid}"><div class="b-nestedlist-lists-h _scroll{cid}">' +
                         '<table class="table table-hover _items{cid}"></table><div class="b-nestedlist-empty _empty{cid}">{emptytext}</div>' +
