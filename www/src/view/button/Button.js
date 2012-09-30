@@ -25,15 +25,15 @@ App.defineView('Button', {
             }
             self.trigger('click');
         });
-    },    
+    },
     doRender: function(){
-    
+
         var self = this;
-    
+
         if(this.options.size) this.$el.addClass('btn-' + this.options.size);
-    
-        if(this.options.icon) this.$el.append('<i class="'+this.options.icon+'"></i>'); 
-        if(this.options.text) this.$el.append(this.options.text);    
+
+        if(this.options.icon) this.$el.append('<i class="'+this.options.icon+'"></i>');
+        if(this.options.text) this.$el.append(this.options.text);
         if(this.options.type) this.$el.addClass('btn-'+this.options.type);
         if(this.options.menu) {
             this.$el
@@ -48,18 +48,18 @@ App.defineView('Button', {
                 position: 'bottom'
             });
         }
-        
+
         if(this.options.disabled) this.disable();
-        
-        return this;    
+
+        return this;
     },
     doPresenter: function(){
-        
+
         if(!this._presenterOnce) {
-                                  
+
             this._presenterOnce = true;
         }
-        
+
     },
     enable: function(){
         this.$el.removeClass('disabled');
@@ -68,5 +68,9 @@ App.defineView('Button', {
     disable: function(){
         this.$el.addClass('disabled');
         return this;
+    },
+    setText: function(text) {
+        text = text || '';
+        this.$el.text(text);
     }
 });
