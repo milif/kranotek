@@ -20,7 +20,7 @@
             this.setTarget(this.options.target);
 
             this._windowListeners = {
-                'click scroll': function(e){
+                'mouseup touchend scroll': function(e){
                     hide.call(self, e);
                 }
             }
@@ -43,7 +43,7 @@
             if(submenu) {
                 itemEl
                     .addClass('dropdown-submenu')                    
-                    .click(function(e){
+                    .on('mouseup touchend', function(e){
                         if($(e.target).closest('li').get(0) == this) e.stopPropagation();
                     });
                 submenu

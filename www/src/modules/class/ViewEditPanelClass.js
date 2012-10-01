@@ -102,7 +102,8 @@
                 }
             }); 
             
-            var Form = App.getView('Form'),
+            var Tabbar = App.getView('Tabbar'),
+                Form = App.getView('Form'),
                 FieldTextarea = App.getView('FieldTextarea'),
                 FieldText = App.getView('FieldText'),
                 FieldCheckbox = App.getView('FieldCheckbox'),
