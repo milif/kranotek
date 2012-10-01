@@ -101,6 +101,7 @@
             callback.call(scope || this);
         },
         setModel: function(model){
+            this._errors = {};
             unbindModel.call(this);
             bindModel.call(this, model);
             return this;      
