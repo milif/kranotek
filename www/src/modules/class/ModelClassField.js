@@ -1,5 +1,6 @@
 App.defineModel('ModelClassField', {
     defaults: {
+        'id': null,
         'Name': '',
         'Description': '',
         'Type': '',

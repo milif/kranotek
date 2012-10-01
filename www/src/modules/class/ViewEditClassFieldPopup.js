@@ -20,6 +20,11 @@
                 FieldSelect = App.getView('FieldSelect'),
                 FieldCheckbox = App.getView('FieldCheckbox'),
                 Button = App.getView('Button'),
+                fieldWorkspaceId = new FieldText({
+                    label: 'ID',
+                    readonly: true,
+                    name: 'id'
+                }),
                 fieldName = new FieldText({
                     label: 'Название',
                     name: 'Name'
@@ -73,7 +78,10 @@
                     .add(fieldType)
                     .add(fieldDefault)
                     .add(fieldUnique)
-                    .add(fieldRequired);
+                    .add(fieldRequired)
+                    .add(fieldWorkspaceId);
+
+            fieldWorkspaceId.hide();
 
             this.add(form);
 
