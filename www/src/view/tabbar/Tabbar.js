@@ -30,8 +30,7 @@
             this._tabComponents = {};
             this._hidddenTabs = {};
             this._disabledTabs = {};
-            this._tabsOpenCount = 0;
-            this._tabsOpenIndex = {};
+            this._tabsOpenTimes = {};
 
             this.dropdownTabs = new Dropdown();
 
@@ -81,7 +80,7 @@
                 tabIndex = maxIndex+1;
             }
 
-            this._tabsOpenIndex[tabIndex] = this._tabsOpenCount++;
+            this._tabsOpenTimes[tabIndex] = new Date().getTime();
 
             this._tabComponents[tabIndex] = component;
 
@@ -156,7 +155,7 @@
         },
 
         activeTab: function(tabIndex) {
-            this._tabsOpenIndex[tabIndex] = this._tabsOpenCount++;
+            this._tabsOpenTimes[tabIndex] = new Date().getTime();
 
             activateTabHeader.call(this, tabIndex);
             openTabContent.call(this, tabIndex);
@@ -331,8 +330,8 @@
 
     function getSortedTabsByTime() {
         var arrayToSort = [], sortedArray;
-        for(var i in this._tabsOpenIndex) {
-            arrayToSort.push({ id: parseInt(i, 10), time: this._tabsOpenIndex[i]});
+        for(var i in this._tabsOpenTimes) {
+            arrayToSort.push({ id: parseInt(i, 10), time: this._tabsOpenTimes[i]});
         }
         return arrayToSort.sort(function(a, b){
             return (a.time != b.time) ? (b.time - a.time) : (b.id - a.id);

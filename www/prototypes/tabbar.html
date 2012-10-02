@@ -76,25 +76,12 @@
                 .addTab(new Container({}).add(new FieldText({label: 'Text field t9'})), 'tab9', 9, true)
                 .addTab(new Container({}).add(new FieldText({label: 'Text field t10'})), 'tab10', 20, true)
                 .addTab(new Container({}).add(new FieldText({label: 'Text field t11'})), 'tab11', 21, true)
-                .addTab(new Container({}).add(new FieldText({label: 'Text field t12'})), 'tab12', 22, true);
-                // .disableTab(3)
-                // .setTitle(20, 'super long title for tab')
-                // .disableTab(9)
-                // .removeTab(10);
-
-        var arrayA = [];
-        for(var i = 0; i<15;i++) {
-            arrayA.push([i, 'a'+i]);
-        }
-        for(var item in arrayA) {
-            console.log(arrayA[item], 'old');
-        }
-        arrayA.sort(function(a, b){
-            return b[0] - a[0];
-        });
-        for(var item in arrayA) {
-            console.log(arrayA[item], 'arrayA');
-        }
+                .addTab(new Container({}).add(new FieldText({label: 'Text field t12'})), 'tab12', 22, true)
+                .disableTab(3)
+                .setTitle(20, 'super long title for tab')
+                .disableTab(9)
+                .removeTab(10)
+                .activeTab(0);
 
         });
 
