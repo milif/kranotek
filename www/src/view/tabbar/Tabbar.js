@@ -30,6 +30,8 @@
             this._tabComponents = {};
             this._hidddenTabs = {};
             this._disabledTabs = {};
+            this._tabsOpenCount = 0;
+            this._tabsOpenIndex = {};
 
             this.dropdownTabs = new Dropdown();
 
@@ -65,6 +67,8 @@
 
         addTab: function(component, label, tabIndex, isClosable){
 
+
+
             var maxIndex = -1;
 
             if(!tabIndex && tabIndex !== 0) {
@@ -76,6 +80,8 @@
                 });
                 tabIndex = maxIndex+1;
             }
+
+            this._tabsOpenIndex[tabIndex] = this._tabsOpenCount++;
 
             this._tabComponents[tabIndex] = component;
 
@@ -150,9 +156,12 @@
         },
 
         activeTab: function(tabIndex) {
+            this._tabsOpenIndex[tabIndex] = this._tabsOpenCount++;
 
             activateTabHeader.call(this, tabIndex);
             openTabContent.call(this, tabIndex);
+
+            _resize.call(this);
 
             return this;
         },
@@ -320,7 +329,28 @@
         }
     }
 
+    function getSortedTabsByTime() {
+        var arrayToSort = [], sortedArray;
+        for(var i in this._tabsOpenIndex) {
+            arrayToSort.push({ id: parseInt(i, 10), time: this._tabsOpenIndex[i]});
+        }
+        return arrayToSort.sort(function(a, b){
+            return (a.time != b.time) ? (b.time - a.time) : (b.id - a.id);
+        });
+    }
+
     function _resize() {
+        var self = this;
+        if(this._resizeDelay) {
+            clearTimeout(this._resizeDelay);
+        }
+        this._resizeDelay = setTimeout(function(){
+            doResize.call(self);
+        }, 100);
+    }
+
+    function doResize() {
+
         _fixTabWidths.call(this);
         var self = this,
             menuEl = $(this._groupsMenuEl),
@@ -333,10 +363,13 @@
 
         var toHide = {}, toShow = {};
 
+        var tabsByTime = getSortedTabsByTime.call(this),
+            _el,
+            _index;
         var hiddenTabsCount = 0;
-        this._groupsMenuEl.children().each(function(){
-            var _el = $(this),
-                _index = parseInt(_el.data('index'), 10);
+        for(var i in tabsByTime) {
+            _index = tabsByTime[i].id;
+            _el = _getMenuEl.call(self, _index);
             tabsWidth += _el.width();
             if(_el.attr('class').indexOf('more') == -1) {
                 if(tabsWidth > menuWidth) {
@@ -346,9 +379,11 @@
                         toHide[_index] = _index;
                         self._hidddenTabs[_index] = new Button({
                             text: _el.find('.title').text(),
-                            click: function(){
-                                self.activeTab(_index);
-                            }
+                            click: (function(activateIndex){
+                                return function() {
+                                    self.activeTab(activateIndex);
+                                }
+                            })(_index)
                         });
                     }
                 } else {
@@ -359,7 +394,8 @@
                     }
                 }
             }
-        });
+        }
+
         if(hiddenTabsCount) {
             moreEl.show();
         } else {
