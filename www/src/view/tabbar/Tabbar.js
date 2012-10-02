@@ -112,6 +112,7 @@
                 }
                 delete this._hidddenTabs[tabIndex];
             }
+            delete this._tabsOpenTimes[tabIndex];
 
             delete this._tabComponents[tabIndex];
 
