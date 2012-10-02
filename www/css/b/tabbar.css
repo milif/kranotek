@@ -56,3 +56,18 @@
 .b-tabbar .dropdown-menu .active .tab-close {
     top: 8px;
 }
+
+.b-tabbar li.open .btn,
+.b-tabbar li.open .dropdown-toggle {
+    background-image: none;
+    background-color: transparent;
+    color: #0088CC;
+    border: none;
+}
+
+.b-tabbar li.open .dropdown-toggle:hover {
+    background-color: #999999;
+    border: 1px;
+    border-color: #999999;
+    color: #FFFFFF;
+}

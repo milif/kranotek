@@ -33,7 +33,7 @@
 
             this.dropdownTabs = new Dropdown();
 
-            moreButton = new TabbarButton({
+            moreButton = new Button({
                 text: '...',
                 menu: this.dropdownTabs
             });
@@ -65,7 +65,7 @@
 
         addTab: function(component, label, tabIndex, isClosable){
 
-            var maxIndex = 0;
+            var maxIndex = -1;
 
             if(!tabIndex && tabIndex !== 0) {
                 var count = 0;
@@ -81,7 +81,6 @@
 
             addTabHeader.call(this, component, label, tabIndex, isClosable);
             addTabContent.call(this, component, label, tabIndex, isClosable);
-            this.activeTab(tabIndex);
 
             _resize.call(this);
             this.trigger('addtab', tabIndex);
@@ -183,7 +182,6 @@
     });
 
     var Dropdown = App.getView('Dropdown'),
-        TabbarButton = App.getView('TabbarButton'),
         Button = App.getView('Button'),
         tabbarTpl = _.template('<ul class="nav nav-tabs b-tabbar _tabbar{cid}">'+
             '<li class="dropdown open more menu-item">'+
