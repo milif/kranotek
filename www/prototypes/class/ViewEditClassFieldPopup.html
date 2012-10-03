@@ -82,7 +82,7 @@
             }),
             view = new ViewEditClassFieldPopup({
                 model: model,
-                popupWidth: 500
+                popupWidth: 530
             });
 
         $('#popup')
@@ -95,7 +95,7 @@
 
         view.$el.appendTo($('#editpanel'));
 
-        view.setModel();
+        view.setModel(new ModelClassField({}));
 
         view.setModel(new ModelClassField({
             'id': 25,

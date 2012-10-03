@@ -96,17 +96,18 @@
             this._fieldRequired = fieldRequired;
 
             fieldTypeDetails.hide();
-            bindTypeDependencies.call(this);
+
+            this._form.getField('Type').on('change', onTypeChange, this);
+            onTypeChange.call(this);
 
             return this;
         },
         setModel: function(model) {
-            this.setTitle(model ? ('Поле '+(model.get('Name') || '')) : 'Новое поле');
-            model = model || new ModelClassField({});
+            this.setTitle(model.id ? ('Поле '+(model.get('Name') || '')) : 'Новое поле');
 
             this.model = model;
             this._form.setModel(model);
-            bindTypeDependencies.call(this);
+            onTypeChange.call(this);
         },
         close: function() {
             var self = this,
@@ -118,11 +119,9 @@
         }
     });
 
-    var ModelClassField = App.getModel('ModelClassField');
-
     function showTypeDetails(mode) {
         if(!this._fieldTypeDetails) { return; }
-        (mode) ? this._fieldTypeDetails.$el.show() : this._fieldTypeDetails.$el.hide();
+        (mode) ? this._fieldTypeDetails.show() : this._fieldTypeDetails.hide();
     }
 
     function confirmClose() {
@@ -132,14 +131,9 @@
         });
     }
 
-    function bindTypeDependencies() {
-        var self = this,
-            subtypeValue = 7;
-        var initType = parseInt(self._form._model.get('Type'), 10);
-        showTypeDetails.call(this, initType === subtypeValue);
-        this._form._model.on('change:Type', function(){
-            var type = parseInt(self._form._model.get('Type'), 10);
-            showTypeDetails.call(self, type === subtypeValue);
-        });
+    function onTypeChange() {
+        var subtypeValue = 7;
+        var type = parseInt(this._form.getField('Type').getValue(), 10);
+        showTypeDetails.call(this, type === subtypeValue);
     }
 })();
