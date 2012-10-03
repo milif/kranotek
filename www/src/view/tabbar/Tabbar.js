@@ -1,20 +1,3 @@
-/*REFACTORING*/
-(function(App){
-
-    App.defineView('TabbarButton', {
-      extend: 'Button',
-      className: '',
-      init: function(){
-          this.parent().init.call(this);
-      },
-      doRender: function(){
-        this.parent().doRender.call(this);
-        this.$el.removeClass('dropdown-toggle');
-      }
-    });
-
-})(App);
-
 (function(App){
 
     App.defineView('Tabbar', {
@@ -47,10 +30,11 @@
             this._tabComponents = {};
             this._hidddenTabs = {};
             this._disabledTabs = {};
+            this._tabsOpenTimes = {};
 
             this.dropdownTabs = new Dropdown();
 
-            moreButton = new TabbarButton({
+            moreButton = new Button({
                 text: '...',
                 menu: this.dropdownTabs
             });
@@ -80,7 +64,9 @@
         },
         addTab: function(component, label, tabIndex, isClosable){
 
-            var maxIndex = 0;
+
+
+            var maxIndex = -1;
 
             if(!tabIndex && tabIndex !== 0) {
                 var count = 0;
@@ -92,11 +78,12 @@
                 tabIndex = maxIndex+1;
             }
 
+            this._tabsOpenTimes[tabIndex] = new Date().getTime();
+
             this._tabComponents[tabIndex] = component;
 
             addTabHeader.call(this, component, label, tabIndex, isClosable);
             addTabContent.call(this, component, label, tabIndex, isClosable);
-            this.activeTab(tabIndex);
 
             _resize.call(this);
             this.trigger('addtab', tabIndex);
@@ -123,6 +110,7 @@
                 }
                 delete this._hidddenTabs[tabIndex];
             }
+            delete this._tabsOpenTimes[tabIndex];
 
             delete this._tabComponents[tabIndex];
 
@@ -164,9 +152,11 @@
             });
             return result;
         },
-
         activeTab: function(tabIndex, isSilent) {
             if(this._activeIndex == tabIndex) return this;
+            
+            this._tabsOpenTimes[tabIndex] = new Date().getTime();
+            
             var event = {},
                 prev = this._activeIndex;
             if(!isSilent) this.trigger('beforetabchange', event, tabIndex, prev);
@@ -177,7 +167,6 @@
             if(!isSilent) this.trigger('tabchange', tabIndex, prev);
             return this;
         },
-
         disableTab: function(tabIndex) {
             var menuEl = _getMenuEl.call(this, tabIndex);
             menuEl.find('a').removeClass('active').addClass('disabled');
@@ -203,7 +192,6 @@
     });
 
     var Dropdown = App.getView('Dropdown'),
-        TabbarButton = App.getView('TabbarButton'),
         Button = App.getView('Button'),
         tabbarTpl = _.template('<ul class="nav nav-tabs b-tabbar _tabbar{cid}">'+
             '<li class="dropdown open more menu-item">'+
@@ -347,7 +335,28 @@
         }
     }
 
+    function getSortedTabsByTime() {
+        var arrayToSort = [], sortedArray;
+        for(var i in this._tabsOpenTimes) {
+            arrayToSort.push({ id: parseInt(i, 10), time: this._tabsOpenTimes[i]});
+        }
+        return arrayToSort.sort(function(a, b){
+            return (a.time != b.time) ? (b.time - a.time) : (b.id - a.id);
+        });
+    }
+
     function _resize() {
+        var self = this;
+        if(this._resizeDelay) {
+            clearTimeout(this._resizeDelay);
+        }
+        this._resizeDelay = setTimeout(function(){
+            doResize.call(self);
+        }, 100);
+    }
+
+    function doResize() {
+
         _fixTabWidths.call(this);
         var self = this,
             menuEl = $(this._groupsMenuEl),
@@ -360,10 +369,13 @@
 
         var toHide = {}, toShow = {};
 
+        var tabsByTime = getSortedTabsByTime.call(this),
+            _el,
+            _index;
         var hiddenTabsCount = 0;
-        this._groupsMenuEl.children().each(function(){
-            var _el = $(this),
-                _index = parseInt(_el.data('index'), 10);
+        for(var i in tabsByTime) {
+            _index = tabsByTime[i].id;
+            _el = _getMenuEl.call(self, _index);
             tabsWidth += _el.width();
             if(_el.attr('class').indexOf('more') == -1) {
                 if(tabsWidth > menuWidth) {
@@ -373,9 +385,11 @@
                         toHide[_index] = _index;
                         self._hidddenTabs[_index] = new Button({
                             text: _el.find('.title').text(),
-                            click: function(){
-                                self.activeTab(_index);
-                            }
+                            click: (function(activateIndex){
+                                return function() {
+                                    self.activeTab(activateIndex);
+                                }
+                            })(_index)
                         });
                     }
                 } else {
@@ -386,7 +400,8 @@
                     }
                 }
             }
-        });
+        }
+
         if(hiddenTabsCount) {
             moreEl.show();
         } else {
