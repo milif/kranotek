@@ -28,6 +28,7 @@ App.defineView('Container', {
     },
     add: function(component){
         this._items.append(component.$el || component);
+        if(this.$el.is(':visible') && component.layout) component.layout();
         return this;
     }
 });

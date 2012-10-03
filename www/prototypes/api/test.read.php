@@ -2,8 +2,8 @@
 
 $sRequest = file_get_contents('php://input');
 $aRequest = json_decode( $sRequest, true );
-if($aRequest['path'] == '/') $aRequest['path']='';
-$path = $aRequest['path'].'/base';
+//if($aRequest['path'] == '/') $aRequest['path']='';
+$path = '/base';
 
 
 

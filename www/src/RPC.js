@@ -17,16 +17,23 @@
                     self.trigger('error', a.data,b,c);
                 },
                 error: function(a,b,c){
+                    if(a.statusText=='abort') return;
                     showError(a);
                     self.trigger('error', a,b,c);
                 },
                 complete: function(a,b,c){
+                    if(a.statusText=='abort') return;
                     self.trigger('complete', a,b,c);
                 }                           
         });
     }
     
-    Request.prototype = _.extend({}, Backbone.Events);
+    Request.prototype = _.extend({
+        abort: function(){
+            this.request.abort();
+            return this;
+        }
+    }, Backbone.Events);
 
     var self = {
         request: function(api, params){

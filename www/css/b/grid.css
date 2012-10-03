@@ -1,9 +1,16 @@
 .b-grid {
     position: relative;
     }
+    .b-grid-td.align_center,
+    .b-grid-th.align_center {
+        text-align: center;
+        }
     .b-grid-head {
-        width: 100%;
         overflow: hidden;
+        white-space: nowrap;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;        
         }
     .b-grid-h {
         width: 100%;
@@ -24,6 +31,14 @@
         white-space: nowrap;
         -o-text-overflow: ellipsis;
         text-overflow: ellipsis;
+        }
+    .b-grid-th {
+        display: inline-block;
+        padding: 8px;
+        font-weight: bold;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -webkit-box-sizing: border-box;
         }
     .b-grid-row.state_active .b-grid-td{
         background-color: #D9EDF7;

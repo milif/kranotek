@@ -1,6 +1,6 @@
 .b-classeditpanel {
     }
-    .b-classeditpanel .b-form {
+    .b-classeditpanel-nestedlist + * {
         margin-top: 20px;
         }
     .b-classeditpanel-nestedlist {

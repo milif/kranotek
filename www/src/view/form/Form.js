@@ -81,7 +81,7 @@
                 
                 
                 if(this.model) {
-                    bindModel.call(this, model);
+                    bindModel.call(this, this.model);
                 }
             }
         },
@@ -93,6 +93,7 @@
                     title: 'Подтверждение действия',
                     text: 'Форма имеет не сохраненные данные. Вы можете отменить действие.',         
                     callback: function(){
+                        self.cancel();
                         callback.call(scope || self);
                     }
                 });
@@ -135,10 +136,11 @@
             this.model.save(this.model.changedAttributes(this._model.attributes),{
                 wait: true,
                 success: function(){
+                    bindModel.call(self, self.getModel());
                     self.trigger( 'save', isNew );
                 },
                 error: function(model, data){
-                    self.applyErrors(data.errors);
+                    if(data) self.applyErrors(data.errors);
                     self.trigger( 'error', isNew );
                 },
                 complete: function(){

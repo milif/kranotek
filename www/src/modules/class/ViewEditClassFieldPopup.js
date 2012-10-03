@@ -3,7 +3,9 @@
 
         extend: 'Popup',
 
-        model: App.getModel('ModelClassField'),
+        options: {
+            popupWidth: 500
+        },
 
         init: function(){
             this.parent().init.apply(this, arguments);
@@ -39,17 +41,7 @@
                 fieldType = new FieldSelect({
                     label: 'Тип данных',
                     name: 'Type',
-                    options: {
-                        'null':'',
-                        0:'Integer',
-                        1:'Bigint',
-                        2:'Smallint',
-                        3:'Numeric',
-                        4:'Boolean',
-                        5:'Timestamp',
-                        6:'Text',
-                        7:'Subtype'
-                    },
+                    options: ModelClassField.fieldTypes,
                     details: fieldTypeDetails
                 }),
                 fieldDefault = new FieldText({
@@ -65,11 +57,10 @@
                     name: 'Required'
                 }),
                 form = new Form({
-                    model: self.model,
                     listeners: {
                         'save': function(isNew){
                             var model = this.getModel();
-                            self.trigger('save', model);
+                            self.trigger('save', isNew, model);
                         }
                     }
                 })
@@ -98,15 +89,22 @@
             fieldTypeDetails.hide();
             bindTypeDependencies.call(this);
 
+            this.setModel(this.model);
+
             return this;
         },
         setModel: function(model) {
-            this.setTitle(model ? ('Поле '+(model.get('Name') || '')) : 'Новое поле');
+            if(!model) return;
+            this.setTitle(model.id ? ('Поле '+(model.get('Name') || '')) : 'Новое поле');
             model = model || new ModelClassField({});
 
             this.model = model;
             this._form.setModel(model);
             bindTypeDependencies.call(this);
+            
+            this._fieldName.setReadOnly(model.id && !model.get('External'));
+            
+            return this;
         },
         close: function() {
             var self = this,
@@ -133,6 +131,7 @@
     }
 
     function bindTypeDependencies() {
+    return;
         var self = this,
             subtypeValue = 7;
         var initType = parseInt(self._form._model.get('Type'), 10);

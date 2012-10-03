@@ -23,7 +23,7 @@ App.defineView('FieldSelect', {
             items = this.options.options,
             options = '';
 
-        if(typeof items['null'] != -1) {
+        if(items['null']) {
             options+='<option value="">'+items['null']+'</option>';
         }
         if(items) for(var p in items){

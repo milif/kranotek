@@ -3,5 +3,5 @@ App.defineCollection('CollectionClass', {
     extend: 'CollectionNested',
     getName: function(node){
         return node.get('ClassName');
-    }    
+    }
 });

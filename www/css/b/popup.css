@@ -1,3 +1,8 @@
+html.noscroll,
+html.noscroll body {
+    overflow: hidden;
+    }
+
 .b-popup {
     position: fixed;
     overflow: auto;
@@ -6,11 +11,14 @@
     bottom: 0;
     right: 0;
     background: rgba(0,0,0,0.7);
-    z-index: 9999;
+    z-index: 999;
     }
     .b-popup .modal {
         position: relative;
         left: 0;
         top: 0;
-        margin: 30px auto;
+        margin: 0 auto;
+        }
+    .b-popup .modal-body {
+        max-height: none;
         }

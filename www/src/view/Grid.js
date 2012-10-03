@@ -7,7 +7,8 @@
             collumns: null,
             selectable: false,
             minColumnWidth: 50,
-            emptyText: 'Нет данных'
+            emptyText: 'Нет данных',
+            autoFetch: false
         },      
         
         init: function(){
@@ -36,28 +37,50 @@
                 });
             this._emptyEl = this.$el.find('._empty'+this.cid);
             
+            this._refreshButton = new (App.getView('Button'))({
+                icon: 'icon-refresh',
+                type: 'small',
+                click: function(){
+                    self.fetch();
+                }
+            });
             this._toolbar = new (App.getView('ToolbarHover'))();
             this._toolbar
-                .add(new (App.getView('Button'))({
-                    icon: 'icon-refresh',
-                    type: 'small',
-                    click: function(){
-                        self.fetch();
-                    }
-                }), 10)
+                .add( this._refreshButton , 10)
                 .setPanel(this);
+            
+            this.$el.on('mouseenter', '._hover'+this.cid, function(){
+                var el = $(this);
+                if(el.data('tooltip')) return;
+                self._hoverAction = setTimeout(function(){
+                    el.css('position', 'absolute');
+                    var width = el.width();
+                    el.css('position', 'static');
+                    if(el.width()<width) {
+                        var tooltip = el.data('tooltip');
+                        if(!tooltip) {
+                            var tooltip = new (App.getView('Tooltip'))({
+                                delay: { show: 300 },
+                                target: el,
+                                position: 'top'
+                            });
+                            el.data('tooltip', tooltip);
+                        }
+                        tooltip
+                            .setText(el.text())
+                            .show();
+                    }
+                }, 500);
+            });
+            this.$el.on('mouseleave', '._hover'+this.cid, function(){
+                clearTimeout(self._hoverAction);
+            });
             
             addColumns.call(this, this.options.columns);
             
-            setTimeout(function(){
-                if(self.collection.isFetched()) {
-                   refreshList.call(self);
-                } else {
-                    self.fetch();
-                }            
-            },0);
+            this.setCollection(this.collection);
             
-            return this;    
+            return this;
         },
         doPresenter: function(){
             
@@ -67,37 +90,30 @@
                 
                 // Important! Remove all models listeners after remove view
                 this.on('remove', function(){
-                    this.collection.off(null, null, this);
+                    unbindCollection.call(this);
                 });
                            
                 this._presenterOnce = true;
             }
             
-            this.collection
-                .on('reset', function(){
-                    // TODO
-                }, this)           
-                .on('add', function(model, collection, options){
-                    addModel.call(self, model, options.index);
-                }, this)
-                .on('remove', function(model){
-                    removeModel.call(self, model);
-                }, this);
+            bindCollection.call(this);
+            
         },        
         doLayout: function(){
             var columns = this._columns,
                 column,
                 width,
                 widthRelativeEl,
-                scrollbarWidth = 20,
+                scrollbarWidth = App.view.getScrollbarWidth(),
                 widthEl = this.$el.width() - scrollbarWidth,
                 widthRelative = 0,
                 widthFixed = 0;
+
             for(var i=0;i<columns.length;i++){
                 column = columns[i];
                 width = columns[i].width;
                 if(width>10) {
-                    this._colsEl.find('col:eq('+i+')').attr('width', width+'px');
+                    this._colsEl.find('._col'+this.cid+':eq('+i+')').css('width', width+'px');
                     widthFixed+=width;
                 } else {
                     widthRelative+=width;
@@ -109,11 +125,13 @@
                 width = columns[i].width;
                 if(width<=10) {
                     width=Math.max(this.options.minColumnWidth, parseInt(widthRelativeEl * (width/widthRelative) ));
-                    this._colsEl.find('col:eq('+i+')').attr('width', width+'px');
+                    this._colsEl.find('._col'+this.cid+':eq('+i+')').css('width', width+'px');
                 }
             }
-            var headLastCol = this._headHEl.find('col:last');
-            headLastCol.attr('width', parseInt(headLastCol.attr('width'))+scrollbarWidth);
+            
+            this._headHEl.css('margin-right', scrollbarWidth+'px');
+            this._bodyHEl.find('table').width(widthEl);
+        
         },
         getToolbar: function(){
             return this._toolbar;
@@ -132,8 +150,34 @@
         getSelection: function(){
             return this._selectedRow ? [this._selectedRow] : [];
         },
+        setCollection: function(collection){
+            var self = this;        
+            unbindCollection.call(this);
+            this.collection = collection;
+            bindCollection.call(this);
+            
+            this.select();
+            
+            if(!collection || collection.isLocal()) {
+                this._refreshButton.disable();
+            } else {
+                this._refreshButton.enable();
+            }
+            
+            setTimeout(function(){
+                if(!self.collection) return;
+                if(self.collection.isFetched() || self.collection.isLocal()) {
+                   refreshList.call(self);
+                } else {
+                    if(self.$el.is(':visible')) self.fetch();
+                }
+            },0);  
+            
+            return this;
+        },
         fetch: function(){
-          
+            if(!this.collection) return;
+            
             var self = this;
           
             App.view.setLoading(self.$el, true);
@@ -146,9 +190,27 @@
                 complete: function(){
                     App.view.setLoading(self.$el, false);
                 }
-            });         
+            });
         }
     });
+    function unbindCollection(){
+        if(!this.collection) return;
+        this.collection.off(null, null, this);
+    }
+    function bindCollection(){
+        if(!this.collection) return;
+        var self = this;
+        this.collection
+            .on('reset', function(){
+                // TODO
+            }, this)           
+            .on('add', function(model, collection, options){
+                addModel.call(self, model, options.index);
+            }, this)
+            .on('remove', function(model){
+                removeModel.call(self, model);
+            }, this);    
+    }
     function refreshList() {
         this._length=0;
         var scrollTop = this._bodyHEl.scrollTop(),
@@ -163,6 +225,7 @@
         this._bodyHEl
             .scrollTop(scrollTop)
             .scrollLeft(scrollLeft);
+
     }
     function updateEmpty(){
 
@@ -199,7 +262,9 @@
         }
         model.off('change', null, this);
         model.on('change', function(){
-            trEl.replaceWith(renderRow.call(self, model));
+            var newRow = renderRow.call(self, model);
+            trEl.replaceWith(newRow);
+            trEl = newRow;
         }, this);
         
         this._length++;
@@ -209,12 +274,16 @@
     }
     function renderRow(model){
         var tr='',
-            trEl;
-            
+            trEl,
+            value;
+      
         for (var i=0;i<this._columns.length;i++){
+            value = model.get(this._columns[i].key);
+            if(typeof value=='boolean') value=value ? '<i class="icon-ok"></i>' : '';
             tr+= tdTpl({
                 cid: this.cid,
-                text: model.get(this._columns[i].key)
+                text: this._columns[i].render ? this._columns[i].render.call(this, value) : value,
+                align: this._columns[i].align || 'left'
             });
         }
         
@@ -223,6 +292,8 @@
             id: model.id,
             items: tr
         }));
+      
+        if(this._selectedRow == model.id) trEl.addClass('state_active');        
         
         return  trEl;
     }
@@ -248,23 +319,18 @@
         for(var i=0;i<columns.length;i++){
             columns[i].width = columns[i].width || 1;
             column = thTpl({
-                text: columns[i].name
+                cid: this.cid,
+                text: columns[i].name,
+                align: columns[i].align || 'left'
             });
-            this._colsEl.append('<col/>');
+            this._colsEl.last().append('<col class="_col'+this.cid+'"/>');
             this._headEl.append(column);
         }
     }
     
     var tpl = _.template(
         '<div class="b-grid"><div class="b-grid-h">' +
-            '<div class="b-grid-head _head-h{cid}">' +
-                '<table class="table">' +
-                  '<colgroup class="_cols{cid}"></colgroup>' +
-                  '<thead>' +
-                    '<tr class="_head{cid}"></tr>' +
-                  '</thead>' +
-                '</table>' +
-            '</div>' +
+            '<div class="b-grid-head _head-h{cid} _head{cid} _cols{cid}"></div>' +
             '<div class="b-grid-body _body-h{cid}">' +
                 '<table class="table table-striped table-hover">' +
                   '<colgroup class="_cols{cid}"></colgroup>' +
@@ -274,9 +340,9 @@
             '</div>' +
         '</div><div class="b-grid-empty _empty{cid}">{emptytext}</div></div>'
         ),
-        thTpl = _.template('<th><div class="b-grid-th-h">{text}</div></th>'),
+        thTpl = _.template('<div class="b-grid-th align_{align} _col{cid}"><div class="b-grid-th-h _hover{cid}">{text}</div></div>'),
         trTpl = _.template('<tr data-id={id} class="b-grid-row _row{cid}">{items}</tr>'),
-        tdTpl = _.template('<td class="b-grid-td t-bg"><div class="b-grid-td-h _td{cid}">{text}</div></td>');
+        tdTpl = _.template('<td class="b-grid-td t-bg align_{align}"><div class="b-grid-td-h _td{cid} _hover{cid}">{text}</div></td>');
     
 })(App);
 

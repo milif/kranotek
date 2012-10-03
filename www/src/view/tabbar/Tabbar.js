@@ -1,3 +1,20 @@
+/*REFACTORING*/
+(function(App){
+
+    App.defineView('TabbarButton', {
+      extend: 'Button',
+      className: '',
+      init: function(){
+          this.parent().init.call(this);
+      },
+      doRender: function(){
+        this.parent().doRender.call(this);
+        this.$el.removeClass('dropdown-toggle');
+      }
+    });
+
+})(App);
+
 (function(App){
 
     App.defineView('Tabbar', {
@@ -7,7 +24,7 @@
         },
 
         tagName: "div",
-        className: "",
+        className: "b-tabbar-h",
 
         init: function(){
             var self = this;
@@ -56,13 +73,11 @@
 
             _resize.call(this);
 
-            this.bind('resize', function() {
-                _resize.call(self);
-            });
-
             return this;
         },
-
+        doLayout: function(){
+            _resize.call(this);
+        },
         addTab: function(component, label, tabIndex, isClosable){
 
             var maxIndex = 0;
@@ -150,11 +165,16 @@
             return result;
         },
 
-        activeTab: function(tabIndex) {
-
+        activeTab: function(tabIndex, isSilent) {
+            if(this._activeIndex == tabIndex) return this;
+            var event = {},
+                prev = this._activeIndex;
+            if(!isSilent) this.trigger('beforetabchange', event, tabIndex, prev);
+            if(event.cancel) return this;
+            this._activeIndex = tabIndex;
             activateTabHeader.call(this, tabIndex);
             openTabContent.call(this, tabIndex);
-
+            if(!isSilent) this.trigger('tabchange', tabIndex, prev);
             return this;
         },
 
@@ -215,6 +235,9 @@
             $(this).hide();
         });
         tabEl.fadeIn(200);
+        
+        var component = tabEl.data('component');
+        if(component.layout) component.layout();
     }
 
     function addTabHeader(component, label, tabIndex, isClosable) {
@@ -239,7 +262,7 @@
                 groupEl.insertBefore($(moreEl));
             }
         }
-        var linkTpl = '<a href="#" class="title active">'+label+'</a>';
+        var linkTpl = '<a href="javascript:void(0);" class="title active">'+label+'</a>';
         if(isClosable) {
             linkTpl += '<a class="tab-close"></a>';
         }
@@ -250,7 +273,7 @@
         var groupTabsEl = _getTabsEl.call(this, tabIndex);
         if(groupTabsEl.length===0) {
             groupTabsEl = $(groupTabsTpl({
-                cid: self.cid
+                cid: this.cid
             }))
                 .attr('data-index', tabIndex);
             this._groupsTabsEl.children().each(function(){
@@ -263,7 +286,9 @@
                 this._groupsTabsEl.append(groupTabsEl);
             }
         }
-        groupTabsEl.append(component.$el || component);
+        groupTabsEl
+            .data('component', component)
+            .append(component.$el || component);
     }
 
     function getClosestNumber(index, indexes) {

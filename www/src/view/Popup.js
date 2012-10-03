@@ -50,11 +50,21 @@
             this._isOpen = true;
             $('body').append(this.$el);
             
-            this._popupEl
-                .width(Math.min($(window).width()-30, this.options.popupWidth))
-                ;         
+            var html = $('html'),
+                width = html.width();
+            html
+                .addClass('noscroll')
+                .css({
+                    marginRight: html.width()-width
+                });
             
             this.$el.hide().fadeIn(300);
+            
+            this._popupEl
+                .width(Math.min($(window).width()-30, this.options.popupWidth))
+                .css('top', Math.max(0,($(window).height()-this._popupEl.outerHeight())/2))
+                ;        
+            
             $(window).on(this._windowListeners);
             this.trigger('open');            
             return this;
@@ -64,6 +74,12 @@
             this._isOpen = false;
             this.$el.fadeOut(300, function(){
                 $(this).detach();
+                
+                if($('.b-popup').size()==0) $('html')
+                    .removeClass('noscroll')
+                    .css({
+                        marginRight: 0
+                    });                
             });
             $(window).off(this._windowListeners);
             this.trigger('close');

@@ -76,8 +76,7 @@
                                 toolbar,
                                 node,
                                 nodeIn,
-                                current = selected[0]
-                                ;
+                                current = selected[0];
                                 
                                 for(var i=0;i<lists.length;i++){
                                     toolbar = this.getListToolbar(lists[i]);
@@ -107,6 +106,85 @@
                 FieldTextarea = App.getView('FieldTextarea'),
                 FieldText = App.getView('FieldText'),
                 FieldCheckbox = App.getView('FieldCheckbox'),
+                Container = App.getView('Container'),
+                Button = App.getView('Button'),
+                ModelClassField = this.collection.model.getModelClassField(),
+                Grid = App.getView('Grid'),
+                
+                addFieldButton = new Button({
+                    disabled: true,
+                    tooltip: 'Добавить поле',
+                    size: 'small',
+                    icon: 'icon-plus',
+                    click: function(){
+                        var classId = self._form.getModel().id;
+                        editField.call(self, new (self.collection.model.getModelClassField())({
+                            'ClassId': classId,
+                            'External': classId && true
+                        }));
+                    }
+                }),                
+                editFieldButton = new Button({
+                    disabled: true,
+                    tooltip: 'Изменить поле',
+                    size: 'small',
+                    icon: 'icon-edit',
+                    click: function(){
+                        var ids = gridFields.getSelection(),
+                        model = gridFields.collection.get(ids[0]);                        
+                        editField.call(self, model);
+                    }
+                }), 
+                removeFieldButton = new Button({
+                    disabled: true,
+                    size: 'small',
+                    tooltip: 'Удалить поле',
+                    icon: 'icon-remove',
+                    click: function(){
+                        App.msg.okcancel({
+                            title: 'Удаление поля',
+                            text: 'Вы действительно хотите удалить поле?',
+                            callback: function(){
+                                var ids = gridFields.getSelection(),
+                                    model = gridFields.collection.get(ids[0]);
+                                if(model) model.destroy({
+                                    wait: true,
+                                    silent:false
+                                });                                    
+                            }
+                        });                    
+                    }
+                }),
+                gridFields = new Grid({
+                    selectable: true,
+                    columns: [
+                        { name: 'Название', key: 'Name', width: 1 },
+                        { name: 'Описание', key: 'Description', width: 3 },
+                        { name: 'Тип данных', key: 'Type', width: 1, render: function(value){
+                            return ModelClassField.fieldTypes[value];
+                        }},
+                        { name: 'По умолчанию', key: 'Type', width: 1 },
+                        { name: 'Не пусто', key: 'Required', width: 100, align: 'center'},
+                        { name: 'Уникально', key: 'Unique', width: 100, align: 'center'},
+                        { name: 'Внешнее', key: 'External', width: 100, align: 'center'}
+                    ],
+                    listeners: {
+                        'selectionchange': function(id){
+                            var model = this.collection.get(id);
+                            if(model) {
+                                editFieldButton.enable();
+                            } else {
+                                editFieldButton.disable();
+                            }
+                            if(model && model.get('External')) {
+                                removeFieldButton.enable();
+                            } else {
+                                removeFieldButton.disable();
+                            }
+                        }
+                    }
+                }),
+                
                 fieldName = new FieldText({
                     label: 'Название класса',
                     name: 'ClassName'
@@ -143,17 +221,45 @@
                     }))
                     .add(fieldSystem)
                     .add(fieldAllWorkspace)
-                    .add(fieldWorkspaceId)
-                    .hide(); 
+                    .add(fieldWorkspaceId),
+                
+                tabbar = new Tabbar({
+                    listeners: {
+                        'beforetabchange': function(e, current, prev){
+                            if(prev!=0 || !self._form) return;
+                            if(self._form.getModel().id) {
+                                e.cancel = true;
+                                self._form.askIfDirty(function(){
+                                    this.activeTab(current, true);
+                                    if(current==1 && gridFields.collection && !gridFields.collection.isFetched()) {
+                                        gridFields.fetch();
+                                    }
+                                }, this);
+                            }
+                        }
+                    }
+                })
+                    .addTab(form, 'Свойства', 0)
+                    .addTab(gridFields, 'Поля', 1)
+                    .activeTab(0)
+                    .hide();
 
-                 this.add(form);   
+                 gridFields.getToolbar()
+                    .add(addFieldButton, 1)
+                    .add(editFieldButton, 2)
+                    .add(removeFieldButton, 2);
+                 this._addFieldButton = addFieldButton;
+
+                 this.add(tabbar);   
                     
-                 this._form = form;           
+                 this._form = form;
+                 this._tabbar = tabbar; 
+                 this._gridFields = gridFields;
                  
             this._fieldName = fieldName;
             this._fieldSystem = fieldSystem;
             this._fieldAllWorkspace = fieldAllWorkspace; 
-            this._fieldWorkspaceId = fieldWorkspaceId;    
+            this._fieldWorkspaceId = fieldWorkspaceId;
             
             return this;    
         },
@@ -173,20 +279,46 @@
     var tpl = _.template(
         '<div class="b-classeditpanel-nestedlist _nestedlist{cid}"></div>'
     );
+    function editField(model){
+        if(!model) return;
+        var self = this;
+        if(!this._popupEditField) {
+            this._popupEditField = new (App.getView('ViewEditClassFieldPopup'))({
+                listeners: {
+                    'save': function(isNew, model){
+                        this.close();
+                        if(isNew) self._gridFields.collection.add([model], {silent: false});
+                    }
+                }
+            });
+        }
+        this._popupEditField
+            .setModel(model)
+            .open();
+    }
     function setCurrentClass(model){
             if(!model) {
-                this._form.hide();
+                this._tabbar.hide();
                 return;
             }
+            
             this._form
                 .setLegend('Класс ' + model.get('ClassName'))
                 .setModel(model);
-            this._form.show(); 
+            this._tabbar.show();
             
             this._fieldName.setReadOnly(true);
             this._fieldSystem.show();
             this._fieldWorkspaceId.show();
-            this._fieldAllWorkspace.hide(true);                      
+            this._fieldAllWorkspace.hide(true);
+            
+            this._gridFields.setCollection(model.getCollectionFields());
+            if(model.get('System')) {
+                this._addFieldButton.disable();
+            } else {
+                this._addFieldButton.enable();
+            }
+            
     }
     function addClassTo(path) {
         this._form.askIfDirty(function(){        
@@ -197,12 +329,17 @@
                 .setLegend('Создание нового '+(path!='/'?'дочернего':'')+' класса')
                 .setModel(model);
 
-            this._form.show();
+            this._tabbar.activeTab(0);
+            this._gridFields.setCollection(model.getCollectionFields());
+            this._addFieldButton.enable();
+            
+            this._tabbar.show();
             
             this._fieldSystem.hide(true);
             this._fieldName.setReadOnly(false);
             this._fieldWorkspaceId.hide(true);
             this._fieldAllWorkspace.show();
+            
         }, this);
     }
     

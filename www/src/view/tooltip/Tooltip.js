@@ -34,7 +34,7 @@ App.defineView('Tooltip', {
         
     },
     setText: function(text){
-        if(this._tooltip.options.title == text) return;
+        if(this._tooltip.options.title == text) return this;
         this._tooltip.options.title = text;
         if(this._tooltip.tip().is(':visible')) {
             this._tooltip.tip().find('.tooltip-inner').html(text);

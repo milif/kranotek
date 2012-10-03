@@ -7,13 +7,16 @@ var App = (function(){
     };
 
     Backbone.sync = function(method, model, options){
+        //if(model.__sync) model.__sync.abort();
         if(method=='create') method = 'update';
         if(method == 'update' && model instanceof Model) options.params = $.extend(model.attributes || {},  options.params);
         if(method=='delete' && model instanceof Model) options.params = {id: model.id };
-        return App.rpc.request(model.api + '.' + method, options.params)
+        var request = App.rpc.request(model.api + '.' + method, options.params)
             .on('success', options.success, model)
             .on('error', options.error, model)
             .on('complete', options.complete, model);
+        model.__sync = request;
+        return request;
     }
 
     /* Core */
@@ -37,6 +40,19 @@ var App = (function(){
 
      var self = {
         view: {
+            getScrollbarWidth: function(){
+                var self = arguments.callee;
+                if(!self.width){
+                    var div = $('<div style="width:50px;height:50px;overflow:auto;position:absolute;top:-200px;left:-200px;">'); 
+                    // Append our div, do our calculation and then remove it 
+                    $('body').append(div); 
+                    var w1 = div.innerWidth();
+                    var w2 = div.append('<div style="height:100px;width:100%;">').find('div').innerWidth(); 
+                    $(div).remove();
+                    self.width = (w1 - w2);
+                }
+                return self.width;                
+            },
             setLoading: function(el, active){
                 if(!el) return;
                 if(active) {
@@ -193,18 +209,25 @@ var App = (function(){
             return this;
         },
         show: function(){
+            if(this.$el.is(':visible')) return this;
             this.$el.fadeIn(200);
+            if(!this._isLayout) this.layout();
             return this;
         },
         layout: function(){
+            if(this._isLayout || this.$el.is(':hidden')) return this;
             this.doLayout();
+            this._isLayout = true;
+            return this;
         },
         doLayout: emptyFn,
         parent: parentFn
     }),
     Collection = extendFn.call(Backbone.Collection, {
-        initialize: function(){
+        initialize: function(models, options){
             applyListeners(this, this.listeners);
+            if(options && options.params) this.params = options.params;
+            this._isLocal = options && options.local && true;
             this.init();
             if(this.model) this.api = this.model.prototype.api;
             this._fetched = !this.api;
@@ -215,7 +238,9 @@ var App = (function(){
         },
         fetch: function(options){
             this._fetched = true;
-            return Collection.__super__.fetch.apply(this, arguments);
+            if(!options) options = {};
+            options.params = $.extend({}, this.params, options.params);
+            return Collection.__super__.fetch.call(this, options);
         },
         add: function(models){
             var model;
@@ -224,6 +249,9 @@ var App = (function(){
                 if(model) model.set(models[i]);
             }
             this.parent().add.apply(this, arguments);
+        },
+        isLocal: function(){
+            return this._isLocal;
         },
         isFetched: function(){
             return this._fetched;
