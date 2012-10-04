@@ -46,8 +46,11 @@ App.defineView('Field', {
     getValue: function(){
         return this._value;
     },
-    setValue: function(v){
+    setValue: function(v, isSilent){
+        if(v===this._value) return this;
         this._value = v;
+        if(!isSilent) this.trigger('change');
+        return this;
     },
     enable: function(){
         this.$el.removeClass('disabled');

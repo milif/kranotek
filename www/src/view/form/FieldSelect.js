@@ -31,25 +31,33 @@ App.defineView('FieldSelect', {
                 options+='<option value="'+p+'">'+items[p]+'</option>';
             }
         }
-
+        
         this._itemEl.append(this.itemTpl({
             cid: this.cid,
             name: this.options.name
         }));
 
-        this.$el.find('select')
+        this._selectEl = this.$el.find('select');
+
+        this.setReadOnly(this.options.readonly);
+
+        this._selectEl
             .append(options)
             .on('change', function(){
-                self._value = $(this).val();
-                self.trigger('change');
+                self.setValue($(this).val());
             });
 
         if(this.options.details) {
-            var fieldElement = this.$el.find('select').parent();
+            this._selectEl.width(175);
+            var fieldElement = this._selectEl.parent();
             fieldElement.append($('<span>&nbsp;</span>'));
             fieldElement.append(this.options.details.$el);
         }
 
+        this.on('change', function(){
+            this._selectEl.val(this._value+"");
+        });
+        
         return this;
     },
     doPresenter: function(){
@@ -63,8 +71,14 @@ App.defineView('FieldSelect', {
         }
         return this;
     },
-    setValue: function(v){
-        this.parent().setValue.apply(this, arguments);
-        this.$el.find('select').val(this._value+"");
-    }
+    setReadOnly: function(isReadOnly){
+        if( this._isReadOnly === isReadOnly ) return;
+        
+        var self = this;
+        
+        this._isReadOnly = isReadOnly;
+        
+        if(isReadOnly) this._selectEl.attr('disabled', true);
+        else this._selectEl.removeAttr('disabled');     
+    }     
 });

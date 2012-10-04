@@ -39,6 +39,7 @@
                     text: '...'
                 }),
                 fieldType = new FieldSelect({
+                    width: 175,
                     label: 'Тип данных',
                     name: 'Type',
                     options: App.getModel('ModelClassField').fieldTypes,
@@ -89,7 +90,6 @@
             fieldTypeDetails.hide();
 
             this._form.getField('Type').on('change', onTypeChange, this);
-            onTypeChange.call(this);
 
             this.setModel(this.model);
 
@@ -102,9 +102,11 @@
 
             this.model = model;
             this._form.setModel(model);
-            onTypeChange.call(this);
             
-            this._fieldName.setReadOnly(model.id && !model.get('External'));
+            this._fieldName.setReadOnly(model.id&&true);
+            this._fieldType.setReadOnly(model.id&&true);
+            this._fieldUnique.setReadOnly(model.id&&true);
+            this._fieldRequired.setReadOnly(model.id&&true);
             
             return this;
         },

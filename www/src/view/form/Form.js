@@ -150,16 +150,8 @@
             });         
         },
         cancel: function(){
-            var isValid = this._model.set(this.model.attributes);       
-            for(var p in this._fields) {
-                if(isValid) {
-                    delete this._errors[p];
-                    this._fields[p].clearError();                                                             
-                }             
-                this._fields[p].setValue(this.model.get(p));
-            }
-            checkErrorChange.call(this);
-            checkDirtyChange.call(this);         
+            bindModel.call(this, this.model);
+            return this;     
         },
         getField: function(name){
             return this._fields[name];

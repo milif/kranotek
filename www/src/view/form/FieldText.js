@@ -25,6 +25,14 @@ App.defineView('FieldText', {
         
         this.setReadOnly(this.options.readonly);
         
+        this.on('change', function(){
+            if(!this._isReadOnly) {
+                this.$el.find('input').val(this._value);
+            } else {
+                this.$el.find('._input'+this.cid).text(this._value);
+            }            
+        });
+        
         return this;    
     },
     doPresenter: function(){
@@ -55,16 +63,7 @@ App.defineView('FieldText', {
         
         this.$el.find('input')
             .on('input paste keyup propertychange', function(){
-                self._value = $(this).val();
-                self.trigger('change');
+                self.setValue($(this).val());
             });        
-    },
-    setValue: function(v){
-        this.parent().setValue.apply(this, arguments);
-        if(!this._isReadOnly) {
-            this.$el.find('input').val(this._value);
-        } else {
-            this.$el.find('._input'+this.cid).text(this._value);
-        }
-    }    
+    } 
 });

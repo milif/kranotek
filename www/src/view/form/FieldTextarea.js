@@ -26,9 +26,12 @@ App.defineView('FieldTextarea', {
         
         this.$el.find('textarea')
             .on('input paste keyup propertychange', function(){
-                self._value = $(this).val();
-                self.trigger('change');
+                self.setValue($(this).val());
             });
+        
+        this.on('change', function(){
+            this.$el.find('textarea').val(this._value);
+        });
         
         return this;    
     },
@@ -41,10 +44,7 @@ App.defineView('FieldTextarea', {
         if(!isOnce) {
             
         }
+        
         return this;
-    },
-    setValue: function(v){
-        this.parent().setValue.apply(this, arguments);
-        this.$el.find('textarea').val(this._value);
-    }    
+    } 
 });

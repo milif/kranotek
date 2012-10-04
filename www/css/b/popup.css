@@ -13,11 +13,19 @@ html.noscroll body {
     background: rgba(0,0,0,0.7);
     z-index: 999;
     }
-    .b-popup .modal {
-        position: relative;
-        left: 0;
-        top: 0;
+    .b-popup-h {
+        display: table;
         margin: 0 auto;
+        height: 100%;
+        }
+        .b-popup-hh {
+            display: table-cell;
+            padding: 20px;
+            vertical-align: middle;
+            }
+    .b-popup .modal {
+        position: static;
+        margin: 0;
         }
     .b-popup .modal-body {
         max-height: none;

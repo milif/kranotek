@@ -163,7 +163,7 @@
                         { name: 'Тип данных', key: 'Type', width: 1, render: function(value){
                             return ModelClassField.fieldTypes[value];
                         }},
-                        { name: 'По умолчанию', key: 'Type', width: 1 },
+                        { name: 'По умолчанию', key: 'Default', width: 1 },
                         { name: 'Не пусто', key: 'Required', width: 100, align: 'center'},
                         { name: 'Уникально', key: 'Unique', width: 100, align: 'center'},
                         { name: 'Внешнее', key: 'External', width: 100, align: 'center'}

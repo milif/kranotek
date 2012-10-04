@@ -61,9 +61,7 @@
             this.$el.hide().fadeIn(300);
             
             this._popupEl
-                .width(Math.min($(window).width()-30, this.options.popupWidth))
-                .css('top', Math.max(0,($(window).height()-this._popupEl.outerHeight())/2))
-                ;        
+                .width(Math.min($(window).width()-30, this.options.popupWidth));       
             
             $(window).on(this._windowListeners);
             this.trigger('open');            
@@ -103,14 +101,18 @@
     
     var tpl = _.template(
         '<div class="b-popup">' +
-            '<div class="modal _popup{cid}">' +
-              '<div class="modal-header">' +
-                '<button type="button" class="close _close{cid}">×</button>' +
-                '<h3 class="_title{cid}">{title}</h3>' +
-              '</div>' +
-              '<div class="modal-body _body{cid}"></div>' +
-              '<div class="modal-footer _footer{cid}"></div>' +
-            '</div>' +          
+            '<div class="b-popup-h">' +
+                '<div class="b-popup-hh">' +
+                    '<div class="modal _popup{cid}">' +
+                      '<div class="modal-header">' +
+                        '<button type="button" class="close _close{cid}">×</button>' +
+                        '<h3 class="_title{cid}">{title}</h3>' +
+                      '</div>' +
+                      '<div class="modal-body _body{cid}"></div>' +
+                      '<div class="modal-footer _footer{cid}"></div>' +
+                    '</div>' + 
+                '</div>' +     
+            '</div>' +    
         '</div>'
     );
     

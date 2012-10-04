@@ -27,13 +27,29 @@ App.defineView('FieldCheckbox', {
         
         this._inputEl = this.$el.find('input')
             .on('click', function(){
-                self._value = $(this).is(':checked');
-                self.trigger('change');
+                self.setValue($(this).is(':checked'));
             });
         
-        if(this.options.readonly) this._inputEl.attr('disabled', true);
+        this.setReadOnly(this.options.readonly);
+        
+        this.on('change', function(){
+            var item = this.$el.find('input');
+            if(this._value) item.attr('checked', true);
+            else item.removeAttr('checked');
+        });        
         
         return this;    
+    },
+    setReadOnly: function(isReadOnly){
+        if( this._isReadOnly === isReadOnly ) return;
+        
+        var self = this;
+        
+        this._isReadOnly = isReadOnly;
+        
+        if(isReadOnly) this._inputEl.attr('disabled', true);
+        else this._inputEl.removeAttr('disabled');
+               
     },
     doPresenter: function(){
     
@@ -45,11 +61,5 @@ App.defineView('FieldCheckbox', {
             
         }
         return this;
-    },
-    setValue: function(v){
-        this.parent().setValue.apply(this, arguments);
-        var item = this.$el.find('input');
-        if(v) item.attr('checked', true);
-        else item.removeAttr('checked');
     }
 });
