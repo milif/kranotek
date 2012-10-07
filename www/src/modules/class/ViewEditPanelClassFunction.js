@@ -177,7 +177,7 @@
             .open();
     }
     function editFunctionField(model){
-                if(!model) return;
+        if(!model) return;
         var self = this;
         if(!this._popupEditFunctionField) {
             this._popupEditFunctionField = new (App.getView('ViewEditClassFunctionFieldPopup'))({
@@ -232,8 +232,8 @@
                 size: 'small',
                 icon: 'icon-edit',
                 click: function(){
-                    var ids = self._gridFunctions.getSelection(),
-                    model = self._gridFunctions.collection.get(ids[0]);
+                    var ids = gridFunctionFields.getSelection(),
+                    model = gridFunctionFields.collection.get(ids[0]);
                     editFunctionField.call(self, model);
                 }
             }), 
