@@ -221,7 +221,7 @@
                     model = self._gridFunctions.collection.get(ids[0]);
                     var classFunctionId = model.id;
                     editFunctionField.call(self, new ModelClassFunctionField({
-                        'ClassFunctionId': classFunctionId,
+                        'functionId': classFunctionId,
                         'type': type
                     }));
                 }

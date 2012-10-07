@@ -11,7 +11,7 @@ App.defineModel('ModelClassFunction', {
         return new (App.getCollection('CollectionClassFunctionField'))(null, {
             local: !this.id,
             params: {
-                'ClassFunctionId': this.id,
+                'functionId': this.id,
                 'type': type
             }
         });
