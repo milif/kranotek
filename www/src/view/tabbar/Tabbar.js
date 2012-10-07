@@ -224,7 +224,7 @@
         });
         tabEl.fadeIn(200);
         
-        var component = tabEl.data('component');
+        var component = this._tabComponents[tabIndex];
         if(component.layout) component.layout();
     }
 
