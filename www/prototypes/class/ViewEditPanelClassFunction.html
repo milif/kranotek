@@ -89,15 +89,15 @@
         }
         
         var ViewEditPanelClassFunction = App.getView('ViewEditPanelClassFunction'),
-            ModelClass = App.getModel('ModelClass'),
+            ModelClassFunction = App.getModel('ModelClassFunction'),
             view = new ViewEditPanelClassFunction({
-                model: new ModelClass({
-                    'id': 1,
-                    'ClassName': 'height'
+                model: new ModelClassFunction({
                 })
             });
         
         view.$el.appendTo($('#editpanel'));
+
+        view._gridFunctions.layout();
  
     </script>
   </body>

@@ -86,6 +86,7 @@
                             }
                             setCurrentClassFunction.call(self, model);
                             model ? tabbar.show() : tabbar.hide();
+                            model ? self._gridFunctionFieldsInput.layout() : null;
                         }
                     }
                 }),
@@ -96,22 +97,18 @@
                 tabbar = new Tabbar({
                     listeners: {
                         'beforetabchange': function(e, current, prev){
-                            // e.cancel = true;
-                            // this.activeTab(current, true);
                             if(current===0 && gridFunctionFieldsInput.collection && !gridFunctionFieldsInput.collection.isFetched()) {
                                 gridFunctionFieldsInput.fetch();
-                                // gridFunctionFieldsInput.setCollection(model.getCollectionFields('input'));
                             }
                             if(current===1 && gridFunctionFieldsOutput.collection && !gridFunctionFieldsOutput.collection.isFetched()) {
                                 gridFunctionFieldsOutput.fetch();
-                                // gridFunctionFieldsOutput.setCollection(model.getCollectionFields('output'));
                             }
                             self._activeTab = current;
                         }
                     }
                 })
-                    .addTab(gridFunctionFieldsInput, 'Input', 0)
-                    .addTab(gridFunctionFieldsOutput, 'Output', 1)
+                    .addTab(gridFunctionFieldsInput, 'Ввод', 0)
+                    .addTab(gridFunctionFieldsOutput, 'Вывод', 1)
                     .activeTab(0)
                     .hide();
 
@@ -132,9 +129,7 @@
                 .add(functionFieldsOutput.editButton, 2)
                 .add(functionFieldsOutput.removeButton, 2);
 
-            // gridFunctions.doLayout();
-            gridFunctions.fetch();
-
+            // gridFunctions.fetch();
 
             this._gridFunctions = gridFunctions;
             this._gridFunctionFieldsInput = gridFunctionFieldsInput;
