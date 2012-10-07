@@ -1,3 +1,4 @@
+(function(){ 
 App.defineView('FieldText', {
 
     extend: 'Field',
@@ -10,6 +11,10 @@ App.defineView('FieldText', {
         
     itemTpl: _.template(
         '<input id="{name}{cid}" name="{name}" value="{value}" type="text"/>'
+    ),
+    itemTplCheckable: _.template(
+        '<input type="checkbox" id="check-{name}{cid}" name="check-{name}"/> '+
+        '<input id="{name}{cid}" disabled="true" name="{name}" value="{value}" type="text"/>'
     ),
     itemReadOnlyTpl: _.template(
         '<span class="input uneditable-input _input{cid}">{value}</span>'
@@ -27,11 +32,21 @@ App.defineView('FieldText', {
         
         this.on('change', function(){
             if(!this._isReadOnly) {
-                this.$el.find('input').val(this._value);
+                this.$el.find('input[type="text"]').val(this._value);
             } else {
                 this.$el.find('._input'+this.cid).text(this._value);
-            }            
+            }
+            if(self.options.checkable) {
+                syncValueWithCheckbox.call(self);
+            }
         });
+
+        if(this.options.checkable) {
+            var checkboxEl = this.$el.find('input[type="checkbox"]');
+            checkboxEl.on('change', function(){
+                syncCheckbox.call(self);
+            });
+        }
         
         return this;    
     },
@@ -55,15 +70,40 @@ App.defineView('FieldText', {
         
         this._itemEl
             .children().remove().end()
-            .append((!isReadOnly ? this.itemTpl : this.itemReadOnlyTpl)({
+            .append((!isReadOnly ? this.options.checkable ? this.itemTplCheckable : this.itemTpl : this.itemReadOnlyTpl)({
                 cid: this.cid,
                 name: this.options.name,
                 value: this._value || ""
             }));
         
-        this.$el.find('input')
+        this.$el.find('input[type="text"]')
             .on('input paste keyup propertychange', function(){
                 self.setValue($(this).val());
             });        
     } 
 });
+
+function syncCheckbox() {
+    if(!this._isReadOnly) {
+        var checkboxEl = this.$el.find('input[type="checkbox"]'),
+            isChecked = checkboxEl.is(':checked'),
+            inputEl = this.$el.find('input[type="text"]');
+        if(isChecked) {
+            inputEl.attr('disabled', false);
+        } else {
+            this.setValue();
+            inputEl.attr('disabled', true);
+        }
+    }
+}
+function syncValueWithCheckbox() {
+    if(!this._isReadOnly) {
+        var checkboxEl = this.$el.find('input[type="checkbox"]');
+        if(this._value || this._value === 0) {
+            checkboxEl.attr('checked', true);
+        } else {
+            checkboxEl.attr('checked', false);
+        }
+    }
+}
+})();

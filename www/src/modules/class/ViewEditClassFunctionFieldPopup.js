@@ -49,9 +49,10 @@
                     label: 'Запрет null',
                     name: 'isNull'
                 }),
-                fieldArray = new FieldCheckbox({
-                    label: 'Использовать поля класса',
-                    name: 'Array'
+                fieldArray = new FieldText({
+                    label: 'Массив',
+                    name: 'Array',
+                    checkable: true
                 }),
                 form = new Form({
                     listeners: {
