@@ -11,18 +11,23 @@ App.defineView('Field', {
         '<label class="b-field control-label _label{cid}" for="{name}{cid}">{label}</label>' +
         '<div class="controls"><div class="b-field-item _item{cid}"></div></div>'
     ),
+    tplHiddenLabel: _.template(
+        '<div><div class="b-field-item _item{cid}"></div></div>'
+    ),
     init: function(){
         this._name = this.options.name;
     },   
     doRender: function(){
     
-        var self = this;     
-        
-        this.$el.append($(this.tpl({
+        var self = this;
+
+        var tpl = this.options.hideLabel ? this.tplHiddenLabel : this.tpl;
+        this.$el.append($(tpl({
             cid: this.cid,
             name: this._name,
             label: this.options.label
-        })));        
+        })));
+        
         
         if(this._name) this.$el
             .attr('data-form-field', this._name)

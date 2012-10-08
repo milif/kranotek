@@ -6,6 +6,7 @@ App.defineModel('ModelClassFunctionField', {
         'Datatype': null,
         'isConfigurable': false,
         'isNull': false,
+        'isArray': false,
         'Array': ''
     },
     validateModel: function(attrs){

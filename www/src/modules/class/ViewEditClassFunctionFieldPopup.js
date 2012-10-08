@@ -21,6 +21,7 @@
                 FieldText = App.getView('FieldText'),
                 FieldSelect = App.getView('FieldSelect'),
                 FieldCheckbox = App.getView('FieldCheckbox'),
+                ContainerRow = App.getView('ContainerRow'),
                 Button = App.getView('Button'),
                 fieldWorkspaceId = new FieldText({
                     label: 'ID',
@@ -49,11 +50,18 @@
                     label: 'Запрет null',
                     name: 'isNull'
                 }),
-                fieldArray = new FieldText({
-                    label: 'Массив',
-                    name: 'Array',
-                    checkable: true
+                fieldIsArray = new FieldCheckbox({
+                    label: 'Масив',
+                    name: 'isArray'
                 }),
+                fieldArray = new FieldText({                 
+                    name: 'Array',
+                    hideLabel: true
+                }),
+                containerArray = new ContainerRow({
+                })
+                    .add(fieldIsArray, 6)
+                    .add(fieldArray, 5),
                 form = new Form({
                     listeners: {
                         'save': function(isNew){
@@ -66,13 +74,17 @@
                     .add(fieldName)
                     .add(fieldInfo)
                     .add(fieldType)
-                    .add(fieldIsNull)
-                    .add(fieldArray)
+                    .add(containerArray)
                     .add(fieldWorkspaceId);
 
             fieldWorkspaceId.hide();
 
             this.add(form);
+
+            fieldIsArray.on('change', function(){
+                syncCheckboxText.call(this, fieldIsArray, fieldArray);
+            });
+            syncCheckboxText.call(this, fieldIsArray, fieldArray);
 
             this._form = form;
 
@@ -117,5 +129,10 @@
         self._form.askIfDirty(function(){
             self.close();
         });
+    }
+
+    function syncCheckboxText(fieldIsArray, fieldArray) {
+        var isChecked = fieldIsArray.getValue();
+        (isChecked) ? fieldArray.setReadOnly() : fieldArray.setReadOnly(true);
     }
 })();

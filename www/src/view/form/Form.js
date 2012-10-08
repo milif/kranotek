@@ -190,7 +190,7 @@
                 }, this);
             } else {
                 field.$el.find('[data-form-field]').each(function(){
-                    self.addField($(this).data('field'));
+                    self.addField && self.addField($(this).data('field'));
                 });
             }
             return this;
