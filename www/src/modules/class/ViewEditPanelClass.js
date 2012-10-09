@@ -119,8 +119,7 @@
                     click: function(){
                         var classId = self._form.getModel().id;
                         editField.call(self, new (self.collection.model.getModelClassField())({
-                            'ClassId': classId,
-                            'External': classId && true
+                            'ClassId': classId
                         }));
                     }
                 }),                
@@ -141,12 +140,16 @@
                     tooltip: 'Удалить поле',
                     icon: 'icon-remove',
                     click: function(){
+                        var ids = gridFields.getSelection(),
+                            model = gridFields.collection.get(ids[0]);
+                        if(model && !model.id) {
+                            gridFields.collection.remove([model], {silent: false});
+                            return;
+                        }
                         App.msg.okcancel({
                             title: 'Удаление поля',
                             text: 'Вы действительно хотите удалить поле?',
-                            callback: function(){
-                                var ids = gridFields.getSelection(),
-                                    model = gridFields.collection.get(ids[0]);
+                            callback: function(){    
                                 if(model) model.destroy({
                                     wait: true,
                                     silent:false
@@ -205,11 +208,33 @@
                 }),
                 form = new Form({
                     listeners: {
+                        'beforesave': function(e, isNew, attrs){
+                            if(isNew){
+                                var model = this.getModel(),
+                                    fieldCollection = gridFields.collection,
+                                    fields=[];
+                                
+                                fieldCollection.each(function(model){
+                                    fields.push(model.attributes);
+                                });
+                                if(fields.length==0){
+                                    e.cancel = true;
+                                    App.msg.warning({
+                                        title: 'Заполните поля класса',
+                                        text: 'Перед сохранением нового класса следует заполнить его поля'
+                                    });
+                                    tabbar.activeTab(1);
+                                } else {
+                                    attrs._fields = fields;
+                                }
+                            }
+                        },
                         'save': function(isNew){
                             var model = this.getModel();
                             if(isNew) {
                                 self.collection.add([model],{silent: false});
                                 self._nestedlist.select(self.collection.getPath(model));
+                                self._gridFields.setCollection(model.getCollectionFields());
                             }
                         }
                     }
@@ -293,6 +318,7 @@
             });
         }
         this._popupEditField
+            .setLocal(this._gridFields.collection.isLocal())
             .setModel(model)
             .open();
     }

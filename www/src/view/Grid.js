@@ -239,7 +239,8 @@
             this._bodyEl.hide();
             App.view.applyInset(this._emptyEl);
         } else {
-            this._emptyEl.fadeOut(200);
+            this._emptyEl.hide();
+             this._bodyEl.fadeIn(200);
         }
                  
     }
@@ -289,16 +290,16 @@
         
         trEl = $(trTpl({
             cid: this.cid,
-            id: model.id,
+            id: model.id || model.cid,
             items: tr
         }));
       
-        if(this._selectedRow == model.id) trEl.addClass('state_active');        
+        if(this._selectedRow == (model.id || model.cid)) trEl.addClass('state_active');        
         
         return  trEl;
     }
     function removeModel(model){
-        var itemEl = this._bodyEl.find('>[data-id="'+model.id+'"]');
+        var itemEl = this._bodyEl.find('>[data-id="'+(model.id || model.cid)+'"]');
         if(itemEl.length==0) return;
         if(itemEl.is(':visible')) {
             itemEl.fadeOut(200, function(){
@@ -309,7 +310,7 @@
         }
         
         this._length--;
-        if(model.id == this._selectedRow) this.select();
+        if((model.id || model.cid) == this._selectedRow) this.select();
         updateEmpty.call(this);
         
     }

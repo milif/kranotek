@@ -1,13 +1,12 @@
 App.defineModel('ModelClassField', {
     defaults: {
-        'id': null,
         'Name': '',
         'Description': '',
-        'Type': '',
+        'Type': 0,
         'Default': '',
         'Required': false,
         'Unique': false,
-        'External': false
+        'External': true
     },
     validateModel: function(attrs){
         var errors = [],
@@ -22,6 +21,13 @@ App.defineModel('ModelClassField', {
             } 
         }
         return errors.length > 0 ? errors : null ;
+    },
+    getCollectionSubypes: function(){
+        return new (App.getCollection('ClassFieldSubtype'))(null, {
+            params: {
+                'FieldId': this.id
+            }
+        });        
     },
     api: 'classfield'
 });
