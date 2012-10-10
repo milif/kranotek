@@ -133,6 +133,11 @@
             this._bodyHEl.find('table').width(widthEl);
         
         },
+        layout: function(){
+            this.parent().layout.apply(this, arguments);
+            if(this.collection && !this.collection.isFetched()) this.fetch();
+            return this;
+        },
         getToolbar: function(){
             return this._toolbar;
         },
@@ -280,10 +285,11 @@
       
         for (var i=0;i<this._columns.length;i++){
             value = model.get(this._columns[i].key);
+            if(this._columns[i].render) value = this._columns[i].render.call(this, value);
             if(typeof value=='boolean') value=value ? '<i class="icon-ok"></i>' : '';
             tr+= tdTpl({
                 cid: this.cid,
-                text: this._columns[i].render ? this._columns[i].render.call(this, value) : value,
+                text: value,
                 align: this._columns[i].align || 'left'
             });
         }

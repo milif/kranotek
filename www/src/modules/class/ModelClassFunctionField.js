@@ -6,8 +6,7 @@ App.defineModel('ModelClassFunctionField', {
         'Datatype': null,
         'isConfigurable': false,
         'isNull': false,
-        'isArray': false,
-        'Array': ''
+        'isArray': 0
     },
     validateModel: function(attrs){
         var errors = [],
@@ -23,17 +22,8 @@ App.defineModel('ModelClassFunctionField', {
         }
         return errors.length > 0 ? errors : null ;
     },
-    api: 'classfield'
+    api: 'classfunctionfield'
 });
 $.extend ( App.getModel('ModelClassFunctionField'), {
-    fieldTypes: {
-        0:'Integer',
-        1:'Bigint',
-        2:'Smallint',
-        3:'Numeric',
-        4:'Boolean',
-        5:'Timestamp',
-        6:'Text',
-        7:'Subtype'
-    }
+    fieldTypes: App.getModel('ModelClassField').fieldTypes
 });

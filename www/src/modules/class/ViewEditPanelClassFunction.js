@@ -5,35 +5,31 @@
 
         options: {
             fluid: true,
-            model: App.getModel('ModelClass')
+            model: null
         },
         init: function(){
             this.parent().init.apply(this, arguments);
-            this.$el.addClass('b-classeditpanel');
         },    
         doRender: function(){
         
             this.parent().doRender.apply(this, arguments);
             
             var self = this;
-
-            this.add(tpl({
-                cid: this.cid
-            }));
             
             var CollectionClassFunction = new (App.getCollection('CollectionClassFunction'))(),
                 addFunctionButton = new Button({
-                    tooltip: 'Добавить поле',
+                    tooltip: 'Добавить функцию',
                     size: 'small',
                     icon: 'icon-plus',
                     click: function(){
                         editFunction.call(self, new ModelClassFunction({
+                            'ClassId': self.model.id
                         }));
                     }
                 }),                
                 editFunctionButton = new Button({
                     disabled: true,
-                    tooltip: 'Изменить поле',
+                    tooltip: 'Изменить функцию',
                     size: 'small',
                     icon: 'icon-edit',
                     click: function(){
@@ -45,12 +41,12 @@
                 removeFunctionButton = new Button({
                     disabled: true,
                     size: 'small',
-                    tooltip: 'Удалить поле',
+                    tooltip: 'Удалить функцию',
                     icon: 'icon-remove',
                     click: function(){
                         App.msg.okcancel({
-                            title: 'Удаление поля',
-                            text: 'Вы действительно хотите удалить поле?',
+                            title: 'Удаление функции',
+                            text: 'Вы действительно хотите удалить функцию?',
                             callback: function(){
                                 var ids = gridFunctions.getSelection(),
                                     model = gridFunctions.collection.get(ids[0]);
@@ -63,16 +59,13 @@
                     }
                 }),
                 gridFunctions = new Grid({
-                    collection: CollectionClassFunction,
                     selectable: true,
                     columns: [
                         { name: 'Название', key: 'Name', width: 1 },
                         { name: 'Описание', key: 'Info', width: 3 },
                         { name: 'Тип', key: 'Type', width: 1, render: function(value){
-                            return ModelClassFunction.fieldTypes[value];
-                        }},
-                        { name: 'Активная', key: 'isActive', width: 100, align: 'center'},
-                        { name: 'Использовать поля класса', key: 'UseFields', width: 200, align: 'center'}
+                            return ModelClassFunction.functionTypes[value];
+                        }}
                     ],
                     listeners: {
                         'selectionchange': function(id){
@@ -86,7 +79,6 @@
                             }
                             setCurrentClassFunction.call(self, model);
                             model ? tabbar.show() : tabbar.hide();
-                            model ? self._gridFunctionFieldsInput.layout() : null;
                         }
                     }
                 }),
@@ -97,12 +89,6 @@
                 tabbar = new Tabbar({
                     listeners: {
                         'beforetabchange': function(e, current, prev){
-                            if(current===0 && gridFunctionFieldsInput.collection && !gridFunctionFieldsInput.collection.isFetched()) {
-                                gridFunctionFieldsInput.fetch();
-                            }
-                            if(current===1 && gridFunctionFieldsOutput.collection && !gridFunctionFieldsOutput.collection.isFetched()) {
-                                gridFunctionFieldsOutput.fetch();
-                            }
                             self._activeTab = current;
                         }
                     }
@@ -135,20 +121,20 @@
             this._gridFunctionFieldsInput = gridFunctionFieldsInput;
             this._gridFunctionFieldsOutput = gridFunctionFieldsOutput;
         },
+        layout: function(){
+            this.parent().layout.apply(this, arguments);
+            this._gridFunctions.layout();
+        },
         setModel: function(model) {
-
+            if(!model) return this;
+            this.model = model;
+            this._gridFunctions.setCollection(model.getCollectionFunctions());
+            return this;
         }
     });
 
-    var tpl = _.template(
-            '<div class="b-classeditpanel-classfunction{cid}"></div>'
-        ),
-        Grid = App.getView('Grid'),
+    var Grid = App.getView('Grid'),
         Tabbar = App.getView('Tabbar'),
-        Form = App.getView('Form'),
-        FieldTextarea = App.getView('FieldTextarea'),
-        FieldText = App.getView('FieldText'),
-        FieldCheckbox = App.getView('FieldCheckbox'),
         Container = App.getView('Container'),
         Button = App.getView('Button'),
         ModelClassFunction = App.getModel('ModelClassFunction'),
@@ -162,7 +148,7 @@
                 listeners: {
                     'save': function(isNew, model){
                         this.close();
-                        if(isNew) self._gridFields.collection.add([model], {silent: false});
+                        if(isNew) self._gridFunctions.collection.add([model], {silent: false});
                     }
                 }
             });
@@ -191,6 +177,7 @@
                 }
             });
         }
+        
         this._popupEditFunctionField
             .setModel(model)
             .open();
@@ -199,7 +186,6 @@
         if(!model) {
             return;
         }
-
         this._gridFunctionFieldsInput.setCollection(model.getCollectionFields('input'));
         this._gridFunctionFieldsOutput.setCollection(model.getCollectionFields('output'));
     }
@@ -216,7 +202,7 @@
                     model = self._gridFunctions.collection.get(ids[0]);
                     var classFunctionId = model.id;
                     editFunctionField.call(self, new ModelClassFunctionField({
-                        'functionId': classFunctionId,
+                        'FunctionId': classFunctionId,
                         'type': type
                     }));
                 }
@@ -258,11 +244,12 @@
                     { name: 'Название', key: 'Name', width: 1 },
                     { name: 'Описание', key: 'Info', width: 3 },
                     { name: 'Тип', key: 'Datatype', width: 1, render: function(value){
-                        return ModelClassFunction.fieldTypes[value];
+                        return ModelClassFunctionField.fieldTypes[value];
                     }},
-                    { name: 'Запрет null', key: 'isActive', width: 100, align: 'center'},
-                    { name: 'Массив', key: 'UseFields', width: 100, align: 'center'},
-                    { name: 'Настраиваемое поле', key: 'isConfigurable', width: 200, align: 'center'}
+                    { name: 'Запрет null', key: 'isNull', width: 100, align: 'center'},
+                    { name: 'Массив', key: 'isArray', width: 100, align: 'center', render: function(value){
+                        return value>0 ? value : false;
+                    }}
                 ],
                 listeners: {
                     'selectionchange': function(id){

@@ -111,6 +111,7 @@
                 ModelClassField = this.collection.model.getModelClassField(),
                 Grid = App.getView('Grid'),
                 
+                viewFunctions = new (App.getView('ViewEditPanelClassFunction'))(),
                 addFieldButton = new Button({
                     disabled: true,
                     tooltip: 'Добавить поле',
@@ -250,41 +251,40 @@
                 
                 tabbar = new Tabbar({
                     listeners: {
-                        'beforetabchange': function(e, current, prev){
-                            if(prev!=0 || !self._form) return;
-                            if(self._form.getModel().id) {
+                        'beforetabchange': function(e, current, prev){                       
+                            if(self._form && prev==0 && self._form.getModel().id) {
                                 e.cancel = true;
                                 self._form.askIfDirty(function(){
                                     this.activeTab(current, true);
-                                    if(current==1 && gridFields.collection && !gridFields.collection.isFetched()) {
-                                        gridFields.fetch();
-                                    }
                                 }, this);
-                            }
+                            }                        
                         }
                     }
                 })
                     .addTab(form, 'Свойства', 0)
                     .addTab(gridFields, 'Поля', 1)
+                    .addTab(viewFunctions, 'Функции', 2)
                     .activeTab(0)
                     .hide();
 
-                 gridFields.getToolbar()
-                    .add(addFieldButton, 1)
-                    .add(editFieldButton, 2)
-                    .add(removeFieldButton, 2);
-                 this._addFieldButton = addFieldButton;
+            gridFields.getToolbar()
+                .add(addFieldButton, 1)
+                .add(editFieldButton, 2)
+                .add(removeFieldButton, 2);
+                
+            this._addFieldButton = addFieldButton;
 
-                 this.add(tabbar);   
+            this.add(tabbar);   
                     
-                 this._form = form;
-                 this._tabbar = tabbar; 
-                 this._gridFields = gridFields;
+            this._form = form;
+            this._tabbar = tabbar; 
+            this._gridFields = gridFields;
+            this._viewFunctions = viewFunctions;
                  
             this._fieldName = fieldName;
             this._fieldSystem = fieldSystem;
             this._fieldAllWorkspace = fieldAllWorkspace; 
-            this._fieldWorkspaceId = fieldWorkspaceId;
+            this._fieldWorkspaceId = fieldWorkspaceId;            
             
             return this;    
         },
@@ -331,7 +331,9 @@
             this._form
                 .setLegend('Класс ' + model.get('ClassName'))
                 .setModel(model);
-            this._tabbar.show();
+            this._tabbar
+                .enableTab(2)
+                .show();
             
             this._fieldName.setReadOnly(true);
             this._fieldSystem.show();
@@ -339,6 +341,8 @@
             this._fieldAllWorkspace.hide(true);
             
             this._gridFields.setCollection(model.getCollectionFields());
+            this._viewFunctions.setModel(model);
+            
             if(model.get('System')) {
                 this._addFieldButton.disable();
             } else {
@@ -355,11 +359,13 @@
                 .setLegend('Создание нового '+(path!='/'?'дочернего':'')+' класса')
                 .setModel(model);
 
-            this._tabbar.activeTab(0);
+            this._tabbar
+                .disableTab(2)
+                .activeTab(0)
+                .show();
+                
             this._gridFields.setCollection(model.getCollectionFields());
             this._addFieldButton.enable();
-            
-            this._tabbar.show();
             
             this._fieldSystem.hide(true);
             this._fieldName.setReadOnly(false);

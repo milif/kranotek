@@ -61,10 +61,12 @@
         },
         doLayout: function(){
             _resize.call(this);
+            
+            var component = this._tabComponents[this._activeIndex];
+            if(component && component.layout) component.layout();
+                        
         },
         addTab: function(component, label, tabIndex, isClosable){
-
-
 
             var maxIndex = -1;
 
@@ -178,7 +180,10 @@
 
             return this;
         },
-
+        layout: function(){
+            this.parent().layout.apply(this, arguments);
+            if(this._activeIndex) this.activeTab(this._activeIndex);
+        },
         enableTab: function(tabIndex) {
             var menuEl = _getMenuEl.call(this, tabIndex);
             menuEl.find('a').addClass('active').removeClass('disabled');
@@ -204,10 +209,10 @@
         groupTabsContainerTpl = _.template('<div class="_tabbar_content{cid}"></div>');
 
     function _getMenuEl(index) {
-        return this._groupsMenuEl.find('[data-index='+index+']');
+        return this._groupsMenuEl.find('>[data-index='+index+']');
     }
     function _getTabsEl(index) {
-        return this._groupsTabsEl.find('[data-index='+index+']');
+        return this._groupsTabsEl.find('>[data-index='+index+']');
     }
 
     function activateTabHeader(tabIndex) {
@@ -327,7 +332,7 @@
         var self = this,
             maxTabWidth = this.options.maxTabWidth;
         if(index || index === 0) {
-            var menuEl = this._groupsMenuEl.find('[data-index='+tabIndex+']');
+            var menuEl = this._groupsMenuEl.find('>[data-index='+tabIndex+']');
             _fixTabWidth($(menuEl), maxTabWidth);
         } else {
             this._groupsMenuEl.children().each(function(){

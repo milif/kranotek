@@ -14,6 +14,13 @@ App.defineModel('ModelClass', {
             }
         });
     },
+    getCollectionFunctions: function(){
+        return this.id ? new (App.getCollection('CollectionClassFunction'))(null, {
+            params: {
+                'ClassId': this.id
+            }
+        }) : null;    
+    },
     validateModel: function(attrs){
         var errors = [],
             attr;

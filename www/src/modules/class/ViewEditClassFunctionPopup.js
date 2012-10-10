@@ -39,7 +39,7 @@
                     width: 175,
                     label: 'Тип',
                     name: 'Type',
-                    options: App.getModel('ModelClassFunction').fieldTypes
+                    options: App.getModel('ModelClassFunction').functionTypes
                 }),
                 fieldIsActive = new FieldCheckbox({
                     label: 'Активная',
@@ -82,8 +82,7 @@
         },
         setModel: function(model) {
             if(!model) return;
-            this.setTitle(model.id ? ('Поле '+(model.get('Name') || '')) : 'Новое поле');
-            model = model || new ModelClassField({});
+            this.setTitle(model.id ? ('Функция '+(model.get('Name') || '')) : 'Новая функция');
 
             this.model = model;
             this._form.setModel(model);

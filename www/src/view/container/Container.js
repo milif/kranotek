@@ -2,6 +2,7 @@ App.defineView('Container', {
 
     tagName: "div",
     className: "",
+    ctype: 'container',
 
     options: {
         fluid: true
@@ -17,6 +18,13 @@ App.defineView('Container', {
         this._items = this.$el;        
         
         return this;    
+    },
+    doLayout: function(){
+        this.parent().doLayout.apply(this, arguments);
+        this._items.find('>[data-component]').each(function(){
+            $(this).data('component').layout();
+        });
+        return this; 
     },
     doPresenter: function(){
         

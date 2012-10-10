@@ -1,3 +1,6 @@
+* + .b-tabbar-h {
+    margin-top: 20px;
+    }
 .b-tabbar-h .b-tabbar {
     margin: 0;
 }

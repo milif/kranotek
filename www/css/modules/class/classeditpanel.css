@@ -1,8 +1,5 @@
 .b-classeditpanel {
     }
-    .b-classeditpanel-nestedlist + * {
-        margin-top: 20px;
-        }
     .b-classeditpanel-nestedlist {
         height: 185px;
         }

@@ -74,6 +74,7 @@
                     .add(fieldName)
                     .add(fieldInfo)
                     .add(fieldType)
+                    .add(fieldIsNull)
                     .add(containerArray)
                     .add(fieldWorkspaceId);
 

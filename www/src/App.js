@@ -185,7 +185,10 @@ var App = (function(){
             applyListeners(this, options.listeners);
             this.cid = _.uniqueId();
             this.init();
-            if(this.el) this.render();
+            this.render();
+            this.$el
+                .data('component', this)
+                .attr('data-component', this.ctype || true);
             this.trigger('init');
         },
         init: emptyFn,

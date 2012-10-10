@@ -1,20 +1,18 @@
 App.defineModel('ModelClassFunction', {
     defaults: {
-        'id': null,
         'Name': '',
         'Info': '',
-        'Type': null,
+        'Type': 0,
         'isActive': false,
         'UseFields': false
     },
     getCollectionFields: function(type){
-        return new (App.getCollection('CollectionClassFunctionField'))(null, {
-            local: !this.id,
+        return this.id ? new (App.getCollection('CollectionClassFunctionField'))(null, {
             params: {
-                'functionId': this.id,
+                'FunctionId': this.id,
                 'type': type
             }
-        });
+        }) : null;
     },
     validateModel: function(attrs){
         var errors = [],
@@ -25,7 +23,7 @@ App.defineModel('ModelClassFunction', {
             if(attr.length < 4) {
                 errors.push({ name: 'Name', msg: 'Название 4 и более символов'});
             } else if(!/^[a-z]+[a-z0-9]*$/i.test(attr)){
-                errors.push({ name: 'Name', msg: 'Не верное назнвание класса'});
+                errors.push({ name: 'Name', msg: 'Не верное назнвание функции'});
             }
         }
         attr = attrs.Info;
@@ -36,20 +34,15 @@ App.defineModel('ModelClassFunction', {
         }
         return errors.length > 0 ? errors : null ;
     },
-    api: 'class'
+    api: 'classfunction'
 });
 $.extend(App.getModel('ModelClassFunction'), {
-    getModelClassField: function(){
+    getModelField: function(){
         return App.getModel('ModelClassFunctionField');
     },
-    fieldTypes: {
-        0:'Integer',
-        1:'Bigint',
-        2:'Smallint',
-        3:'Numeric',
-        4:'Boolean',
-        5:'Timestamp',
-        6:'Text',
-        7:'Subtype'
+    functionTypes: {
+        0:'Чтение',
+        1:'Создание',
+        2:'Изменение'
     }
 });
