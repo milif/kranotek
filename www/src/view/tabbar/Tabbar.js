@@ -164,6 +164,7 @@
             this._activeIndex = tabIndex;
             activateTabHeader.call(this, tabIndex);
             openTabContent.call(this, tabIndex);
+            _resize.call(this);
             if(!isSilent) this.trigger('tabchange', tabIndex, prev);
             return this;
         },

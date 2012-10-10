@@ -27,10 +27,7 @@
         }
     .b-nestedlist-item.state_active:hover td,
     .b-nestedlist-item.state_active {
-        background: #DCEAF4;
-        }
-    .b-nestedlist-item.state_active.state_active-current {
-        background: #BBD8E9;
+        background: #D9EDF7;
         }
     .b-nestedlist-empty {
         display: none;

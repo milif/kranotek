@@ -96,6 +96,11 @@ var App = (function(){
                     type: 'error'
                 }, options));
             },
+            warning: function(options){
+                showSystemMsg( $.extend({
+                    type: 'warning'
+                }, options));
+            },            
             success: function(options){
                 showSystemMsg( $.extend({
                     type: 'success'
@@ -241,6 +246,10 @@ var App = (function(){
             if(!options) options = {};
             options.params = $.extend({}, this.params, options.params);
             return Collection.__super__.fetch.call(this, options);
+        },
+        get: function(id){
+            var model = Collection.__super__.get.apply(this, arguments);
+            return model || Collection.__super__.getByCid.apply(this, arguments);
         },
         add: function(models){
             var model;

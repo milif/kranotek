@@ -36,7 +36,15 @@
                     name: 'Description'
                 }),
                 fieldTypeDetails = new Button({
-                    text: '...'
+                    text: '...',
+                    click: function(){
+                        if(!this._fieldSubtypePopup) {
+                            this._fieldSubtypePopup = new (App.getView('ClassFieldSubtypePopup'))();
+                        }
+                        this._fieldSubtypePopup
+                            .setCollection(this.model.getCollectionSubypes())
+                            .open();
+                    }
                 }),
                 fieldType = new FieldSelect({
                     width: 175,
@@ -93,6 +101,10 @@
 
             this.setModel(this.model);
 
+            return this;
+        },
+        setLocal: function(isLocal){
+            this._form.setLocal(isLocal);
             return this;
         },
         setModel: function(model) {

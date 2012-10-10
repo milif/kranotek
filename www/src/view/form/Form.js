@@ -2,7 +2,7 @@
     App.defineView('Form', {
 
         tagName: "form",
-        className: "b-form form-horizontal",    
+        className: "b-form form-horizontal",
         
         tpl: _.template(
             '<div class="_fields{cid}"></div>' +
@@ -126,14 +126,32 @@
         getModel: function(){
             return this.model;
         },
+        setLocal: function(isLocal){
+            this._isLocal = isLocal;
+            return this;
+        },        
         save: function(){
             var self = this,
                 button = this._buttonSave,
-                isNew = this.model.isNew();
+                isNew = this.model.isNew(),
+                attrs = this.model.changedAttributes(this._model.attributes),
+                e = {};
+                
+            this.trigger('beforesave', e, isNew, attrs);
+            if(e.cancel) return this;
+            
+            if(this._isLocal){
+                this.model.set(attrs);
+                bindModel.call(this, this.getModel());
+                this.trigger( 'save', isNew ); 
+                return this;
+            }
+            
             button
                 .disable()
                 .setLoading(true);
-            this.model.save(this.model.changedAttributes(this._model.attributes),{
+                
+            this.model.save(attrs, {
                 wait: true,
                 success: function(){
                     bindModel.call(self, self.getModel());
@@ -265,6 +283,7 @@
         
         var isDirty = false;
         for(var p in this._fields){
+            if(p=='id') continue;
             if(!_.isEqual(this._fields[p].getValue(), this.model.attributes[p]) ) {
                 isDirty = true;
                 break;
