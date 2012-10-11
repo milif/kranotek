@@ -15,7 +15,7 @@ App.defineModel('ModelClass', {
         });
     },
     getCollectionFunctions: function(){
-        return this.id ? new (App.getCollection('CollectionClassFunction'))(null, {
+        return this.id ? new (App.getCollection('ClassFunction'))(null, {
             params: {
                 'ClassId': this.id
             }

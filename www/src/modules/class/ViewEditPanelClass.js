@@ -111,7 +111,7 @@
                 ModelClassField = this.collection.model.getModelClassField(),
                 Grid = App.getView('Grid'),
                 
-                viewFunctions = new (App.getView('ViewEditPanelClassFunction'))(),
+                viewFunctions = new (App.getView('EditPanelClassFunction'))(),
                 addFieldButton = new Button({
                     disabled: true,
                     tooltip: 'Добавить поле',

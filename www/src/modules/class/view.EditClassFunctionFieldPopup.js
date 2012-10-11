@@ -1,5 +1,5 @@
 (function(){
-    App.defineView('ViewEditClassFunctionPopup', {
+    App.defineView('EditClassFunctionFieldPopup', {
 
         extend: 'Popup',
 
@@ -21,11 +21,16 @@
                 FieldText = App.getView('FieldText'),
                 FieldSelect = App.getView('FieldSelect'),
                 FieldCheckbox = App.getView('FieldCheckbox'),
+                ContainerRow = App.getView('ContainerRow'),
                 Button = App.getView('Button'),
                 fieldWorkspaceId = new FieldText({
                     label: 'ID',
                     readonly: true,
                     name: 'id'
+                }),
+                fieldIsConfigurable = new FieldCheckbox({
+                    label: 'Настраеваемое поле',
+                    name: 'isConfigurable'
                 }),
                 fieldName = new FieldText({
                     label: 'Название',
@@ -38,43 +43,62 @@
                 fieldType = new FieldSelect({
                     width: 175,
                     label: 'Тип',
-                    name: 'Type',
-                    options: App.getModel('ClassFunction').functionTypes
+                    name: 'Datatype',
+                    options: App.getModel('ClassFunctionField').fieldTypes
                 }),
-                fieldIsActive = new FieldCheckbox({
-                    label: 'Активная',
-                    name: 'isActive'
+                fieldIsNull = new FieldCheckbox({
+                    label: 'Запрет null',
+                    name: 'isNull'
                 }),
-                fieldUseFields = new FieldCheckbox({
-                    label: 'Использовать поля класса',
-                    name: 'UseFields'
+                fieldIsArray = new FieldCheckbox({
+                    label: 'Масив',
+                    name: '_isArray'
                 }),
+                fieldArray = new FieldText({
+                    width: 20,                 
+                    name: '_Array',
+                    hideLabel: true
+                }),
+                containerArray = new ContainerRow({
+                })
+                    .add(fieldIsArray, 6)
+                    .add(fieldArray, 5),
                 form = new Form({
                     listeners: {
+                        'beforesave': function(e, isNew, attrs){
+                            attrs.isArray = parseInt(attrs._Array)||0;
+                        },
                         'save': function(isNew){
                             var model = this.getModel();
                             self.trigger('save', isNew, model);
                         }
                     }
                 })
+                    .add(fieldIsConfigurable)
                     .add(fieldName)
                     .add(fieldInfo)
                     .add(fieldType)
-                    .add(fieldIsActive)
-                    .add(fieldUseFields)
+                    .add(fieldIsNull)
+                    .add(containerArray)
                     .add(fieldWorkspaceId);
 
             fieldWorkspaceId.hide();
 
             this.add(form);
 
+            fieldIsArray.on('change', function(){
+                syncCheckboxText.call(this, fieldIsArray, fieldArray);
+            });
+            syncCheckboxText.call(this, fieldIsArray, fieldArray);
+
             this._form = form;
 
+            this._fieldIsConfigurable = fieldIsConfigurable;
             this._fieldName = fieldName;
             this._fieldInfo = fieldInfo;
             this._fieldType = fieldType;
-            this._fieldIsActive = fieldIsActive;
-            this._fieldUseFields = fieldUseFields;
+            this._fieldIsNull = fieldIsNull;
+            this._fieldArray = fieldArray;
 
             this.setModel(this.model);
 
@@ -82,8 +106,14 @@
         },
         setModel: function(model) {
             if(!model) return;
-            this.setTitle(model.id ? ('Функция '+(model.get('Name') || '')) : 'Новая функция');
+            this.setTitle(model.id ? ('Поле '+(model.get('Name') || '')) : 'Новое поле');
+            model = model || new ModelClassField({});
 
+            model.set({
+                '_isArray': model.get('isArray')>0,
+                '_Array': model.get('isArray') || null
+            });
+            
             this.model = model;
             this._form.setModel(model);
             
@@ -109,5 +139,13 @@
         self._form.askIfDirty(function(){
             self.close();
         });
+    }
+
+    function syncCheckboxText(fieldIsArray, fieldArray) {
+        var isChecked = fieldIsArray.getValue();
+        (isChecked) ? fieldArray.show() : fieldArray.hide();
+        fieldArray
+            .setValue(isChecked?1:"")
+            .trigger('change');        
     }
 })();

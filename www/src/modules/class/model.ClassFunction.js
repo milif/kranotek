@@ -7,7 +7,7 @@ App.defineModel('ClassFunction', {
         'UseFields': false
     },
     getCollectionFields: function(type){
-        return this.id ? new (App.getCollection('CollectionClassFunctionField'))(null, {
+        return this.id ? new (App.getCollection('ClassFunctionField'))(null, {
             params: {
                 'FunctionId': this.id,
                 'type': type

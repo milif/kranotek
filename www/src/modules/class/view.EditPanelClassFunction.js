@@ -1,5 +1,5 @@
 (function(){
-    App.defineView('ViewEditPanelClassFunction', {
+    App.defineView('EditPanelClassFunction', {
 
         extend: 'Container',
 
@@ -16,7 +16,7 @@
             
             var self = this;
             
-            var CollectionClassFunction = new (App.getCollection('CollectionClassFunction'))(),
+            var CollectionClassFunction = new (App.getCollection('ClassFunction'))(),
                 addFunctionButton = new Button({
                     tooltip: 'Добавить функцию',
                     size: 'small',
@@ -144,7 +144,7 @@
         if(!model) return;
         var self = this;
         if(!this._popupEditFunction) {
-            this._popupEditFunction = new (App.getView('ViewEditClassFunctionPopup'))({
+            this._popupEditFunction = new (App.getView('EditClassFunctionPopup'))({
                 listeners: {
                     'save': function(isNew, model){
                         this.close();
@@ -161,7 +161,7 @@
         if(!model) return;
         var self = this;
         if(!this._popupEditFunctionField) {
-            this._popupEditFunctionField = new (App.getView('ViewEditClassFunctionFieldPopup'))({
+            this._popupEditFunctionField = new (App.getView('EditClassFunctionFieldPopup'))({
                 listeners: {
                     'save': function(isNew, model){
                         this.close();
