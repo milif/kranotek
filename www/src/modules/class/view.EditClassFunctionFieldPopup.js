@@ -1,5 +1,5 @@
 (function(){
-    App.defineView('ViewEditClassFunctionFieldPopup', {
+    App.defineView('EditClassFunctionFieldPopup', {
 
         extend: 'Popup',
 
