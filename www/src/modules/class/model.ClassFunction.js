@@ -1,4 +1,4 @@
-App.defineModel('ModelClassFunction', {
+App.defineModel('ClassFunction', {
     defaults: {
         'Name': '',
         'Info': '',
@@ -36,9 +36,9 @@ App.defineModel('ModelClassFunction', {
     },
     api: 'classfunction'
 });
-$.extend(App.getModel('ModelClassFunction'), {
+$.extend(App.getModel('ClassFunction'), {
     getModelField: function(){
-        return App.getModel('ModelClassFunctionField');
+        return App.getModel('ClassFunctionField');
     },
     functionTypes: {
         0:'Чтение',

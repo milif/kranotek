@@ -1,3 +1,3 @@
 App.defineCollection('CollectionClassFunction', {
-    model: App.getModel('ModelClassFunction')
+    model: App.getModel('ClassFunction')
 });
