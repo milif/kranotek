@@ -60,7 +60,8 @@ App.defineView('FieldText', {
                 name: this.options.name,
                 value: this._value || ""
             }));
-        
+        if(this.options.width) this._itemEl
+            .children().width(this.options.width);
         this.$el.find('input[type="text"]')
             .on('input paste keyup propertychange', function(){
                 self.setValue($(this).val());

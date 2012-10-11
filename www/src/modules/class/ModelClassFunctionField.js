@@ -10,7 +10,8 @@ App.defineModel('ModelClassFunctionField', {
     },
     validateModel: function(attrs){
         var errors = [],
-            attr;
+            attr,
+            isArray = '_isArray' in attrs ? attrs._isArray : this.attributes._isArray;
 
         attr = attrs.Name;
         if(typeof attr !='undefined') {
@@ -20,6 +21,12 @@ App.defineModel('ModelClassFunctionField', {
                 errors.push({ name: 'Name', msg: 'Не верное название поля'});
             } 
         }
+        attr = attrs._Array;
+        if(typeof attr !='undefined') {
+            if(!(!isArray || (/^\d{1}$/.test(attr) && parseInt(attr)>0 && parseInt(attr)<5))) {
+                errors.push({ name: '_Array', msg: 'Укажите размерность 1-4'});
+            }
+        }        
         return errors.length > 0 ? errors : null ;
     },
     api: 'classfunctionfield'

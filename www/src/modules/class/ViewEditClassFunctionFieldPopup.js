@@ -52,10 +52,11 @@
                 }),
                 fieldIsArray = new FieldCheckbox({
                     label: 'Масив',
-                    name: 'isArray'
+                    name: '_isArray'
                 }),
-                fieldArray = new FieldText({                 
-                    name: 'Array',
+                fieldArray = new FieldText({
+                    width: 20,                 
+                    name: '_Array',
                     hideLabel: true
                 }),
                 containerArray = new ContainerRow({
@@ -64,6 +65,9 @@
                     .add(fieldArray, 5),
                 form = new Form({
                     listeners: {
+                        'beforesave': function(e, isNew, attrs){
+                            attrs.isArray = parseInt(attrs._Array)||0;
+                        },
                         'save': function(isNew){
                             var model = this.getModel();
                             self.trigger('save', isNew, model);
@@ -105,6 +109,11 @@
             this.setTitle(model.id ? ('Поле '+(model.get('Name') || '')) : 'Новое поле');
             model = model || new ModelClassField({});
 
+            model.set({
+                '_isArray': model.get('isArray')>0,
+                '_Array': model.get('isArray') || null
+            });
+            
             this.model = model;
             this._form.setModel(model);
             
@@ -134,6 +143,9 @@
 
     function syncCheckboxText(fieldIsArray, fieldArray) {
         var isChecked = fieldIsArray.getValue();
-        (isChecked) ? fieldArray.setReadOnly() : fieldArray.setReadOnly(true);
+        (isChecked) ? fieldArray.show() : fieldArray.hide();
+        fieldArray
+            .setValue(isChecked?1:"")
+            .trigger('change');        
     }
 })();

@@ -146,12 +146,8 @@
                 this.trigger( 'save', isNew ); 
                 return this;
             }
-            
-            button
-                .disable()
-                .setLoading(true);
                 
-            this.model.save(attrs, {
+            var isSave = this.model.save(attrs, {
                 wait: true,
                 success: function(){
                     bindModel.call(self, self.getModel());
@@ -165,7 +161,13 @@
                     button.setLoading(false);
                     self.trigger('aftersave');
                 }
-            });         
+            }); 
+            if(isSave) {
+                button
+                    .disable()
+                    .setLoading(true);                
+            }
+            return this;        
         },
         cancel: function(){
             bindModel.call(this, this.model);
@@ -208,7 +210,7 @@
                 }, this);
             } else {
                 field.$el.find('[data-form-field]').each(function(){
-                    self.addField && self.addField($(this).data('field'));
+                    self.add($(this).data('field'));
                 });
             }
             return this;
