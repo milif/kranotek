@@ -137,8 +137,8 @@
         Tabbar = App.getView('Tabbar'),
         Container = App.getView('Container'),
         Button = App.getView('Button'),
-        ModelClassFunction = App.getModel('ModelClassFunction'),
-        ModelClassFunctionField = App.getModel('ModelClassFunctionField');
+        ModelClassFunction = App.getModel('ClassFunction'),
+        ModelClassFunctionField = App.getModel('ClassFunctionField');
 
     function editFunction(model){
         if(!model) return;

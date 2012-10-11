@@ -44,7 +44,7 @@
                     width: 175,
                     label: 'Тип',
                     name: 'Datatype',
-                    options: App.getModel('ModelClassFunctionField').fieldTypes
+                    options: App.getModel('ClassFunctionField').fieldTypes
                 }),
                 fieldIsNull = new FieldCheckbox({
                     label: 'Запрет null',

@@ -39,7 +39,7 @@
                     width: 175,
                     label: 'Тип',
                     name: 'Type',
-                    options: App.getModel('ModelClassFunction').functionTypes
+                    options: App.getModel('ClassFunction').functionTypes
                 }),
                 fieldIsActive = new FieldCheckbox({
                     label: 'Активная',

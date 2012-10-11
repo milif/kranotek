@@ -1,4 +1,4 @@
-App.defineModel('ModelClassFunctionField', {
+App.defineModel('ClassFunctionField', {
     defaults: {
         'id': null,
         'Name': '',
@@ -24,6 +24,6 @@ App.defineModel('ModelClassFunctionField', {
     },
     api: 'classfunctionfield'
 });
-$.extend ( App.getModel('ModelClassFunctionField'), {
+$.extend ( App.getModel('ClassFunctionField'), {
     fieldTypes: App.getModel('ModelClassField').fieldTypes
 });
