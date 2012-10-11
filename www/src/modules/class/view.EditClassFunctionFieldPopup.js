@@ -112,7 +112,7 @@
             model.set({
                 '_isArray': model.get('isArray')>0,
                 '_Array': model.get('isArray') || null
-            });
+            }, {onlynew: true});
             
             this.model = model;
             this._form.setModel(model);
