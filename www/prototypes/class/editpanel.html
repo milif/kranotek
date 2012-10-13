@@ -74,6 +74,7 @@
     
     <script src="../../src/modules/class/ViewEditPanelClass.js"></script>
     <script src="../../src/modules/class/ViewEditClassFieldPopup.js"></script>
+    
     <script src="../../src/modules/class/model.ClassFieldSubtype.js"></script>
     <script src="../../src/modules/class/collection.ClassFieldSubtype.js"></script>
     <script src="../../src/modules/class/view.ClassFieldSubtypePopup.js"></script>
@@ -86,6 +87,23 @@
     <script src="../../src/modules/class/view.EditPanelClassFunction.js"></script>
     <script src="../../src/modules/class/view.EditClassFunctionPopup.js"></script>
     <script src="../../src/modules/class/view.EditClassFunctionFieldPopup.js"></script>    
+    
+    <script id="require" type="text/javascript" src="../../src/require.js"></script>
+    <script>
+        require('loader.js', function(){
+            require('modules/class/view.EditPanelClass.js', function(){
+                App.env = {
+                    apiUrl: '/app_dev.php',
+                    apiUrlSuffix: ''
+                }
+                
+                var ViewEditPanelClass = App.getView('ViewEditPanelClass'),
+                    view = new ViewEditPanelClass();
+                
+                view.$el.appendTo($('#editpanel'));
+            });
+        });
+    </script>
     
     <script>
         

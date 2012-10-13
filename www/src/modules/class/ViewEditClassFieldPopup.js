@@ -38,11 +38,18 @@
                 fieldTypeDetails = new Button({
                     text: '...',
                     click: function(){
-                        if(!this._fieldSubtypePopup) {
-                            this._fieldSubtypePopup = new (App.getView('ClassFieldSubtypePopup'))();
+                        if(!self.model.id) {
+                            App.msg.warning({
+                                title: 'Сохраните поле',
+                                text: 'Добавление сибтипов не возможно для новых полей.<br>Сохраните поле и повторите действие.'
+                            });                            
+                            return;
                         }
-                        this._fieldSubtypePopup
-                            .setCollection(this.model.getCollectionSubypes())
+                        if(!self._fieldSubtypePopup) {
+                            self._fieldSubtypePopup = new (App.getView('ClassFieldSubtypePopup'))();
+                        }
+                        self._fieldSubtypePopup
+                            .setModel(self.model)
                             .open();
                     }
                 }),

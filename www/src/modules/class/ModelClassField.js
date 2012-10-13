@@ -22,7 +22,7 @@ App.defineModel('ModelClassField', {
         }
         return errors.length > 0 ? errors : null ;
     },
-    getCollectionSubypes: function(){
+    getCollectionSubtypes: function(){
         return new (App.getCollection('ClassFieldSubtype'))(null, {
             params: {
                 'FieldId': this.id

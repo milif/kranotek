@@ -14,6 +14,7 @@
                 width = this.options.popupWidth;
             
             this._container = new (App.getView('Container'))();
+            this._container.$el.addClass('b-popup-body');
             
             this.$el = $(tpl({
                 cid: this.cid,

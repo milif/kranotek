@@ -40,6 +40,7 @@
             this._refreshButton = new (App.getView('Button'))({
                 icon: 'icon-refresh',
                 type: 'small',
+                tooltip: 'Обновить',
                 click: function(){
                     self.fetch();
                 }
@@ -48,6 +49,47 @@
             this._toolbar
                 .add( this._refreshButton , 10)
                 .setPanel(this);
+            
+            if(this.options.reorderable) {
+                this._upButton = new (App.getView('Button'))({
+                    disabled: true,
+                    icon: 'icon-arrow-up',
+                    type: 'small',
+                    tooltip: 'Переместить вверх',
+                    click: function(){
+                        var index = self._bodyEl.children().index(self._bodyEl.find('>[data-id="'+self._selectedRow+'"]'));
+                        if(index==0) return;
+                        var model = self.collection.get(self._selectedRow);
+                        moveModel.call(self, model, index-1);
+                        moveEvent.call(self, model, index-1);
+                    }
+                }); 
+                this._downButton = new (App.getView('Button'))({
+                    disabled: true,
+                    icon: 'icon-arrow-down',
+                    tooltip: 'Переместить вниз',
+                    type: 'small',
+                    click: function(){
+                        var index = self._bodyEl.children().index(self._bodyEl.find('>[data-id="'+self._selectedRow+'"]'));
+                        if(index==self._length-1) return;
+                        var model = self.collection.get(self._selectedRow);
+                        moveModel.call(self, model, index+2);
+                        moveEvent.call(self, model, index+1);
+                    }
+                });  
+                this._toolbar
+                    .add( this._upButton , 9) 
+                    .add( this._downButton, 9);
+                this.on('selectionchange', function(id){
+                    if(id){
+                        this._upButton.enable();
+                        this._downButton.enable();
+                    } else {
+                        this._upButton.disable();
+                        this._downButton.disable();                 
+                    }
+                });
+            }
             
             this.$el.on('mouseenter', '._hover'+this.cid, function(){
                 var el = $(this);
@@ -198,6 +240,9 @@
             });
         }
     });
+    var moveEvent = App.debounce(function(model, index){
+        this.trigger('moverow', model.id, index);
+    }, 1000, false, true);
     function unbindCollection(){
         if(!this.collection) return;
         this.collection.off(null, null, this);
@@ -248,6 +293,15 @@
              this._bodyEl.fadeIn(200);
         }
                  
+    }
+    function moveModel(model, index){
+        var trEl = this._bodyEl.find('[data-id="'+(model.id||model.cid)+'"]'),
+            prevEl = this._bodyEl.find('>:eq('+index+')');
+        if(prevEl.length>0) {
+            trEl.insertBefore(prevEl);
+        } else {
+            trEl.appendTo(this._bodyEl);
+        }
     }
     function addModel(model, index){
     

@@ -29,4 +29,8 @@ html.noscroll body {
         }
     .b-popup .modal-body {
         max-height: none;
+        overflow: visible;
+        }
+    .b-popup-body .b-grid:first-child {
+        margin-top: -15px;
         }
