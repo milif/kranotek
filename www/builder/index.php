@@ -2,7 +2,8 @@
 $sRequest = file_get_contents('php://input');
 $aRequest = json_decode( $sRequest, true );
 
-$sRootPath = $_SERVER['DOCUMENT_ROOT'].$aRequest['rootPath'];
+$DOCUMENT_ROOT = preg_replace('/\/$/','',$_SERVER['DOCUMENT_ROOT']);
+$sRootPath = $DOCUMENT_ROOT.$aRequest['rootPath'];
 $aIncludePath = $aRequest['includePath'];
 $aLoadedScripts = $aRequest['loadedScripts'];
 $aSources = buildSources($aRequest['require']);
@@ -10,7 +11,7 @@ $aSources = buildSources($aRequest['require']);
 $aResult=array();
 foreach($aSources as $sFile){
     $sType = preg_match('/\.js$/i',$sFile) ? 'js' : 'css';
-    $sFile = str_replace($_SERVER['DOCUMENT_ROOT'],'',$sFile);
+    $sFile = str_replace($DOCUMENT_ROOT,'',$sFile);
     if(isset($aLoadedScripts[$sFile])) continue;
     $aResult['include'][$sType][]=$sFile;
 }
