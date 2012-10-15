@@ -1,3 +1,8 @@
+/*
+ * @require App.js
+ * @require RPC.js
+ */
+
 (function(){
 
     App.defineCollection('CollectionNested', {

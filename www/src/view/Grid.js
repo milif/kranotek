@@ -1,3 +1,14 @@
+/*
+ * @require b/grid.css
+ * @require App.js
+ * @require RPC.js
+
+ * @require view/toolbar/ToolbarHover.js
+ * @require view/button/Button.js
+ * @require view/tooltip/Tooltip.js
+ 
+ */
+
 (function(App){
     App.defineView('Grid', {
 

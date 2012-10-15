@@ -1,3 +1,6 @@
+/*
+ * @require view/tooltip/Tooltip.js
+ */
 App.defineView('Field', {
 
     tagName: "div",

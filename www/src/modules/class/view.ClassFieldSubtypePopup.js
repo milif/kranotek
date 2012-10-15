@@ -1,3 +1,8 @@
+/*
+ * @require view/Popup.js
+ * @require view/Grid.js 
+ * @require view/button/Button.js  
+ */
 (function(){
     App.defineView('ClassFieldSubtypePopup', {
 

@@ -1,3 +1,8 @@
+/*
+ * @require b/toolbarhover.css
+ * @require view/toolbar/Toolbar.js
+ */
+ 
 App.defineView('ToolbarHover', {
 
     extend: 'Toolbar',

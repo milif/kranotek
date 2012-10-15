@@ -1,3 +1,6 @@
+/*
+ * @require view/form/Field.js
+ */
 App.defineView('FieldCheckbox', {
 
     extend: 'Field',

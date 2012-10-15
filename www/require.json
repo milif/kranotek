@@ -1,0 +1,8 @@
+{
+    "builderPath": "builder/",
+    "includePath": [
+        "src/",
+        "vendor/",
+        "css/"
+    ]
+}

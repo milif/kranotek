@@ -3,12 +3,7 @@
   <head>
     <title>Prototype</title>
     <meta charset="utf-8">
-    <!-- Bootstrap -->
-    <link href="../../vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../../vendor/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">  
-        
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
     
   </head>
   <body style="background: url(../background.png); ">
@@ -19,104 +14,23 @@
             <div id="editpanel" style="background: white;"></div>  
         </div>              
     </div>
-    
-    <link href="../../css/b/nestedlist.css" rel="stylesheet">
-    <link href="../../css/b/loading.css" rel="stylesheet">
-    <link href="../../css/b/toolbarhover.css" rel="stylesheet">
-    <link href="../../css/b/effects.css" rel="stylesheet">
-    <link href="../../css/b/form.css" rel="stylesheet">
-    <link href="../../css/b/tooltip.css" rel="stylesheet">
-    <link href="../../css/b/systemmsg.css" rel="stylesheet">  
-    <link href="../../css/b/tabbar.css" rel="stylesheet"> 
-    <link href="../../css/b/dropdown.css" rel="stylesheet">
-    <link href="../../css/b/grid.css" rel="stylesheet">
-    <link href="../../css/b/popup.css" rel="stylesheet">
-        
-    <link href="../../css/modules/class/classeditpanel.css" rel="stylesheet">
-    
-    <script src="../../vendor/jquery/jquery.js"></script>
-    <script src="../../vendor/underscore/underscore.js"></script>
-    <script src="../../vendor/backbone/backbone.js"></script>
-    <script src="../../vendor/bootstrap/js/bootstrap.js"></script>
-    
-    <script src="../../src/App.js"></script>
-    <script src="../../src/RPC.js"></script>
-    <script src="../../src/CollectionNested.js"></script>
-    
-    <script src="../../src/view/NestedList.js"></script>
-    <script src="../../src/view/toolbar/Toolbar.js"></script>
-    <script src="../../src/view/toolbar/ToolbarHover.js"></script>
-    <script src="../../src/view/button/Button.js"></script>
-    
-    <script src="../../src/view/tooltip/Tooltip.js"></script>
-    
-    <script src="../../src/view/Dropdown.js"></script>
-    
-    <script src="../../src/view/Grid.js"></script>
-    <script src="../../src/view/Popup.js"></script>    
-    <script src="../../src/view/tabbar/Tabbar.js"></script>
-    
-    
-    <script src="../../src/view/container/Container.js"></script>
-    <script src="../../src/view/container/ContainerRow.js"></script>
-    
-    <script src="../../src/view/form/Form.js"></script>
-    <script src="../../src/view/form/Field.js"></script>
-    <script src="../../src/view/form/FieldText.js"></script>
-    <script src="../../src/view/form/FieldTextarea.js"></script>
-    <script src="../../src/view/form/FieldCheckbox.js"></script>
-    <script src="../../src/view/form/FieldSelect.js"></script>
-    
-    <script src="../../src/modules/class/ModelClass.js"></script>
-    <script src="../../src/modules/class/ModelClassField.js"></script>
-    <script src="../../src/modules/class/CollectionClass.js"></script>
-    <script src="../../src/modules/class/CollectionClassField.js"></script>
-    
-    <script src="../../src/modules/class/ViewEditPanelClass.js"></script>
-    <script src="../../src/modules/class/ViewEditClassFieldPopup.js"></script>
-    
-    <script src="../../src/modules/class/model.ClassFieldSubtype.js"></script>
-    <script src="../../src/modules/class/collection.ClassFieldSubtype.js"></script>
-    <script src="../../src/modules/class/view.ClassFieldSubtypePopup.js"></script>
-    
-    <script src="../../src/modules/class/model.ClassFunction.js"></script>
-    <script src="../../src/modules/class/model.ClassFunctionField.js"></script>
-    <script src="../../src/modules/class/collection.ClassFunction.js"></script>
-    <script src="../../src/modules/class/collection.ClassFunctionField.js"></script>
-    
-    <script src="../../src/modules/class/view.EditPanelClassFunction.js"></script>
-    <script src="../../src/modules/class/view.EditClassFunctionPopup.js"></script>
-    <script src="../../src/modules/class/view.EditClassFunctionFieldPopup.js"></script>    
-    
-    <script id="require" type="text/javascript" src="../../src/require.js"></script>
+    <script id="require" type="text/javascript" src="../../require.js"></script>
     <script>
         require('loader.js', function(){
             require('modules/class/view.EditPanelClass.js', function(){
+                
                 App.env = {
                     apiUrl: '/app_dev.php',
                     apiUrlSuffix: ''
                 }
                 
-                var ViewEditPanelClass = App.getView('ViewEditPanelClass'),
-                    view = new ViewEditPanelClass();
+                var EditPanelClass = App.getView('EditPanelClass'),
+                    view = new EditPanelClass();
                 
                 view.$el.appendTo($('#editpanel'));
             });
         });
     </script>
-    
-    <script>
-        
-        App.env = {
-            apiUrl: '/app_dev.php',
-            apiUrlSuffix: ''
-        }
-        
-        var ViewEditPanelClass = App.getView('ViewEditPanelClass'),
-            view = new ViewEditPanelClass();
-        
-        view.$el.appendTo($('#editpanel'));
- 
-    </script>
+
   </body>
 </html>

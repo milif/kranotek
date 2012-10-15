@@ -1,9 +1,13 @@
+/*
+ * @require App.js
+ * @require modules/class/model.ClassField.js   
+ */
 App.defineModel('ClassFunctionField', {
     defaults: {
         'id': null,
         'Name': '',
         'Info': '',
-        'Datatype': null,
+        'Datatype': 0,
         'isConfigurable': false,
         'isNull': false,
         'isArray': 0
@@ -32,5 +36,5 @@ App.defineModel('ClassFunctionField', {
     api: 'classfunctionfield'
 });
 $.extend ( App.getModel('ClassFunctionField'), {
-    fieldTypes: App.getModel('ModelClassField').fieldTypes
+    fieldTypes: App.getModel('ClassField').fieldTypes
 });

@@ -1,4 +1,9 @@
-App.defineModel('ModelClass', {
+/*
+ * @require modules/class/model.ClassField.js
+ * @require modules/class/collection.ClassField.js  
+ * @require modules/class/collection.ClassFunction.js  
+ */
+App.defineModel('Class', {
     defaults: {
         'ClassName': '',
         'ClassInfo': '',
@@ -7,7 +12,7 @@ App.defineModel('ModelClass', {
         'WorkspaceId': ""
     },
     getCollectionFields: function(){
-        return new (App.getCollection('CollectionClassField'))(null, {
+        return new (App.getCollection('ClassField'))(null, {
             local: !this.id,
             params: {
                 'ClassId': this.id
@@ -43,9 +48,9 @@ App.defineModel('ModelClass', {
     },     
     api: 'class'      
 });
-$.extend(App.getModel('ModelClass'), {
+$.extend(App.getModel('Class'), {
     getModelClassField: function(){
-        return App.getModel('ModelClassField');
+        return App.getModel('ClassField');
     }
 });
 

@@ -1,3 +1,6 @@
+/*
+ * @require App.js
+ */
 App.defineView('ContainerRow', {
 
     tagName: "div",

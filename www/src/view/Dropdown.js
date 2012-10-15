@@ -1,3 +1,8 @@
+/*
+ * @require b/dropdown.css
+ * @require App.js
+ */
+
 (function(App){
     App.defineView('Dropdown', {
 

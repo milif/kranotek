@@ -1,3 +1,7 @@
+/*
+ * @require App.js
+ * @require modules/class/collection.ClassFunctionField.js   
+ */
 App.defineModel('ClassFunction', {
     defaults: {
         'Name': '',
@@ -37,9 +41,11 @@ App.defineModel('ClassFunction', {
     api: 'classfunction'
 });
 $.extend(App.getModel('ClassFunction'), {
+/*
     getModelField: function(){
         return App.getModel('ClassFunctionField');
     },
+*/    
     functionTypes: {
         0:'Чтение',
         1:'Создание',

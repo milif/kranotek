@@ -1,3 +1,7 @@
+/*
+ * @require b/form.css
+ * @require view/button/Button.js
+ */
 (function(){ 
     App.defineView('Form', {
 
@@ -196,6 +200,7 @@
                 this._fields[name] = field;
                 if(this.model) field.setValue(this.model.get(name));
                 field.on('change', function(){
+                    if(self._inBind) return;
                     if(this.model) {
                         if(this._model.set(name, field.getValue(), {
                             onlynew: true
@@ -229,6 +234,8 @@
         this.model = model;
         this._model = this.model.clone();
         
+        this._inBind = true;
+        
         for(var p in model.attributes) {
             field = this._fields[p];
             if(field) { 
@@ -257,6 +264,8 @@
             checkErrorChange.call(this);
             checkDirtyChange.call(this);
         }, this);
+        
+        this._inBind = false;
         
         checkDirtyChange.call(this);
     }    

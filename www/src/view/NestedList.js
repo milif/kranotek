@@ -1,3 +1,8 @@
+/*
+ * @require b/nestedlist.css
+ * @require view/toolbar/ToolbarHover.js
+ * @require view/button/Button.js
+ */
 (function(){
     App.defineView('NestedList', {
 

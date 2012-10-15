@@ -1,3 +1,7 @@
+/*
+ * @require b/popup.css
+ * @require view/container/Container.js
+ */
 (function(App){
     App.defineView('Popup', {
 

@@ -1,3 +1,8 @@
+/*
+ * @require b/tooltip.css
+ * @require App.js
+ */
+
 App.defineView('Tooltip', {
 
     options: {

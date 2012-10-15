@@ -1,3 +1,19 @@
+/*
+
+ * @require bootstrap/css/bootstrap.css
+ * @require bootstrap/css/bootstrap-responsive.css
+ 
+ * @require b/loading.css
+ * @require b/effects.css
+ * @require b/systemmsg.css
+  
+ * @require jquery/jquery.js
+ * @require underscore/underscore.js
+ * @require backbone/backbone.js
+ * @require bootstrap/js/bootstrap.js
+ 
+ */
+
 var App = (function(){
 
     /* Global settings & overrides */

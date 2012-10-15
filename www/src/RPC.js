@@ -1,3 +1,7 @@
+/*
+ * @require App.js
+ */
+
 (function(App){
 
     function Request(api, params){

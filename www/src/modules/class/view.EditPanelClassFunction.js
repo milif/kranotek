@@ -1,3 +1,19 @@
+/*
+ * @require modules/class/model.ClassFunction.js
+ * @require modules/class/model.ClassFunctionField.js 
+ * @require modules/class/view.EditClassFunctionPopup.js  
+ * @require modules/class/view.EditClassFunctionFieldPopup.js   
+
+ * @require view/Grid.js 
+ * @require view/tabbar/Tabbar.js   
+ * @require view/button/Button.js  
+ * @require view/form/Form.js  
+ * @require view/form/FieldTextarea.js 
+ * @require view/form/FieldText.js  
+ * @require view/form/FieldSelect.js   
+ * @require view/form/FieldCheckbox.js    
+ * @require view/container/Container.js 
+ */
 (function(){
     App.defineView('EditPanelClassFunction', {
 
@@ -166,7 +182,7 @@
                     'save': function(isNew, model){
                         this.close();
                         if(isNew) {
-                            if(this._activeTab === 0) {
+                            if(self._activeTab === 0) {
                                 self._gridFunctionFieldsInput.collection.add([model], {silent: false});
                             } else {
                                 self._gridFunctionFieldsOutput.collection.add([model], {silent: false});

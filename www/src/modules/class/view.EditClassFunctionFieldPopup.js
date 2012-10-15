@@ -1,3 +1,14 @@
+/*
+ * @require modules/class/model.ClassFunctionField.js
+ * @require view/Popup.js 
+ * @require view/container/ContainerRow.js   
+ * @require view/button/Button.js  
+ * @require view/form/Form.js  
+ * @require view/form/FieldTextarea.js 
+ * @require view/form/FieldText.js  
+ * @require view/form/FieldSelect.js   
+ * @require view/form/FieldCheckbox.js    
+ */
 (function(){
     App.defineView('EditClassFunctionFieldPopup', {
 

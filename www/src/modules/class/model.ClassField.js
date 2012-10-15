@@ -1,4 +1,7 @@
-App.defineModel('ModelClassField', {
+/*
+ * @require modules/class/collection.ClassFieldSubtype.js
+ */
+App.defineModel('ClassField', {
     defaults: {
         'Name': '',
         'Description': '',
@@ -31,7 +34,7 @@ App.defineModel('ModelClassField', {
     },
     api: 'classfield'
 });
-$.extend ( App.getModel('ModelClassField'), {
+$.extend ( App.getModel('ClassField'), {
     fieldTypes: {
         0:'Integer',
         1:'Bigint',

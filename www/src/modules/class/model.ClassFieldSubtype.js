@@ -1,3 +1,6 @@
+/*
+ * @require App.js
+ */
 App.defineModel('ClassFieldSubtype', {
     defaults: {
         'id': null,

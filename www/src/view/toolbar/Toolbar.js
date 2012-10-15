@@ -1,3 +1,7 @@
+/*
+ * @require App.js
+ */
+ 
 App.defineView('Toolbar', {
 
     tagName: "div",

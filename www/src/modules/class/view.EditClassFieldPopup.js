@@ -1,5 +1,15 @@
+/*
+ * @require modules/class/model.ClassField.js
+ * @require modules/class/view.ClassFieldSubtypePopup.js
+ * @require view/Popup.js 
+ * @require view/button/Button.js  
+ * @require view/form/Form.js  
+ * @require view/form/FieldTextarea.js 
+ * @require view/form/FieldText.js  
+ * @require view/form/FieldCheckbox.js    
+ */
 (function(){
-    App.defineView('ViewEditClassFieldPopup', {
+    App.defineView('EditClassFieldPopup', {
 
         extend: 'Popup',
 
@@ -57,7 +67,7 @@
                     width: 175,
                     label: 'Тип данных',
                     name: 'Type',
-                    options: App.getModel('ModelClassField').fieldTypes,
+                    options: App.getModel('ClassField').fieldTypes,
                     details: fieldTypeDetails
                 }),
                 fieldDefault = new FieldText({

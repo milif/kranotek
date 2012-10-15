@@ -1,3 +1,9 @@
+/*
+ * @require b/tabbar.css
+ * @require view/tabbar/Tabbar.js
+ * @require view/Dropdown.js
+ * @require view/button/Button.js  
+ */
 (function(App){
 
     App.defineView('Tabbar', {

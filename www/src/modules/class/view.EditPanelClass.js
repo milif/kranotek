@@ -1,11 +1,30 @@
+/*
+ * @require modules/class/classeditpanel.css
+ * @require modules/class/collection.Class.js
+ * @require modules/class/view.EditPanelClassFunction.js
+ * @require modules/class/view.EditClassFieldPopup.js
+
+ * @require view/container/Container.js
+ * @require view/Grid.js 
+ * @require view/NestedList.js  
+ * @require view/button/Button.js  
+ * @require view/tabbar/Tabbar.js  
+ * @require view/form/Form.js  
+ * @require view/form/FieldTextarea.js 
+ * @require view/form/FieldText.js  
+ * @require view/form/FieldCheckbox.js   
+ 
+ 
+ */
+
 (function(){
-    App.defineView('ViewEditPanelClass', {
+    App.defineView('EditPanelClass', {
 
         extend: 'Container',
 
         options: {
             fluid: true,
-            collection: new (App.getCollection('CollectionClass'))() 
+            collection: new (App.getCollection('Class'))() 
         },
         init: function(){
             this.parent().init.apply(this, arguments);
@@ -308,7 +327,7 @@
         if(!model) return;
         var self = this;
         if(!this._popupEditField) {
-            this._popupEditField = new (App.getView('ViewEditClassFieldPopup'))({
+            this._popupEditField = new (App.getView('EditClassFieldPopup'))({
                 listeners: {
                     'save': function(isNew, model){
                         this.close();
