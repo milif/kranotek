@@ -1,4 +1,7 @@
 /*
+ * @id 507c0591560d3 - (!!!) Идентификатор добавляется автоматически. Запрещено ручное изменение и копирование идентификатора при создании новых файлов (!!!) 
+ */
+/*
  * @require modules/class/model.ClassFunctionField.js
  * @require view/Popup.js 
  * @require view/container/ContainerRow.js   

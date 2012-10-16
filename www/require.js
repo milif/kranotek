@@ -28,6 +28,7 @@
             }
         };    
         xhr.send(JSON.stringify({
+            "compile": config.compile||false,
             "require": args, 
             "rootPath": rootPath, 
             "includePath": config.includePath,
@@ -38,16 +39,20 @@
     function loadData(data, callback){
         var count = 0;
         if(data.css) for (var i = 0; i < data.css.length; i++) {
-            if(loadedScripts[data.css[i]]) continue;
-            addStylesheet(data.css[i], onload);
-            count++;
-            loadedScripts[data.css[i]] = true;
+            if(loadedScripts[data.css[i][0]]) continue;
+            if(data.css[i][1]) {
+                addStylesheet(data.css[i][1], onload);
+                count++;
+            }
+            loadedScripts[data.css[i][0]] = true;
         }
         if(data.js) for (var i = 0; i < data.js.length; i++) {
-            if(loadedScripts[data.js[i]]) continue;
-            addScript(data.js[i], onload);
-            count++;
-            loadedScripts[data.js[i]] = true;
+            if(loadedScripts[data.js[i][0]]) continue;
+            if(data.js[i][1]) {
+                addScript(data.js[i][1], onload);
+                count++;
+            }
+            loadedScripts[data.js[i][0]] = true;
         }             
         function onload(){
             if(count--==1 && callback) callback();

@@ -1,4 +1,7 @@
 /*
+ * @id 507c059156a12 - (!!!) Идентификатор добавляется автоматически. Запрещено ручное изменение и копирование идентификатора при создании новых файлов (!!!) 
+ */
+/*
  * @require b/dropdown.css
  * @require App.js
  */
@@ -219,7 +222,7 @@
             },
             'mouseenter': function(){
                 clearTimeout(self._autoHide);
-            },
+            }
         });
         
         this.$el.hide().fadeIn(50);

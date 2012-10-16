@@ -1,4 +1,7 @@
 /*
+ * @id 507c059156eb3 - (!!!) Идентификатор добавляется автоматически. Запрещено ручное изменение и копирование идентификатора при создании новых файлов (!!!) 
+ */
+/*
  * @require b/nestedlist.css
  * @require view/toolbar/ToolbarHover.js
  * @require view/button/Button.js

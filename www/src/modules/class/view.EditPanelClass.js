@@ -1,4 +1,7 @@
 /*
+ * @id 507c05915352c - (!!!) Идентификатор добавляется автоматически. Запрещено ручное изменение и копирование идентификатора при создании новых файлов (!!!) 
+ */
+/*
  * @require modules/class/classeditpanel.css
  * @require modules/class/collection.Class.js
  * @require modules/class/view.EditPanelClassFunction.js

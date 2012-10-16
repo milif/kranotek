@@ -1,4 +1,7 @@
 /*
+ * @id 507c059153d51 - (!!!) Идентификатор добавляется автоматически. Запрещено ручное изменение и копирование идентификатора при создании новых файлов (!!!) 
+ */
+/*
 
  * @require bootstrap/css/bootstrap.css
  * @require bootstrap/css/bootstrap-responsive.css

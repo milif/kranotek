@@ -1,4 +1,7 @@
 /*
+ * @id 507c05915399e - (!!!) Идентификатор добавляется автоматически. Запрещено ручное изменение и копирование идентификатора при создании новых файлов (!!!) 
+ */
+/*
  * @require modules/class/model.ClassField.js
  * @require modules/class/collection.ClassField.js  
  * @require modules/class/collection.ClassFunction.js  
