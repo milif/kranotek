@@ -1,3 +1,8 @@
+/*
+ * Параметры в URL:
+ *   - debug=1  Принудительно отменяет режим компиляции
+ */
+
 (function(){
     var d = window.document,
         el = d.getElementById('require'),
@@ -28,7 +33,7 @@
             }
         };    
         xhr.send(JSON.stringify({
-            "compile": config.compile||false,
+            "compile": /debug=1/.test(window.location.search)? false : config.compile||false,
             "require": args, 
             "rootPath": rootPath, 
             "includePath": config.includePath,
