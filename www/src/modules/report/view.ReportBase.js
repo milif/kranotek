@@ -34,7 +34,8 @@
             mainGrid = new Grid({
                 selectable: true,
                 columns: [
-                    { name: 'Название', key: 'Name', width: 1 }
+                    { name: 'Название', key: 'Name', width: 1 },
+                    { name: 'Инфо', key: 'Info', width: 1 }
                 ],
                 listeners: {
                     'selectionchange': function(id){
@@ -47,7 +48,8 @@
             contextGrid = new Grid({
                 selectable: true,
                 columns: [
-                    { name: 'Название', key: 'Name', width: 1 }
+                    { name: 'Название', key: 'Name', width: 1 },
+                    { name: 'Инфо', key: 'Info', width: 1 }
                 ]
             }),
             contextContainer = new Container({});
@@ -65,15 +67,22 @@
             var isOnce = this._presenterOnce;
             this.parent().doPresenter.apply(this, arguments);
         },
+        layout: function(){
+            this.parent().layout.apply(this, arguments);
+            this._mainGrid.layout();
+            this._contextGrid.layout();
+        },
         setSource: function(collection, columns) {
             this._mainGrid.setCollection(collection);
             if(columns) {
                 this._mainGrid.changeColumns(columns);
+                this.layout();
             }
             return this;
         },
         setSourceColumns: function(columns) {
             this._mainGrid.changeColumns(columns);
+            this.layout();
             return this;
         },
         setContextCollection: function(collection) {
@@ -107,11 +116,13 @@
             this._contextGrid.setCollection(collection);
             if(columns) {
                 this._contextGrid.changeColumns(columns);
+                this.layout();
             }
             return this;
         },
         setContextSourceColumns: function(columns) {
             this._contextGrid.changeColumns(columns);
+            this.layout();
             return this;
         }
     });
