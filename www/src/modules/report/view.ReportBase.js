@@ -54,6 +54,8 @@
             }),
             contextContainer = new Container({});
 
+            contextGrid.hide();
+
             this._mainGrid = mainGrid;
             this._contextGrid = contextGrid;
             this._contextContainer = contextContainer;
@@ -99,6 +101,11 @@
                                 model = this.collection.getNode(current);
                             self._contextNestedListSelected = model;
                             updateContextGrid.call(self);
+                            if(model && model.id && (typeof self._mainGrid.getSelection() !== 'undeifned')) {
+                                self._contextGrid.show();
+                            } else {
+                                self._contextGrid.hide();
+                            }
                         }
                     }
                 });
