@@ -37,7 +37,7 @@
                 var data = JSON.parse(xhr.responseText);
                 if(isDebug) console.log('require.response',data);
                 if(require.finish) require.finish();
-                loadData(data.include, callback);
+                loadData(data.include, callback);                
             }
         };
         if(isDebug) console.log('require',request);
@@ -67,8 +67,11 @@
             if(count--==1 && callback) callback();
         }
     }
-
+    
+     
     function addScript(src, onload) {
+        
+        if(d.getElementById(src)) return;
         var headID = document.getElementsByTagName("head")[0];         
         var newScript = document.createElement('script');
         newScript.async = false;
@@ -79,14 +82,30 @@
         if(isDebug) console.log('require.load.js',src);
     }
     function addStylesheet(src, onload) {
+        if(d.getElementById(src)) return;
         var headID = document.getElementsByTagName("head")[0];         
         var ss = document.createElement('link');
         ss.rel = 'stylesheet';
         ss.async = false;
         ss.href = src;
+        if(false) {
+            ss.onload = onload;
+        } else {
+            var sheet = 'sheet' in ss ?  'sheet' : 'styleSheet',
+                cssRules = 'sheet' in ss ?  'cssRules' : 'rules',
+                intervalId = setInterval(function(){
+                    if(ss[sheet] && ss[sheet][cssRules].length) done();
+                }, 50),
+                timeoutId = setTimeout( done, 15000);
+            if(isDebug) console.log('require.load.css',src);
+        }
         headID.appendChild(ss);
-        if(isDebug) console.log('require.load.css',src);   
-        onload();
+        
+        function done(){
+            clearTimeout(timeoutId);
+            clearInterval(intervalId);
+            onload();
+        }        
     }
     
     window.require = require;
