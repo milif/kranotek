@@ -37,7 +37,7 @@
                 var data = JSON.parse(xhr.responseText);
                 if(isDebug) console.log('require.response',data);
                 if(require.finish) require.finish();
-                loadData(data.include, callback);                
+                loadData(data.include, callback);
             }
         };
         if(isDebug) console.log('require',request);
@@ -61,10 +61,13 @@
                 count++;
             }
             loadedScripts[data.js[i][0]] = true;
-        }             
+        }
         function onload(){
             if(isDebug) console.log('require.onload',this.src||this.href);
-            if(count--==1 && callback) callback();
+            if(count--==1 && callback) {
+                if(isDebug) console.log('require.done');
+                callback();
+            }
         }
     }
     
@@ -79,7 +82,6 @@
         newScript.src = src;
         newScript.onload = onload;
         headID.appendChild(newScript);
-        if(isDebug) console.log('require.load.js',src);
     }
     function addStylesheet(src, onload) {
         if(d.getElementById(src)) return;
@@ -88,7 +90,7 @@
         ss.rel = 'stylesheet';
         ss.async = false;
         ss.href = src;
-        if(false) {
+        if(isDebug) {
             ss.onload = onload;
         } else {
             var sheet = 'sheet' in ss ?  'sheet' : 'styleSheet',
@@ -97,7 +99,6 @@
                     if(ss[sheet] && ss[sheet][cssRules].length) done();
                 }, 50),
                 timeoutId = setTimeout( done, 15000);
-            if(isDebug) console.log('require.load.css',src);
         }
         headID.appendChild(ss);
         
