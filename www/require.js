@@ -84,13 +84,9 @@
         ss.rel = 'stylesheet';
         ss.async = false;
         ss.href = src;
-        if('onload' in ss) {
-            ss.onload = onload;
-        } else {
-            onload();
-        }
         headID.appendChild(ss);
         if(isDebug) console.log('require.load.css',src);   
+        onload();
     }
     
     window.require = require;
