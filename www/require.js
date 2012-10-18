@@ -37,6 +37,7 @@
                 var data = JSON.parse(xhr.responseText);
                 if(require.finish) require.finish();
                 loadData(data.include, callback);
+                if(isDebug) console.log('require.response',data);
             }
         };
         if(isDebug) console.log('require',request);
@@ -62,6 +63,7 @@
             loadedScripts[data.js[i][0]] = true;
         }             
         function onload(){
+            if(isDebug) console.log('require.onload',this.src||this.href);
             if(count--==1 && callback) callback();
         }
     }
@@ -77,6 +79,7 @@
         newScript.src = src;
         newScript.onload = onload;
         headID.appendChild(newScript);
+        if(isDebug) console.log('require.load.js',src);
     }
     function addStylesheet(src, onload) {
         if(d.getElementById(src)) return;
@@ -87,6 +90,7 @@
         ss.href = src;
         ss.onload = onload;
         headID.appendChild(ss);
+        if(isDebug) console.log('require.load.css',src);
     }
     
     window.require = require;

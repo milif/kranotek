@@ -5,6 +5,7 @@
  * @require view/Popup.js
  * @require view/Grid.js 
  * @require view/button/Button.js  
+ * @require view/form/FieldText.js  
  */
 (function(){
     App.defineView('ClassFieldSubtypePopup', {
@@ -21,14 +22,21 @@
         doRender: function(){
             this.parent().doRender.apply(this, arguments);
             
-            var Grid = App.getView('Grid'),
+            var self = this,
+            
+                Grid = App.getView('Grid'),
                 Button = App.getView('Button'),
+                TextField = App.getView('FieldText'),
             
                 addButton = new Button({
                     tooltip: 'Добавить значение',
                     size: 'small',
                     icon: 'icon-plus',
                     click: function(){
+                        var collection = self._gridSubtypes.collection;
+                            model = new collection.model();
+                        collection.add(model , {silent: false});
+                        self._gridSubtypes.edit(model.cid);
                     }
                 }),
                 removeButton =  new Button({
@@ -55,7 +63,7 @@
                     selectable: true,
                     reorderable: true,
                     columns: [
-                        { name: 'Значение', key: 'Value', width: 1 }
+                        { name: 'Значение', key: 'Value', width: 1, editor: new TextField() }
                     ],
                     listeners: {
                         'selectionchange': function(id){
@@ -69,6 +77,9 @@
                         'moverow': function(id, index){
                             var model = this.collection.get(id);
                             if(model) model.changePosition(index);
+                        },
+                        'edit': function(model, field){
+                            model.save(model.attributes);
                         }
                     }
                 });            
@@ -88,7 +99,7 @@
             this.setTitle('Сабтипы поля ' + model.get('Name'));
 
             this.model = model;
-            
+          
             this._gridSubtypes.setCollection(model.getCollectionSubtypes());
             
             return this;

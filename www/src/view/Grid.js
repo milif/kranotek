@@ -203,10 +203,20 @@
             if(!changed) return;
             this._selectedRow=id;
             this._bodyEl
-                .find('>.state_active').removeClass('state_active').end()
-                .find('>[data-id="'+id+'"]').addClass('state_active').end();
-            this.trigger('selectionchange', id,  prev );    
+                .find('>.state_active').removeClass('state_active').end();
+            this.trigger('selectionchange', id,  prev );
+            
+            var scrollEl = this._bodyHEl,
+                itemEl = this._bodyEl.find('>[data-id="'+id+'"]').addClass('state_active');
+            scrollEl.animate({
+                scrollTop: itemEl.offset().top - itemEl.parent().offset().top - scrollEl.height()/2 + itemEl.height()/2
+            }, 200);            
+            
             return this;    
+        },
+        edit: function(id){
+            this.select(id);
+            this._bodyEl.find('>[data-id="'+id+'"] .edit:first').triggerHandler('edit');
         },
         getSelection: function(){
             return this._selectedRow ? [this._selectedRow] : [];
@@ -358,6 +368,7 @@
             tr+= tdTpl({
                 cid: this.cid,
                 text: value,
+                key: this._columns[i].key,
                 align: this._columns[i].align || 'left'
             });
         }
@@ -382,7 +393,7 @@
         var self = this;
         cellEl.on('click', function(){
            var model = getItemByCell.call(self, cellEl);
-           if(model.id!=self._selectedRow) return;
+           if((model.id||model.cid)!=self._selectedRow) return;
            editor.setValue(model.get(column.key));
            cellEl.triggerHandler('edit');
         });
@@ -392,7 +403,7 @@
         return this.collection.get(
             el.closest('._row'+this.cid).data('id')
         );
-    }
+    }   
     function removeModel(model){
         var itemEl = this._bodyEl.find('>[data-id="'+(model.id || model.cid)+'"]');
         if(itemEl.length==0) return;
@@ -443,7 +454,9 @@
             })
             .on('eleditdone', function(el, value){
                 var model = getItemByCell.call(self, el);
-                model.set(column.key, value, {silent: false});
+                if(model.set(column.key, value, {silent: false})) {
+                    self.trigger('edit', model, column.key);
+                };
             });
     }
     var tpl = _.template(
@@ -460,7 +473,7 @@
         ),
         thTpl = _.template('<div class="b-grid-th align_{align} _col{cid}"><div class="b-grid-th-h _hover{cid}">{text}</div></div>'),
         trTpl = _.template('<tr data-id={id} class="b-grid-row _row{cid}">{items}</tr>'),
-        tdTpl = _.template('<td class="b-grid-td t-bg align_{align}"><div class="b-grid-td-h _td{cid} _hover{cid}">{text}</div></td>');
+        tdTpl = _.template('<td class="b-grid-td t-bg align_{align}"><div class="b-grid-td-h _td{cid} data-key="{key}" _hover{cid}">{text}</div></td>');
     
 })(App);
 
