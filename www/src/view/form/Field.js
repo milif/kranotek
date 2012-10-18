@@ -2,19 +2,21 @@
  * @id 507c059155b91 - (!!!) Идентификатор добавляется автоматически. Запрещено ручное изменение и копирование идентификатора при создании новых файлов (!!!) 
  */
 /*
+ * @require b/form.css
+ *
  * @require view/tooltip/Tooltip.js
  */
 App.defineView('Field', {
 
     tagName: "div",
-    className: "control-group",
+    className: "control-group b-field",
     
     options: {
         label: ''
     },
     
     tpl: _.template(
-        '<label class="b-field control-label _label{cid}" for="{name}{cid}">{label}</label>' +
+        '<label class="control-label _label{cid}" for="{name}{cid}">{label}</label>' +
         '<div class="controls"><div class="b-field-item _item{cid}"></div></div>'
     ),
     tplHiddenLabel: _.template(
@@ -34,7 +36,7 @@ App.defineView('Field', {
             label: this.options.label
         })));
         
-        
+        if(this.options.label=='') this.$el.find('._label'+this.cid).remove();
         if(this._name) this.$el
             .attr('data-form-field', this._name)
             .data('field', this);
@@ -55,14 +57,15 @@ App.defineView('Field', {
         return this._name;
     },
     getValue: function(){
+        this.setValue.complete.call(this);
         return this._value;
     },
-    setValue: function(v, isSilent){
+    setValue: App.debounce(function(v, isSilent){
         if(v===this._value) return this;
         this._value = v;
         if(!isSilent) this.trigger('change');
         return this;
-    },
+    }, 50, true),
     enable: function(){
         this.$el.removeClass('disabled');
     },
@@ -89,5 +92,9 @@ App.defineView('Field', {
             delete this._error;
         }
         this.$el.removeClass('error');
+        return this;
+    },
+    fit: function(){
+        this.$el.addClass('mod_fit');
     }
 });

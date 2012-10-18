@@ -9,6 +9,28 @@
         .b-form-buttons .btn:first-child {
             margin-left: 0px;
             }    
-.b-field-item {
-    display: inline-block;
-    }
+.b-field{
+    }            
+    .b-field-item {
+        display: inline-block;
+        }    
+.b-field.mod_fit {
+    position: relative;
+    margin:0;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    }  
+    .b-field.mod_fit,
+    .b-field.mod_fit > .controls,
+    .b-field.mod_fit > .controls > .b-field-item {
+        height: 100%;
+        width: 100%;
+        }
+    .b-field.mod_fit .b-field-item input {
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        box-sizing: border-box;        
+        }       

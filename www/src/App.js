@@ -9,6 +9,7 @@
  * @require b/loading.css
  * @require b/effects.css
  * @require b/systemmsg.css
+ * @require b/edit.css 
   
  * @require jquery/jquery.js
  * @require underscore/underscore.js
@@ -71,6 +72,9 @@ var App = (function(){
                     self.width = (w1 - w2);
                 }
                 return self.width;                
+            },
+            setEditor:function(el, editor){
+                setEdior(el, editor);
             },
             setLoading: function(el, active){
                 if(!el) return;
@@ -153,14 +157,24 @@ var App = (function(){
         },
         debounce: function( fn, wait, immediate, useAttribute ){
 
-            if(!useAttribute) return _.debounce.call(_, fn, wait, immediate);
-
             var args = {},
                 attrFn = _.uniqueId('_debounce');
-
+            
+            if(!useAttribute) {
+                var debounce = _.debounce.call(_, fn, wait, immediate);
+            }
+            
             function wrap() {
+                
+                this[attrFn+'_lastArguments'] = arguments;
+                    
+                if(!useAttribute) {
+                    return debounce.apply(this, arguments);
+                }   
+                
                 var arg = arguments[0] || "null",
-                    wrap;
+                    wrap;                
+                
                 if( typeof arg == 'string' || $.isNumeric(arg) ) {
                     if(!args[arg]) {
                         args[arg] = _.debounce.call(_, fn, wait, immediate);
@@ -172,7 +186,11 @@ var App = (function(){
                     }
                     wrap = arg[attrFn];
                 }
-                wrap.apply(this, arguments);
+                return wrap.apply(this, arguments);
+            }
+            
+            wrap.complete = function(){
+                return fn.apply(this, this[attrFn+'_lastArguments']);
             }
 
             return wrap;
@@ -407,7 +425,71 @@ var App = (function(){
             return false;
         }
     }
+    
+    /* Element editor */
+    
+    var editorTpl = _.template('<div class="edit-h"></div>');
+    function setEdior(el, editor) {
+        if(!editor) {
+            el.removeClass('edit');
+            el.off('edit');
+            return;
+        }
+        var elEditor = {
+            el: el,
+            wrapper: $(editorTpl()),
+            editor: editor,
+            globalEvents: {
+                'mousedown': function(e){
+                    if(el.has(e.target).length>0) return;
+                    doneEdit.call(elEditor);
+                },
+                'keydown': function(e){
+                    if(e.keyCode == 27) {                
+                        closeEdit.call(elEditor);
+                        return false;
+                    }
+                    if(e.keyCode == 13) {                
+                        doneEdit.call(elEditor);
+                        return false;
+                    }
+                }
+            }
+        };
+        el.addClass('edit');
+        el.on('edit', function(){
+            startEdit.call(elEditor);
+        });
+        elEditor.wrapper
+            .on('click', function(e){
+                e.stopPropagation();
+            });
+        
+    }
+    function startEdit(){        
+        $(window).on(this.globalEvents);
+        this.wrapper
+            .appendTo(this.el)
+            .show();        
+        this.editor
+            .clearError()
+            .$el
+                .appendTo(this.wrapper)
+                .find('input,textarea').first().focus();
 
+        this.editor.fit();
+    }
+    function doneEdit(){
+        closeEdit.call(this, true);
+    }    
+    function closeEdit(isDone){
+        $(window).off(this.globalEvents);
+        var self = this,
+            el = self.el,
+            value = self.editor.getValue();
+        self.wrapper.detach();
+        if(isDone) self.editor.trigger('eleditdone', el, value);
+    }
 
     return self;
 })();

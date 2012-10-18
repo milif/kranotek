@@ -3,13 +3,7 @@
   <head>
     <title>Prototype</title>
     <meta charset="utf-8">
-    <!-- Bootstrap -->
-    <link href="../vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../vendor/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-        
-    
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">   
   </head>
   <body style="background: url(background.png); ">
   
@@ -17,27 +11,81 @@
         <h1>Grid</h1>
         <div id="grid"></div>                  
     </div>
-    
-    <link href="../css/b/loading.css" rel="stylesheet">
-    <link href="../css/b/toolbarhover.css" rel="stylesheet">
-    <link href="../css/b/effects.css" rel="stylesheet">
-    <link href="../css/b/systemmsg.css" rel="stylesheet">
-    <link href="../css/b/grid.css" rel="stylesheet">
-    <link href="../css/b/tooltip.css" rel="stylesheet">
-    
-    <script src="../vendor/jquery/jquery.js"></script>
-    <script src="../vendor/underscore/underscore.js"></script>
-    <script src="../vendor/backbone/backbone.js"></script>
-    <script src="../vendor/bootstrap/js/bootstrap.js"></script>
-    
-    <script src="../src/App.js"></script>
-    <script src="../src/RPC.js"></script>
-    
-    <script src="../src/view/Grid.js"></script>
-    <script src="../src/view/button/Button.js"></script>
-    <script src="../src/view/tooltip/Tooltip.js"></script>
-    <script src="../src/view/toolbar/Toolbar.js"></script>
-    <script src="../src/view/toolbar/ToolbarHover.js"></script>
+    <script id="require" type="text/javascript" src="../require.js"></script>
+    <script>
+        require('loader.js', function(){
+            require(
+                'view/Grid.js', 
+                'view/button/Button.js', 
+                'view/toolbar/Toolbar.js',
+                'view/form/FieldText.js',                
+                
+                function(){
+                
+                    App.env = {
+                        apiUrl: '.',
+                        apiUrlSuffix: '.php'
+                    }        
+                    
+                    App.defineModel('TestModel', {
+                        api: 'test'
+                    });
+                    App.defineCollection('TestCollection',{
+                        model: App.getModel('TestModel')
+                    });
+                    
+                    var Grid = App.getView('Grid'),
+                        Button = App.getView('Button'),
+                        Toolbar = App.getView('Toolbar'),
+                        FieldText = App.getView('FieldText'),
+                        collection = new(App.getCollection('TestCollection'))(),
+                        editButton = new Button({
+                            disabled: true,
+                            size: 'small',
+                            icon: 'icon-edit'
+                        }), 
+                        removeButton = new Button({
+                            disabled: true,
+                            size: 'small',
+                            icon: 'icon-remove',
+                            click: function(){
+                                var ids = grid.getSelection(),
+                                    model = collection.get(ids[0]);
+                                collection.remove([model], {silent: false});
+                            }
+                        }),
+                        editorValue = new FieldText();
+                        grid = new Grid({
+                            collection: collection,
+                            selectable: true,
+                            columns: [
+                                { key: 'key', name: 'Key', width: 100 },
+                                { key: 'value', name: 'Value', width: 1, editor: editorValue },
+                                { key: 'comment', name: 'Comment', width: 2}
+                            ],
+                            listeners: {
+                                'selectionchange': function(id){
+                                    var model = collection.get(id);
+                                    if(model) {
+                                        removeButton.enable();
+                                        editButton.enable();
+                                    } else {
+                                        removeButton.disable();
+                                        editButton.disable();
+                                    }
+                                }
+                            }
+                        });
+                        
+                        grid.getToolbar()
+                            .add(editButton, 1)
+                            .add(removeButton, 1);
+                    
+                        $('#grid').append(grid.$el);
+                        grid.layout();
+            });
+        });
+    </script>
     
     <style>
         #grid {
@@ -45,68 +93,6 @@
             margin-right: 100px;
             }
     </style>
-    
-    <script>
-        
-        App.env = {
-            apiUrl: '.',
-            apiUrlSuffix: '.php'
-        }        
-        
-        App.defineModel('TestModel', {
-            api: 'test'
-        });
-        App.defineCollection('TestCollection',{
-            model: App.getModel('TestModel')
-        });
-        
-        var Grid = App.getView('Grid'),
-            Button = App.getView('Button'),
-            Toolbar = App.getView('Toolbar'),
-            collection = new(App.getCollection('TestCollection'))(),
-            editButton = new Button({
-                disabled: true,
-                size: 'small',
-                icon: 'icon-edit'
-            }), 
-            removeButton = new Button({
-                disabled: true,
-                size: 'small',
-                icon: 'icon-remove',
-                click: function(){
-                    var ids = grid.getSelection(),
-                        model = collection.get(ids[0]);
-                    collection.remove([model], {silent: false});
-                }
-            });
-            grid = new Grid({
-                collection: collection,
-                selectable: true,
-                columns: [
-                    { key: 'key', name: 'Key', width: 100 },
-                    { key: 'value', name: 'Value', width: 1 },
-                    { key: 'comment', name: 'Comment', width: 2}
-                ],
-                listeners: {
-                    'selectionchange': function(id){
-                        var model = collection.get(id);
-                        if(model) {
-                            removeButton.enable();
-                            editButton.enable();
-                        } else {
-                            removeButton.disable();
-                            editButton.disable();
-                        }
-                    }
-                }
-            });
-            
-            grid.getToolbar()
-                .add(editButton, 1)
-                .add(removeButton, 1);
-        
-            $('#grid').append(grid.$el);
-            grid.layout();
-    </script>
+
   </body>
 </html>

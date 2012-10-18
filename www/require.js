@@ -11,6 +11,7 @@
         rootPath = requireConfig.replace(/^.+:\/\/[^\/]+/,'').replace(/[^\/]+$/,''),
         builderPath,
         config,
+        isDebug = /debug=1/.test(window.location.search),
         loadedScripts={};
 
     var xhr = new XMLHttpRequest();
@@ -23,7 +24,13 @@
         var xhr = new XMLHttpRequest(),
             args = arguments,
             callback = typeof args[args.length-1] == 'function' ? args[args.length-1] : null,
-            params = [];
+            request = JSON.stringify({
+                "compile": isDebug? false : config.compile||false,
+                "require": args, 
+                "rootPath": rootPath, 
+                "includePath": config.includePath,
+                "loadedScripts": loadedScripts
+            });
         xhr.open('POST', builderPath, true);
         xhr.onreadystatechange = function(data) {
             if (xhr.readyState == 4 && xhr.status == 200) {
@@ -31,14 +38,9 @@
                 if(require.finish) require.finish();
                 loadData(data.include, callback);
             }
-        };    
-        xhr.send(JSON.stringify({
-            "compile": /debug=1/.test(window.location.search)? false : config.compile||false,
-            "require": args, 
-            "rootPath": rootPath, 
-            "includePath": config.includePath,
-            "loadedScripts": loadedScripts
-        }));
+        };
+        if(isDebug) console.log('require',request);
+        xhr.send(request);
     }    
     
     function loadData(data, callback){

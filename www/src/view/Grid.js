@@ -191,7 +191,7 @@
         },
         layout: function(){
             this.parent().layout.apply(this, arguments);
-            if(this.collection && !this.collection.isFetched()) this.fetch();
+            if(this.collection && (!this.collection.isFetched()) && (!this.collection.isLocal())) this.fetch();
             return this;
         },
         getToolbar: function(){
@@ -368,9 +368,30 @@
             items: tr
         }));
       
+        for (var i=0;i<this._columns.length;i++){
+            var editor = this._columns[i].editor;
+            if(!editor) continue;
+            applyCellEditor.call(this, trEl.find('>:eq('+i+')'), editor, this._columns[i]);
+        }
+        
         if(this._selectedRow == (model.id || model.cid)) trEl.addClass('state_active');        
         
         return  trEl;
+    }
+    function applyCellEditor(cellEl, editor, column){
+        var self = this;
+        cellEl.on('click', function(){
+           var model = getItemByCell.call(self, cellEl);
+           if(model.id!=self._selectedRow) return;
+           editor.setValue(model.get(column.key));
+           cellEl.triggerHandler('edit');
+        });
+        App.view.setEditor(cellEl, editor);        
+    }
+    function getItemByCell(el){
+        return this.collection.get(
+            el.closest('._row'+this.cid).data('id')
+        );
     }
     function removeModel(model){
         var itemEl = this._bodyEl.find('>[data-id="'+(model.id || model.cid)+'"]');
@@ -398,11 +419,33 @@
                 text: columns[i].name,
                 align: columns[i].align || 'left'
             });
+            applyEditor.call(this,columns[i]);
             this._colsEl.last().append('<col class="_col'+this.cid+'"/>');
             this._headEl.append(column);
         }
     }
-    
+    function applyEditor(column){
+        if(!column.editor) return;
+        var self = this;
+        column.editor
+            .on('change', function(){
+                var model = this.model,
+                    changed = {},
+                    errors;
+                if(!model) return;
+                changed[column.key]=this.getValue();    
+                errors = model.validate(changed, {onlynew: true});
+                if(errors) {
+                    this.applyError(errors[0].msg);
+                } else {
+                    this.clearError();
+                }
+            })
+            .on('eleditdone', function(el, value){
+                var model = getItemByCell.call(self, el);
+                model.set(column.key, value, {silent: false});
+            });
+    }
     var tpl = _.template(
         '<div class="b-grid"><div class="b-grid-h">' +
             '<div class="b-grid-head _head-h{cid} _head{cid} _cols{cid}"></div>' +

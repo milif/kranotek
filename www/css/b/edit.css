@@ -1,0 +1,21 @@
+/*
+ * @id 507e9291bdc13 - (!!!) Идентификатор добавляется автоматически. Запрещено ручное изменение и копирование идентификатора при создании новых файлов (!!!) 
+ */
+.edit{
+    position: relative;
+    -moz-transition: box-shadow ease 0.2s;
+    -webkit-transition: box-shadow ease 0.2s;
+    -o-transition: box-shadow ease 0.2s;
+    transition: box-shadow ease 0.2s;     
+    }
+    .edit:hover {
+        box-shadow: inset 0 0 5px #FAA732;
+        }
+    .edit-h {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;   
+        z-index: 99; 
+        }
