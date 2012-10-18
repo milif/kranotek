@@ -88,9 +88,24 @@
         ss.rel = 'stylesheet';
         ss.async = false;
         ss.href = src;
-        ss.onload = onload;
+        if('onload' in ss) {
+            ss.onload = onload;
+        } else {
+            var sheet = 'sheet' in ss ?  'sheet' : 'styleSheet',
+                cssRules = 'sheet' in ss ?  'cssRules' : 'rules',
+                intervalId = setInterval(function(){
+                    if(ss[sheet] && ss[sheet][cssRules].length) done();
+                }, 50),
+                timeoutId = setTimeout( done, 15000);
+            if(isDebug) console.log('require.load.css',src);
+        }
         headID.appendChild(ss);
-        if(isDebug) console.log('require.load.css',src);
+        
+        function done(){
+            clearTimeout(timeoutId);
+            clearInterval(intervalId);
+            onload();
+        }        
     }
     
     window.require = require;
