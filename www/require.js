@@ -91,21 +91,9 @@
         if('onload' in ss) {
             ss.onload = onload;
         } else {
-            var sheet = 'sheet' in ss ?  'sheet' : 'styleSheet',
-                cssRules = 'sheet' in ss ?  'cssRules' : 'rules',
-                intervalId = setInterval(function(){
-                    if(ss[sheet] && ss[sheet][cssRules].length) done();
-                }, 50),
-                timeoutId = setTimeout( done, 15000);
-            if(isDebug) console.log('require.load.css',src);
-        }
-        headID.appendChild(ss);
-        
-        function done(){
-            clearTimeout(timeoutId);
-            clearInterval(intervalId);
             onload();
-        }        
+        }
+        headID.appendChild(ss);     
     }
     
     window.require = require;
