@@ -35,9 +35,9 @@
         xhr.onreadystatechange = function(data) {
             if (xhr.readyState == 4 && xhr.status == 200) {
                 var data = JSON.parse(xhr.responseText);
+                if(isDebug) console.log('require.response',data);
                 if(require.finish) require.finish();
                 loadData(data.include, callback);
-                if(isDebug) console.log('require.response',data);
             }
         };
         if(isDebug) console.log('require',request);
@@ -67,11 +67,8 @@
             if(count--==1 && callback) callback();
         }
     }
-    
-     
+
     function addScript(src, onload) {
-        
-        if(d.getElementById(src)) return;
         var headID = document.getElementsByTagName("head")[0];         
         var newScript = document.createElement('script');
         newScript.async = false;
@@ -82,7 +79,6 @@
         if(isDebug) console.log('require.load.js',src);
     }
     function addStylesheet(src, onload) {
-        if(d.getElementById(src)) return;
         var headID = document.getElementsByTagName("head")[0];         
         var ss = document.createElement('link');
         ss.rel = 'stylesheet';
@@ -93,7 +89,8 @@
         } else {
             onload();
         }
-        headID.appendChild(ss);     
+        headID.appendChild(ss);
+        if(isDebug) console.log('require.load.css',src);   
     }
     
     window.require = require;
