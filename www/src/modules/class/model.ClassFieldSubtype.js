@@ -10,7 +10,8 @@ App.defineModel('ClassFieldSubtype', {
         'Value': ''
     },
     changePosition: function(index, options){
-        if(!this.id) return this;
+        this.set('Position',index);
+        if(!this.id) return this;    
         if(!options) options = {};
         App.rpc.request(this.api + '.position', {
             'id': this.id,

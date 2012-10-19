@@ -208,7 +208,7 @@
             
             var scrollEl = this._bodyHEl,
                 itemEl = this._bodyEl.find('>[data-id="'+id+'"]').addClass('state_active');
-            scrollEl.animate({
+            if(itemEl.is(':visible'))scrollEl.animate({
                 scrollTop: itemEl.offset().top - itemEl.parent().offset().top - scrollEl.height()/2 + itemEl.height()/2
             }, 200);            
             
@@ -216,7 +216,7 @@
         },
         edit: function(id){
             this.select(id);
-            this._bodyEl.find('>[data-id="'+id+'"] .edit:first').triggerHandler('edit');
+            this._bodyEl.find('>[data-id="'+id+'"] .edit:first').triggerHandler('click');
         },
         getSelection: function(){
             return this._selectedRow ? [this._selectedRow] : [];
@@ -265,7 +265,7 @@
         }
     });
     var moveEvent = App.debounce(function(model, index){
-        this.trigger('moverow', model.id, index);
+        this.trigger('moverow', model.id||model.cid, index);
     }, 1000, false, true);
     function unbindCollection(){
         if(!this.collection) return;
@@ -394,8 +394,9 @@
         cellEl.on('click', function(){
            var model = getItemByCell.call(self, cellEl);
            if((model.id||model.cid)!=self._selectedRow) return;
-           editor.setValue(model.get(column.key));
+           editor.model = model;
            cellEl.triggerHandler('edit');
+           editor.setValue(model.get(column.key));
         });
         App.view.setEditor(cellEl, editor);        
     }
@@ -452,8 +453,9 @@
                     this.clearError();
                 }
             })
-            .on('eleditdone', function(el, value){
+            .on('eledit', function(el, value){
                 var model = getItemByCell.call(self, el);
+                if(model.get(column.key)==value) return;
                 if(model.set(column.key, value, {silent: false})) {
                     self.trigger('edit', model, column.key);
                 };

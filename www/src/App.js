@@ -443,19 +443,22 @@ var App = (function(){
                 'mousedown': function(e){
                     if(el.has(e.target).length>0) return;
                     doneEdit.call(elEditor);
-                },
-                'keydown': function(e){
-                    if(e.keyCode == 27) {                
-                        closeEdit.call(elEditor);
-                        return false;
-                    }
-                    if(e.keyCode == 13) {                
-                        doneEdit.call(elEditor);
-                        return false;
-                    }
                 }
-            }
+            },
+            keyEvents: {
+               'keydown': function(e){
+                  if(e.keyCode == 27) {                
+                     closeEdit.call(elEditor);
+                     return false;
+                  }
+                  if(e.keyCode == 13) {                
+                    doneEdit.call(elEditor);
+                    return false;
+                  }
+               }         
+            }           
         };
+        
         el.addClass('edit');
         el.on('edit', function(){
             startEdit.call(elEditor);
@@ -474,9 +477,10 @@ var App = (function(){
         this.editor
             .clearError()
             .$el
+                .on(this.keyEvents)
                 .appendTo(this.wrapper)
                 .find('input,textarea').first().focus();
-
+        
         this.editor.fit();
     }
     function doneEdit(){
@@ -484,11 +488,12 @@ var App = (function(){
     }    
     function closeEdit(isDone){
         $(window).off(this.globalEvents);
+        this.editor.$el.off(this.keyEvents);
         var self = this,
             el = self.el,
             value = self.editor.getValue();
         self.wrapper.detach();
-        if(isDone) self.editor.trigger('eleditdone', el, value);
+        if(isDone) self.editor.trigger('eledit', el, value);
     }
 
     return self;

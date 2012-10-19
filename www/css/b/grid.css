@@ -34,6 +34,7 @@
         white-space: nowrap;
         -o-text-overflow: ellipsis;
         text-overflow: ellipsis;
+        min-height: 20px;
         }
     .b-grid-th {
         display: inline-block;

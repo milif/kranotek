@@ -34,7 +34,7 @@
                     icon: 'icon-plus',
                     click: function(){
                         var collection = self._gridSubtypes.collection;
-                            model = new collection.model();
+                            model = new collection.model({'Value': 'Новое значение', 'FieldId': self.model.id,'Position': collection.length});
                         collection.add(model , {silent: false});
                         self._gridSubtypes.edit(model.cid);
                     }
@@ -76,7 +76,7 @@
                         },
                         'moverow': function(id, index){
                             var model = this.collection.get(id);
-                            if(model) model.changePosition(index);
+                            model.changePosition(index);
                         },
                         'edit': function(model, field){
                             model.save(model.attributes);

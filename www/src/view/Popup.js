@@ -45,6 +45,7 @@
             this._windowListeners = {
                 'keydown': function(e){
                     if(e.keyCode == 27) {
+                        if($('.b-popup:last').get(0)!=self.$el.get(0)) return;
                         self.close();
                         return false;
                     }
