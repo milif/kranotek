@@ -24,6 +24,13 @@ App.defineView('Field', {
     ),
     init: function(){
         this._name = this.options.name;
+        
+        this.setValue = App.debounce(function(v, isSilent){
+            if(v===this._value) return this;
+            this._value = v;
+            if(!isSilent) this.trigger('change');
+            return this;
+        }, 50, true);
     },   
     doRender: function(){
     
@@ -60,12 +67,6 @@ App.defineView('Field', {
         this.setValue.complete.call(this);
         return this._value;
     },
-    setValue: App.debounce(function(v, isSilent){
-        if(v===this._value) return this;
-        this._value = v;
-        if(!isSilent) this.trigger('change');
-        return this;
-    }, 50, true),
     enable: function(){
         this.$el.removeClass('disabled');
     },

@@ -169,7 +169,8 @@ var App = (function(){
                 this[attrFn+'_lastArguments'] = arguments;
                     
                 if(!useAttribute) {
-                    return debounce.apply(this, arguments);
+                    debounce.apply(this, arguments);
+                    return this;
                 }   
                 
                 var arg = arguments[0] || "null",
@@ -186,10 +187,12 @@ var App = (function(){
                     }
                     wrap = arg[attrFn];
                 }
-                return wrap.apply(this, arguments);
+                wrap.apply(this, arguments);
+                return this;
             }
             
             wrap.complete = function(){
+                if(!this[attrFn+'_lastArguments']) return this;
                 return fn.apply(this, this[attrFn+'_lastArguments']);
             }
 

@@ -74,6 +74,8 @@
             
             checkDirtyChange.call(this);
             
+            if(this.model) this.setModel(this.model);
+            
             return this;    
         },
         doPresenter: function(){
