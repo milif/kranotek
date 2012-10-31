@@ -75,7 +75,7 @@
             }
             return this;
         },
-        setCollection: function(collection){
+        setCollection: function(collection, displayIndex){
             if(this.collection) {
                 this.collection.off(null, null, this);
             }
@@ -85,7 +85,8 @@
             collection
                 .on('add', function(model, collection, options){
                     if(this.options.hasEmpty) options.index++;
-                    var optionEl = $(createOption.call(this, model.id, model.toString())),
+                    var text = displayIndex ? model.get(displayIndex).toString() : model.toString();
+                    var optionEl = $(createOption.call(this, model.id, text)),
                         prevEl = this._selectEl.find('>:eq('+options.index+')');
                     if(prevEl.length>0) {
                         optionEl.insertBefore(prevEl);
@@ -101,7 +102,8 @@
             if(this.options.hasEmpty) items.push({text:this.options.emptyText, value: ""});
             
             collection.each(function(model){
-                items.push({text: model.toString(), value: model.id||model.cid});
+                var text = displayIndex ? model.get(displayIndex).toString() : model.toString();
+                items.push({text: text, value: model.id||model.cid});
             });
             
             this.setOptions(items);
