@@ -1,0 +1,127 @@
+/*
+ * @id 509005db1ba0a - (!!!) Идентификатор добавляется автоматически. Запрещено ручное изменение и копирование идентификатора при создании новых файлов (!!!) 
+ */
+.b-diagram {
+    overflow: auto;
+    }
+    .b-diagram-root>.b-diagram-node {
+        margin: 0;
+        }
+    .b-diagram-node {
+        display: table;
+        margin-left: 30px;
+        position: relative;
+        }
+    .b-diagram-node.scheme_yellow>.b-diagram-caption .b-diagram-caption-h {
+        background: #ffdd66;
+        }
+    .b-diagram-link {
+        position: absolute;
+        left:0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        margin-left: -20px;
+        }
+        .b-diagram-root>.b-diagram-node>.b-diagram-link {
+            display: none;
+            }
+        .b-diagram-link-h {
+            display: table;
+            height: 100%;
+            }   
+            .b-diagram-link-hh {
+                display: table-cell;
+                vertical-align: middle;
+                position: relative;
+                }
+        .b-diagram-link-arrowline {
+            height: 2px;
+            background: #000;
+            width: 22px;
+            }     
+        .b-diagram-link-arrow {
+            position: absolute;
+            margin-top: -5px;
+            left: 13px;
+            width: 0;
+            height: 0;
+            border-bottom: transparent 4px solid;
+            border-top: transparent 4px solid;
+            border-left: #000 12px solid;
+            }     
+        .b-diagram-childrenline {
+            display: block;   
+            width: 15px;
+            height: 2px;
+            background: #000;
+            top: 50%;
+            position: absolute;
+            margin-top: -1px;  
+            margin-left: -5px;           
+            }   
+        .b-diagram-linkline {
+            position: absolute;
+            bottom: 0;
+            top: 0;
+            left:0;
+            border-left: #000 2px solid;
+            }
+            .b-diagram-node:first-child>.b-diagram-link .b-diagram-linkline {
+                height: 50%;
+                top: 50%;
+                border-top: #000 2px solid;
+                border-top-left-radius: 5px;
+                width: 20px;
+                margin-top: -2px;
+                }             
+            .b-diagram-node:last-child>.b-diagram-link .b-diagram-linkline {
+                height: 50%;
+                border-bottom: #000 2px solid;
+                border-bottom-left-radius: 5px;
+                width: 20px;
+                margin-top: -2px;
+                }
+            .b-diagram-node:first-child>.b-diagram-link .b-diagram-link-arrowline,
+            .b-diagram-node:last-child>.b-diagram-link .b-diagram-link-arrowline {
+                display: none;
+                } 
+            .b-diagram-node:first-child:last-child>.b-diagram-link .b-diagram-link-arrowline {
+                display: block;
+                } 
+            .b-diagram-node:first-child:last-child>.b-diagram-link .b-diagram-linkline {
+                display: none;
+                }
+            .b-diagram-node:first-child:last-child>.b-diagram-link .b-diagram-link-arrow {
+                margin-top: -5px;
+                }
+    .b-diagram-caption {
+        display: table-cell;
+        vertical-align: middle;
+        padding: 5px;
+        position: relative;
+        z-index: 1;
+        }  
+        .b-diagram-caption-h {
+            background: #cfe2f3;
+            cursor: pointer;                      
+            border-radius: 5px;
+            border: #000 1px solid;
+            padding: 5px 5px 5px 10px; 
+            color: #777777;
+            text-shadow: 0 1px 0 #ffffff;
+            white-space: nowrap;                                        
+            }
+            .b-diagram-caption-name {
+                margin-right: 5px;
+                }
+            .b-diagram-caption-h .btn {
+                margin-left: 5px;
+                }
+         .b-diagram-node>.b-diagram-caption .b-diagram-caption-h:hover {
+            color: #333333;
+            }
+    .b-diagram-children { 
+        display: table-cell;
+        /*padding: 10px 0;*/
+        }    
