@@ -42,7 +42,7 @@ App.defineView('Button', {
         if(this.options.menu) {
             this.$el
                 .addClass('dropdown-toggle')
-                .append('&nbsp;<span class="caret"></span>');
+                .append((this.options.icon||this.options.text?'&nbsp;':'')+'<span class="caret"></span>');
             this.options.menu.setTarget(this);
         }
         if(this.options.tooltip) {

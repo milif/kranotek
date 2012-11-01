@@ -128,7 +128,12 @@ var App = (function(){
                 showSystemMsg( $.extend({
                     type: 'success'
                 }, options));
-            },            
+            },  
+            info: function(options){
+                showSystemMsg( $.extend({
+                    type: 'info'
+                }, options));                
+            },          
             okcancel: function(options){
                 showSystemMsg( $.extend({
                     type: 'info',

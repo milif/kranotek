@@ -148,7 +148,6 @@
         var self = this;
         
         this._isOpen = true;
-        clearTimeout(this._closeAction);
         
         setTimeout(function(){
             $(window).on(self._windowListeners);
@@ -275,12 +274,10 @@
         if(!this._isOpen) return;
         var self = this;
         this._isOpen = false;
-        this._closeAction = setTimeout(function(){
-            self.$el.fadeOut(50, function(){
-                $(this).detach();
-                self.$el.off('mouseenter mouseleave');
-            });        
-        },0);
+        self.$el.fadeOut(50, function(){
+            $(this).detach();
+            self.$el.off('mouseenter mouseleave');
+        });        
         $(window).off(this._windowListeners);
         this.trigger('dropdownhide');
     }
