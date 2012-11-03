@@ -215,7 +215,7 @@
         },
         cancel: function(){
             this.parent().cancel.apply(this, arguments);
-            setCollection.call(this, true);
+            setCollection.call(this);
             return this;
         }
     });
@@ -250,14 +250,15 @@
         
         this._diagram && this._diagram.setCollection(collection);
         if(data.length) {
-            self._isDirty = true;
+            
             this._createDiagramButtonContainer && this._createDiagramButtonContainer.hide();
             this._diagram.show();
         } else {
             this._createDiagramButtonContainer && this._createDiagramButtonContainer.show();
             this._diagram.hide();
         }
-        updateConfigErrors.call(this, collection);        
+        updateConfigErrors.call(this, collection);
+        self._isDirty = false;
         this.trigger('dirtychange');
     }
 })();
