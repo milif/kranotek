@@ -1,0 +1,13 @@
+/*
+ * @id 5094d19a8de5f - (!!!) Идентификатор добавляется автоматически. Запрещено ручное изменение и копирование идентификатора при создании новых файлов (!!!) 
+ */
+.b-formreport {
+
+}
+
+.b-formreport > .control-group {
+    margin-top: 20px;
+}
+.b-formreport > div > .container-fluid {
+    padding-left: 180px;
+}

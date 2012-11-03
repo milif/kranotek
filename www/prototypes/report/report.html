@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Prototype</title>
+    <meta charset="utf-8">
+    <!-- Bootstrap -->
+    <link href="../../vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../../vendor/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">  
+        
+    
+    
+  </head>
+  <body style="background: url(../background.png); ">
+  
+    <div class="container-fluid">
+        <h1>Diagram</h1>
+        <div id="diagram" style="background: white;"></div>             
+    </div>
+    
+    <style>
+        h1 .btn {
+            margin-left: 15px;
+            }
+    </style>    
+    
+    <script id="require" type="text/javascript" src="../../require.js"></script>
+    <script>
+        require('loader.js', function(){
+            require(
+                'CollectionNested.js',
+                'view/Diagram.js',   
+                'view/Dropdown.js',  
+                'modules/report/view.FormReport.js',        
+                
+                function(){
+                
+                    App.env = {
+                        apiUrl: '../',
+                        apiUrlSuffix: '.php'
+                    }
+
+                    var ModelReport = App.getModel('Report'),
+                        report = new ModelReport(),
+                        FormReport = App.getView('FormReport'),
+                        formReport = new FormReport({
+                            model: report
+                        });
+                    
+                    $('#diagram').append(formReport.$el);               
+                
+                }
+            );
+        });    
+    </script>
+
+  </body>
+</html>
