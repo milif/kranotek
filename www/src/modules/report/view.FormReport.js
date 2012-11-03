@@ -210,9 +210,8 @@
             this.add(diagram);
             this.add(createDiagramButtonContainer);
 
-            this.on('beforesave', function(isNew){
-                fieldReportConfig.setValue('asdfasdf23');
-                self.model.set('Config', 'asdfasdf23');
+            this.on('beforesave', function(e, isNew, attrs){
+                attrs.Config = collection;
             });
 
             return this;
