@@ -33,27 +33,23 @@
 
             var self = this;
                  
-            App.defineModel('TestModel', {
-                api: 'node',
+            App.defineModel('FormReportNode', {
+                defaults: {                    
+                    'Name': '',
+                    'Data': ''
+                },
                 toString: function(){
                     return this.get('Name');
                 }
             });
-            App.defineCollection('TestCollection', {
+            App.defineCollection('FormReportNodes', {
                 extend: 'CollectionNested',
-                model: App.getModel('TestModel')
-            });
-
-            App.defineModel('ReportNode', {
-                defaults: {                    
-                    'Name': '',
-                    'Data': ''
-                }
+                model: App.getModel('FormReportNode')
             });
             
-            var ReportNode = App.getModel('ReportNode'),
+            var ReportNode = App.getModel('FormReportNode'),
                 // reportNode = new ReportNode(),
-                TestCollection = App.getCollection('TestCollection'),
+                FormReportNodes = App.getCollection('FormReportNodes'),
                 Diagram = App.getView('Diagram'),
                 Dropdown = App.getView('Dropdown'),
                 Button = App.getView('Button'),
@@ -70,7 +66,7 @@
                     name: 'Config'
                 });
 
-                this._TestCollection = TestCollection;
+                this._FormReportNodes = FormReportNodes;
 
                 var diagram = new Diagram({
                     collection: self._collection,
@@ -237,7 +233,7 @@
     function setCollection(isClear) {
         var data = isClear ? [] : this.model.get('Config');
         var self = this,
-            collection = new this._TestCollection(data,{
+            collection = new this._FormReportNodes(data,{
                 local: true
             });
         this._collection = collection;
