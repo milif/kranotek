@@ -68,26 +68,18 @@
                 fieldReportConfig = new FieldText({
                     label: 'Config',
                     name: 'Config'
-                }),
+                });
 
-                collection = new TestCollection([
-                    // { 'Name': 'Node 6', 'path':'/1/3/6' },
-                    // { 'Name': 'Node 1', 'path':'/1' },
-                    // { 'Name': 'Node 2', 'path':'/2' },
-                    // { 'Name': 'Node 3', 'path':'/1/3', 'scheme': 'yellow' },
-                    // { 'Name': 'Node 4', 'path':'/1/4' },
-                    // { 'Name': 'Node 5', 'path':'/2/5' },
-                    // { 'Name': 'Node 7', 'path':'/1/3/7' },
-                    // { 'Name': 'Node 8', 'path':'/1/8' }
-                ],{
-                    local: true
-                }),
-                diagram = new Diagram({
-                    collection: collection,
+                this._TestCollection = TestCollection;
+                setEmptyCollection.call(this);
+
+                var diagram = new Diagram({
+                    collection: self._collection,
                     listeners: {
                         'addnode': function(path, node){
-                            var menu = new Dropdown()
-                                .addButton(new Button({
+                            var menu = new Dropdown();
+                            if(node.get('scheme') === 'yellow') {
+                                menu.addButton(new Button({
                                     text: 'Добавить Меню',
                                     click: function(){
                                         self._nodeFormMode = 'addMenu';
@@ -96,35 +88,39 @@
                                         });
                                         self._currentNode = model;
                                         nodeForm.setModel(model);
-                                        nodeName.setReadOnly(false);
+                                        nodeData.hide();
                                         nodePopup.setTitle('Добавить Меню');
                                         nodePopup.open();
                                     }
-                                }))
-                                .addButton(new Button({
+                                }));
+                                menu.addButton(new Button({
                                     text: 'Добавить Данные',
                                     click: function(){
-                                        self._currentNode = node;
                                         self._nodeFormMode = 'addData';
+                                        var model = new ReportNode({
+                                            path: path
+                                        });
+                                        self._currentNode = model;
+                                        nodeForm.setModel(model);
                                         nodePopup.setTitle('Добавить Данные');
-                                        nodeName.setReadOnly(true);
-                                        nodeForm.setModel(self._currentNode);
+                                        nodeData.show();
                                         nodePopup.open();
                                     }
-                                }))
-                                .addSeparator()
-                                .addButton(new Button({
-                                    text: 'Удалить',
-                                    click: function(){
-                                        collection.remove(node, {silent: false});
-                                    }
-                                }))
-                                .addSeparator()
-                                .addButton(new Button({
-                                    text: 'Переместить',
-                                    click: function(){
-                                    }
                                 }));
+                                menu.addSeparator();
+                            }
+                            menu.addButton(new Button({
+                                text: 'Удалить',
+                                click: function(){
+                                    self._collection.remove(node, {silent: false});
+                                }
+                            }));
+                            menu.addSeparator();
+                            menu.addButton(new Button({
+                                text: 'Переместить',
+                                click: function(){
+                                }
+                            }));
                             
                             this.setMenu(path, menu);
                         },
@@ -133,7 +129,7 @@
                             App.msg.info({
                                 title: 'Клик по ноде',
                                 text: 'Совершен клик по ноде "'+node.get('Name')+'"'
-                            });                                
+                            });
                         }
                     }
                 }),
@@ -150,19 +146,22 @@
                         'save': function(isNew){
                             var name = this.model.get('Name'),
                                 data = this.model.get('Data'),
-                                path = self._currentNode && self._currentNode.get('path') || '';
-                            if(self._nodeFormMode === 'addMenu') {
-                                collection.add({
+                                path = self._currentNode && self._currentNode.get('path') || '',
+                                nodeConfig = {
                                     'Name': name,
-                                    'Data': data,
                                     'path':path+'/'+_.uniqueId('node'),
-                                    'scheme': 'yellow',
                                     'moveable': true
-                                }, {silent: false});
+                                };
+                            if(self._nodeFormMode == 'addData') {
+                                nodeConfig.Data = data;
                             }
+                            if(self._nodeFormMode == 'addMenu') {
+                                nodeConfig.scheme = 'yellow';
+                            }
+                            self._collection.add(nodeConfig, {silent: false});
                             nodePopup.close();
                             diagram.show();
-                            createDiagramButton.hide();
+                            createDiagramButtonContainer.hide();
                         }
                     }
                 })
@@ -177,14 +176,13 @@
                 createDiagramButton = new Button({
                     text: 'Добавить источник данных',
                     click: function(){
-                        collection.reset();
                         self._nodeFormMode = 'addMenu';
                         var model = new ReportNode({
                             path: '/'
                         });
                         self._currentNode = model;
                         nodeForm.setModel(model);
-                        nodeName.setReadOnly(false);
+                        nodeData.hide();
                         nodePopup.setTitle('Добавить Меню');
                         nodePopup.open();
                     }
@@ -210,11 +208,48 @@
             this.add(diagram);
             this.add(createDiagramButtonContainer);
 
+            this._diagram = diagram;
+            this._createDiagramButtonContainer = createDiagramButtonContainer;
+
             this.on('beforesave', function(e, isNew, attrs){
-                attrs.Config = collection;
+                attrs.Config = self._collection;
             });
 
+            updateConfigErrors.call(this, this._collection);
+            return this;
+        },
+        cancel: function(){
+            this.parent().cancel.apply(this, arguments);
+            setEmptyCollection.call(this);
             return this;
         }
     });
+
+    function updateConfigErrors(collection) {
+        if(collection.length > 0) {
+            delete this._errors.Config;
+        } else {
+            this._errors.Config = 'Empty';
+            this._createDiagramButtonContainer && this._createDiagramButtonContainer.show();
+        }
+        this.model.trigger('change');
+        this.trigger('errorchange');
+    }
+
+    function setEmptyCollection() {
+        var self = this,
+            collection = new this._TestCollection([],{
+                local: true
+            });
+        this._collection = collection;
+        this._collection.on('add', function() {
+            updateConfigErrors.call(self, this);
+        });
+        this._collection.on('remove', function() {
+            updateConfigErrors.call(self, this);
+        });
+
+        this._diagram && this._diagram.setCollection(collection);
+        this._createDiagramButtonContainer && this._createDiagramButtonContainer.show();
+    }
 })();
