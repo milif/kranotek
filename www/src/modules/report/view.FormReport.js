@@ -71,7 +71,6 @@
                 });
 
                 this._TestCollection = TestCollection;
-                setEmptyCollection.call(this);
 
                 var diagram = new Diagram({
                     collection: self._collection,
@@ -200,8 +199,7 @@
 
             this._currentNode = null;
             this._nodeFormMode = 'addMenu';
-
-            diagram.hide();
+            
             fieldReportConfig.hide();
             this.add(fieldReportName);
             this.add(fieldReportConfig);
@@ -215,12 +213,13 @@
                 attrs.Config = self._collection;
             });
 
-            updateConfigErrors.call(this, this._collection);
+            setCollection.call(this);
+
             return this;
         },
         cancel: function(){
             this.parent().cancel.apply(this, arguments);
-            setEmptyCollection.call(this);
+            setCollection.call(this, true);
             return this;
         }
     });
@@ -232,24 +231,37 @@
             this._errors.Config = 'Empty';
             this._createDiagramButtonContainer && this._createDiagramButtonContainer.show();
         }
-        this.model.trigger('change');
         this.trigger('errorchange');
     }
 
-    function setEmptyCollection() {
+    function setCollection(isClear) {
+        var data = isClear ? [] : this.model.get('Config');
         var self = this,
-            collection = new this._TestCollection([],{
+            collection = new this._TestCollection(data,{
                 local: true
             });
         this._collection = collection;
         this._collection.on('add', function() {
             updateConfigErrors.call(self, this);
+            self._isDirty = true;
+            self.trigger('dirtychange');
         });
         this._collection.on('remove', function() {
             updateConfigErrors.call(self, this);
+            self._isDirty = true;
+            self.trigger('dirtychange');
         });
-
+        
         this._diagram && this._diagram.setCollection(collection);
-        this._createDiagramButtonContainer && this._createDiagramButtonContainer.show();
+        if(data.length) {
+            self._isDirty = true;
+            this._createDiagramButtonContainer && this._createDiagramButtonContainer.hide();
+            this._diagram.show();
+        } else {
+            this._createDiagramButtonContainer && this._createDiagramButtonContainer.show();
+            this._diagram.hide();
+        }
+        updateConfigErrors.call(this, collection);        
+        this.trigger('dirtychange');
     }
 })();
