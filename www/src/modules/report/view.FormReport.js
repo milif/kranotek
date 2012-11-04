@@ -78,7 +78,7 @@
                                     click: function(){
                                         self._nodeFormMode = 'addMenu';
                                         var model = new ReportNode({
-                                            path: path
+                                            path: self._collection.getPath(node)
                                         });
                                         self._currentNode = model;
                                         nodeForm.setModel(model);
@@ -92,7 +92,7 @@
                                     click: function(){
                                         self._nodeFormMode = 'addData';
                                         var model = new ReportNode({
-                                            path: path
+                                            path: self._collection.getPath(node)
                                         });
                                         self._currentNode = model;
                                         nodeForm.setModel(model);
