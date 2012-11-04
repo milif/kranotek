@@ -72,9 +72,8 @@
                     collection: self._collection,
                     listeners: {
                         'addnode': function(path, node){
-                            var menu = new Dropdown();
-                            if(node.get('scheme') === 'yellow') {
-                                menu.addButton(new Button({
+                            var menu = new Dropdown()
+                                .addButton(new Button({
                                     text: 'Добавить Меню',
                                     click: function(){
                                         self._nodeFormMode = 'addMenu';
@@ -87,8 +86,8 @@
                                         nodePopup.setTitle('Добавить Меню');
                                         nodePopup.open();
                                     }
-                                }));
-                                menu.addButton(new Button({
+                                }))
+                                .addButton(new Button({
                                     text: 'Добавить Данные',
                                     click: function(){
                                         self._nodeFormMode = 'addData';
@@ -101,21 +100,20 @@
                                         nodeData.show();
                                         nodePopup.open();
                                     }
+                                }))
+                                .addSeparator()
+                                .addButton(new Button({
+                                    text: 'Удалить',
+                                    click: function(){
+                                        self._collection.remove(node, {silent: false});
+                                    }
+                                }))
+                                .addSeparator()
+                                .addButton(new Button({
+                                    text: 'Переместить',
+                                    click: function(){
+                                    }
                                 }));
-                                menu.addSeparator();
-                            }
-                            menu.addButton(new Button({
-                                text: 'Удалить',
-                                click: function(){
-                                    self._collection.remove(node, {silent: false});
-                                }
-                            }));
-                            menu.addSeparator();
-                            menu.addButton(new Button({
-                                text: 'Переместить',
-                                click: function(){
-                                }
-                            }));
                             
                             this.setMenu(path, menu);
                         },
