@@ -71,8 +71,8 @@
                 var diagram = new Diagram({
                     collection: self._collection,
                     listeners: {
-                        'addnode': function(path, node){
-                            var menu = new Dropdown()
+                        'rendernode': function(node){
+                            var menu = this.getMenu(node)
                                 .addButton(new Button({
                                     text: 'Добавить Меню',
                                     click: function(){
@@ -107,15 +107,9 @@
                                     click: function(){
                                         self._collection.remove(node, {silent: false});
                                     }
-                                }))
-                                .addSeparator()
-                                .addButton(new Button({
-                                    text: 'Переместить',
-                                    click: function(){
-                                    }
                                 }));
                             
-                            this.setMenu(path, menu);
+                            // this.setMenu(path, menu);
                         },
                         'clicknode': function(path, node){
                             self._selectedNode = { path: path, node: node };
