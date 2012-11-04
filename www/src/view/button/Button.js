@@ -73,6 +73,9 @@ App.defineView('Button', {
         this.$el.addClass('disabled');
         return this;
     },
+    getMenu: function(){
+        return this.options.menu;
+    },
     setText: function(text) {
         text = text || '';
         this.$el.text(text);

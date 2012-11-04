@@ -2,6 +2,7 @@
  * @id 509005db1ba0a - (!!!) Идентификатор добавляется автоматически. Запрещено ручное изменение и копирование идентификатора при создании новых файлов (!!!) 
  */
 .b-diagram {
+    padding: 10px;
     overflow: auto;
     }
     .b-diagram-root>.b-diagram-node {
@@ -98,11 +99,12 @@
     .b-diagram-caption {
         display: table-cell;
         vertical-align: middle;
-        padding: 5px;
+        padding: 7px 5px;
         position: relative;
         z-index: 1;
         }  
         .b-diagram-caption-h {
+            position: relative;
             background: #cfe2f3;
             cursor: pointer;                      
             border-radius: 5px;
@@ -114,6 +116,9 @@
             }
             .b-diagram-caption-name {
                 margin-right: 5px;
+                display: inline-block;
+                vertical-align: middle;
+                text-align: center;
                 }
             .b-diagram-caption-h .btn {
                 margin-left: 5px;
@@ -124,4 +129,30 @@
     .b-diagram-children { 
         display: table-cell;
         /*padding: 10px 0;*/
-        }    
+        }   
+    .b-diagram-move {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;        
+        } 
+        .b-diagram-move.pos_top .b-diagram-move-down {
+            display: none;
+            }
+        .b-diagram-move.pos_bottom .b-diagram-move-up {
+            display: none;
+            }  
+        .b-diagram-move i {
+            opacity: 0.3;
+            }      
+        .b-diagram-move>* {
+            position: absolute;
+            left: 50%;
+            top: -18px;
+            margin-left: -21px;
+            }
+            .b-diagram-move .b-diagram-move-down {
+                top: auto;
+                bottom: -18px;
+                }
