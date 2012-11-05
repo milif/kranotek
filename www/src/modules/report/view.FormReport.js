@@ -3,13 +3,14 @@
  */
 /*
  * @require modules/report/formreport.css
+ * @require modules/class/collection.Class.js
 
  * @require CollectionNested.js
- * @require view/button/Button.js  
- * @require view/Dropdown.js  
- * @require view/form/Form.js  
- * @require view/form/FieldText.js  
- * @require view/container/Container.js 
+ * @require view/button/Button.js
+ * @require view/Dropdown.js
+ * @require view/form/Form.js
+ * @require view/form/FieldText.js
+ * @require view/container/Container.js
  * @require view/Diagram.js
  * @require view/Popup.js
  * @require modules/report/model.Report.js
@@ -34,7 +35,7 @@
             var self = this;
                  
             App.defineModel('FormReportNode', {
-                defaults: {                    
+                defaults: {
                     'Name': '',
                     'Data': ''
                 },
@@ -46,9 +47,47 @@
                 extend: 'CollectionNested',
                 model: App.getModel('FormReportNode')
             });
+
+            App.defineModel('FormReportNodeData', {
+                toString: function(){
+                    return this.get('Name');
+                }
+            });
+            App.defineCollection('FormReportNodeData', {
+                extend: 'CollectionNested',
+                model: App.getModel('FormReportNodeData')
+            });
+
+            var ClassCollection = new (App.getCollection('Class'))(),
+                FormReportNodeCollection = new (App.getCollection('FormReportNodeData'))([], {
+                local: true
+            });
+                
+            ClassCollection.fetch({
+                silent: true,
+                success: function(){
+                    _.each(ClassCollection.models, function(model) {
+                        FormReportNodeCollection.add(model, {silent: true});
+                        var functionsCollection = model.getCollectionFunctions();
+                        functionsCollection.fetch({
+                            silent: true,
+                            success: function(){
+                                _.each(functionsCollection.models, function(functionModel){
+                                    FormReportNodeCollection.add(functionModel, {silent: true});
+                                });
+                            },
+                            complete: function(){
+                                App.view.setLoading(self.$el, false);
+                            }
+                        });
+                    });
+                },
+                complete: function(){
+                    App.view.setLoading(self.$el, false);
+                }
+            });
             
             var ReportNode = App.getModel('FormReportNode'),
-                // reportNode = new ReportNode(),
                 FormReportNodes = App.getCollection('FormReportNodes'),
                 Diagram = App.getView('Diagram'),
                 Dropdown = App.getView('Dropdown'),
