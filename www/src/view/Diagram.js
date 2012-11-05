@@ -266,24 +266,7 @@
             this._moveEl = $(moveTpl({
                 cid: this.cid
             })),
-            this._moveEvents = {
-                'mouseenter': function(){
-
-                    var path = self._movePath;
-                    if(self.collection.isDescendant(
-                        path, self.collection.getPath($(this).closest('._node'+self.cid).data('node'))
-                    )) return;
-                    self._moveEl
-                        .on(self._moveEventsMove)
-                        .hide()
-                        .appendTo($(this))
-                        .fadeIn(200);
-                },
-                'mouseleave': function(){
-                    self._moveEl
-                        .off(self._moveEventsMove)
-                        .detach();
-                },
+            this._moveEvents = App.isTouch() ? {
                 'click': function(e){
                     var path = self._movePath;
                     if(
@@ -330,7 +313,30 @@
                         .show();                    
                 }           
 
-            }
+            } : {
+                'mouseenter': function(){
+                    var path = self._movePath;
+                    if(self.collection.isDescendant(
+                        path, self.collection.getPath($(this).closest('._node'+self.cid).data('node'))
+                    )) return;
+                    self._moveEl
+                        .on(self._moveEventsMove)
+                        .hide()
+                        .appendTo($(this))
+                        .fadeIn(200);
+                },
+                'mouseleave': function(){
+                    self._moveEl
+                        .off(self._moveEventsMove)
+                        .detach();
+                },
+                'click': function(e){
+                    stopActionMove.call(self);
+                    return;                   
+                }           
+
+            };
+            
             this._moveWindowListeners = {
                 'keydown': function(e){
                     if(e.keyCode == 27) {
