@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Prototype</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    
+  </head>
+  <body style="background: url(../background.png); ">
+  
+    <div class="container-fluid">
+        <h1>Модуль отчет::Панель отчета</h1>
+        <div class = "container-fluid">
+            <div id="reportpanel" style="background: white;"></div>  
+        </div>              
+    </div>
+    <script id="require" type="text/javascript" src="../../require.js"></script>
+    <script>
+        require('loader.js', function(){
+            require('modules/report/view.ReportBase.js', function(){
+                
+                App.env = {
+                    apiUrl: '/app_dev.php',
+                    apiUrlSuffix: ''
+                }
+                var ViewReportBase = App.getView('ReportBase'),
+                    ModelReportContextSource = App.getModel('ReportContextSource'),
+                    view = new ViewReportBase({
+                    });
+                
+                view.$el.appendTo($('#reportpanel'));
+                
+                App.defineModel('TestMainTable', {
+                    defaults: {
+                        'Name': ''
+                    }
+                });
+                
+                var TestMainTableModel = App.getModel('TestMainTable');
+                App.defineCollection('TestMainTable', {
+                    model: TestMainTableModel
+                });
+                
+                var collectionMainTable = new(App.getCollection('TestMainTable'))([], { local:true });
+                collectionMainTable.add(new TestMainTableModel({ id:1, Name: 'Name 1' }));
+                collectionMainTable.add(new TestMainTableModel({ id:2, Name: 'Name 2' }));
+
+
+                var ReportContextCollection = new(App.getCollection('ReportContextSource'))();
+                view.setSource(collectionMainTable);
+                view.setContextCollection(ReportContextCollection);
+
+                view._mainGrid.layout();
+                view._contextGrid.layout();
+
+            });
+        });
+    </script>
+
+  </body>
+</html>
