@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Prototype</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    
+  </head>
+  <body style="background: url(../background.png); ">
+  
+    <div class="container-fluid">
+        <h1>Классы: Представление</h1>
+        <div class = "container-fluid">
+            <div id="panel" style="background: white;"></div>  
+        </div>              
+    </div>
+    <script id="require" type="text/javascript" src="../../require.js"></script>
+    <script>
+        require('loader.js', function(){
+            require('modules/class/view.ClassPresenter.js', function(){
+                
+                App.env = {
+                    apiUrl: '/app_dev.php',
+                    apiUrlSuffix: ''
+                }
+                
+                var ClassCollection = new (App.getCollection('Class'))();
+                
+                ClassCollection.fetch({
+                    silent: true,
+                    success: function(){
+                        var ViewClassPresenter = App.getView('ClassPresenter'),
+                            view = new ViewClassPresenter({
+                                model: ClassCollection.models[0]
+                            });
+
+                        view.$el.appendTo($('#panel'));
+
+                        view._presenterGrid.layout();
+                    },
+                    complete: function(){
+                        App.view.setLoading(self.$el, false);
+                    }
+                });
+                
+            });
+        });
+    </script>
+
+  </body>
+</html>
