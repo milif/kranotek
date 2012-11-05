@@ -28,12 +28,14 @@
     <script>
         require('loader.js', function(){
             require(
+                'RPC.js',
                 'view/button/Button.js',
                 'view/form/Form.js', 
                 'view/form/FieldText.js',
                 'view/form/FieldSelect.js',  
                 'view/form/FieldCheckbox.js',         
-                'view/form/FieldTextarea.js',               
+                'view/form/FieldTextarea.js',
+                'view/form/FieldTrigger.js',              
                 
                 function(){
                 
@@ -60,7 +62,7 @@
                         },
                         toString: function(){
                             return this.get('Value');
-                        }    
+                        }
                     });        
                     App.defineCollection('TestCollection', {
                         model: App.getModel('ModelTest')
@@ -71,6 +73,7 @@
                         FieldText = App.getView('FieldText'),
                         FieldSelect = App.getView('FieldSelect'),
                         FieldCheckbox = App.getView('FieldCheckbox'),
+                        FieldTrigger = App.getView('FieldTrigger'),
                         Button = App.getView('Button'),
                         ModelTest = App.getModel('ModelTest'),
                         TestCollection = App.getCollection('TestCollection'),
@@ -83,7 +86,8 @@
                             'textarea': 'test2',
                             'select': 2,
                             'selectc': 123,
-                            'checkbox': true
+                            'checkbox': true,
+                            'trigger': 'Trigger me'
                         }),
                         form = new Form({
                             legend: 'Legend',
@@ -93,6 +97,24 @@
                                 label: 'Text field',
                                 name: 'text'
                             }))
+                            .add(
+                                new FieldTrigger({
+                                    label: 'Trigger field',
+                                    name: 'trigger'
+                                })
+                                    .on('trigger', function(){
+                                        this.setValue({
+                                            value: 'Changed value',
+                                            toString: function(){
+                                                return this.value;
+                                            }
+                                        });
+                                        App.msg.info({
+                                            title: 'Значение поля изменено',
+                                            text: 'Новое значение "Changed value"'
+                                        });
+                                    })
+                            )
                             .add(new FieldTextarea({
                                 label: 'Textarea field',
                                 name: 'textarea'

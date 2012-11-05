@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Prototype</title>
+    <meta charset="utf-8">
+    <!-- Bootstrap -->
+    <link href="../vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../vendor/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">  
+        
+    
+    
+  </head>
+  <body style="background: url(background.png); ">
+  
+    <div class="container-fluid">
+        <h1>Diagram</h1>
+        <div id="diagram" style="background: white;"></div>             
+    </div>
+    
+    <style>
+        h1 .btn {
+            margin-left: 15px;
+            }
+    </style>    
+    
+    <script id="require" type="text/javascript" src="../require.js"></script>
+    <script>
+        require('loader.js', function(){
+            require(
+                'CollectionNested.js',
+                'view/Diagram.js',   
+                'view/Dropdown.js',       
+                
+                function(){
+                
+                    App.env = {
+                        apiUrl: '../',
+                        apiUrlSuffix: '.php'
+                    }
+                    
+                    
+                    App.defineModel('TestModel', {
+                        api: 'node',
+                        toString: function(){
+                            return this.get('Name');
+                        }
+                    });        
+                    App.defineCollection('TestCollection', {
+                        extend: 'CollectionNested',
+                        model: App.getModel('TestModel')
+                    });
+                    
+                    var TestCollection = App.getCollection('TestCollection'),
+                        Diagram = App.getView('Diagram'),
+                        Dropdown = App.getView('Dropdown'),
+                        Button = App.getView('Button'),
+                        collection = new TestCollection([
+                            { 'Name': 'Node 6', 'path':'/1/3/6', 'moveable': true },
+                            { 'Name': 'Node 1', 'path':'/1', 'moveable': true },
+                            { 'Name': 'Node 2', 'path':'/2', 'moveable': true },
+                            { 'Name': 'Node 3', 'path':'/1/3', 'scheme': 'yellow', 'moveable': true },
+                            { 'Name': 'Node 4', 'path':'/1/4', 'moveable': true },
+                            { 'Name': 'Node 5', 'path':'/2/5', 'moveable': true },
+                            { 'Name': 'Node 7', 'path':'/1/3/7', 'moveable': true },
+                            { 'Name': 'Node 8', 'path':'/1/8', 'moveable': true }
+                        ],{
+                            local: true
+                        }),
+                        diagram = new Diagram({
+                            collection: collection,
+                            listeners: {
+                                'rendernode': function(node){
+                                    var menu = this.getMenu(node)   
+                                        .addButton(new Button({
+                                            text: 'Add node',
+                                            click: function(){
+                                                collection.add({ 'Name': 'New node', 'path':collection.getPath(node)+'/'+_.uniqueId('node') }, {silent: false});
+                                            }
+                                        }))                           
+                                        .addButton(new Button({
+                                            text: 'Remove node',
+                                            click: function(){
+                                                collection.remove(node, {silent: false});
+                                            }
+                                        }));
+                                },
+                                'clicknode': function(path, node){
+                                    App.msg.info({
+                                        title: 'Клик по ноде',
+                                        text: 'Совершен клик по ноде "'+node.get('Name')+'"'
+                                    });                                
+                                }
+                            }
+                        });
+                    
+                    $('#diagram').append(diagram.$el);               
+                
+                }
+            );
+        });    
+    </script>
+
+  </body>
+</html>

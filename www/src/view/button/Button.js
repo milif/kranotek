@@ -22,7 +22,7 @@ App.defineView('Button', {
     init: function(){
         var self = this;
         if(this.options.click) this.on('click', this.options.click);
-        this.$el.on('click', function(){
+        this.$el.on('touchend click', function(){
             if($(this).is('.disabled')) {
                 self.trigger('disableclick');
                 return;
@@ -42,7 +42,7 @@ App.defineView('Button', {
         if(this.options.menu) {
             this.$el
                 .addClass('dropdown-toggle')
-                .append('&nbsp;<span class="caret"></span>');
+                .append((this.options.icon||this.options.text?'&nbsp;':'')+'<span class="caret"></span>');
             this.options.menu.setTarget(this);
         }
         if(this.options.tooltip) {
@@ -72,6 +72,9 @@ App.defineView('Button', {
     disable: function(){
         this.$el.addClass('disabled');
         return this;
+    },
+    getMenu: function(){
+        return this.options.menu;
     },
     setText: function(text) {
         text = text || '';

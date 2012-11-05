@@ -59,6 +59,17 @@ var App = (function(){
         );
 
      var self = {
+        isTouch: function(){
+            if(!('_isTouch' in self)) {
+                try {
+                    document.createEvent("TouchEvent"); 
+                    self._isTouch = true;
+                } catch(e){
+                    self._isTouch = false;
+                }
+            }
+            return self._isTouch;
+        },
         view: {
             getScrollbarWidth: function(){
                 var self = arguments.callee;
@@ -128,7 +139,12 @@ var App = (function(){
                 showSystemMsg( $.extend({
                     type: 'success'
                 }, options));
-            },            
+            },  
+            info: function(options){
+                showSystemMsg( $.extend({
+                    type: 'info'
+                }, options));                
+            },          
             okcancel: function(options){
                 showSystemMsg( $.extend({
                     type: 'info',

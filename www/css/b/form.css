@@ -34,3 +34,14 @@
         width: 100%;
         box-sizing: border-box;        
         }       
+.b-field.mod_trigger {
+    }
+    .b-field.mod_trigger .input {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        border-right: none;
+        } 
+    .b-field.mod_trigger .btn {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        }         
