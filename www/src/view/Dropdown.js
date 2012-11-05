@@ -120,13 +120,24 @@
                 .find('._item'+this.cid+':eq('+index+')').addClass('active');
         },
         setTarget: function(target){
-            if(!target) return this;
             if(this._targetEl) {
                 this._targetEl.off(this._targetListeners);
             }
+            if(!target) return this;
             this._targetEl = target.$el || target;
             this._targetEl.on(this._targetListeners);
             
+            return this;
+        },
+        getTarget: function(){
+            return this._targetEl;
+        },
+        show: function(){
+            show.call(this, true);
+            return this;
+        },
+        hide: function(){
+            hide.call(this);
             return this;
         }
     });
@@ -139,9 +150,9 @@
             '<li class="divider"></li>'
         );
     
-    function show(e){
+    function show(isShow){
         if(this._isOpen) {
-            hide.call(this, e);
+            if(!isShow) hide.call(this);
             return;
         }
         
@@ -149,12 +160,14 @@
         
         this._isOpen = true;
         
-        setTimeout(function(){
+        clearTimeout(this._autoHide);
+        
+        this._delayedWindowListeners = setTimeout(function(){
             $(window).on(self._windowListeners);
         },0);     
         
         if(this._type == 'submenu') {
-            showIn.call(this,e);
+            showIn.call(this);
             return;
         }
         
@@ -234,7 +247,7 @@
             hide.call(self);
         }, 1000);
     }
-    function showIn(e){
+    function showIn(){
         this.$el
             .appendTo(this._targetEl)
             .show();       
@@ -270,14 +283,16 @@
         
         this.$el.hide().fadeIn(50);
     }
-    function hide(e){
+    function hide(){
         if(!this._isOpen) return;
         var self = this;
         this._isOpen = false;
         self.$el.fadeOut(50, function(){
+            if(self._isOpen) return;
             $(this).detach();
-            self.$el.off('mouseenter mouseleave');
-        });        
+        });  
+        self.$el.off('mouseenter mouseleave');
+        clearTimeout(this._delayedWindowListeners);      
         $(window).off(this._windowListeners);
         this.trigger('dropdownhide');
     }

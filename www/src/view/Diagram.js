@@ -44,7 +44,7 @@
                 if( 
                     (menu&&target.closest(menu.$el).length>0)
                     ||
-                    target.closest('._move'+self.cid).length>0
+                    self._inMove
                 ) return;
                 
                 self.trigger('clicknode', path, node);
@@ -83,12 +83,16 @@
         },
         setMenu: function(node, menu){
             if(!node) return;
-            var listEl = this._listEls[node.id]||this._listEls[node.cid];
+            var self = this,
+                listEl = this._listEls[node.id]||this._listEls[node.cid];
             if(!listEl) return this;
             
             var button = new (App.getView('Button'))({
                 size: 'small',
-                menu: menu
+                menu: menu,
+                click: function(){
+                    if(self._inMove) stopActionMove.call(self);
+                }
             });
             this._menubutton[node.id||node.cid] = button;
             listEl.closest('._node'+this.cid)
@@ -246,34 +250,96 @@
             title: 'Перенос ноды',
             text: 'Выберите место в которое желаете поместить ноду'
         });
-        var self = this,
-            moveEl = $(moveTpl({
+        
+        if(this._inMove) {
+            stopActionMove.call(this);
+        }
+        
+        this._inMove = true;
+        this._movePath = path;
+        delete this._movePos;
+        
+        
+        if(!this._moveEvents) {
+            var self = this;
+            this._moveTarget = '._caption'+this.cid;
+            this._moveEl = $(moveTpl({
                 cid: this.cid
             })),
-            moveTarget = '._caption'+this.cid,
-            moveEvents = {
+            this._moveEvents = {
                 'mouseenter': function(){
+
+                    var path = self._movePath;
                     if(self.collection.isDescendant(
                         path, self.collection.getPath($(this).closest('._node'+self.cid).data('node'))
                     )) return;
-                    moveEl
-                        .on(moveEventsMove)
+                    self._moveEl
+                        .on(self._moveEventsMove)
                         .hide()
                         .appendTo($(this))
                         .fadeIn(200);
                 },
                 'mouseleave': function(){
-                    moveEl
-                        .off(moveEventsMove)
+                    self._moveEl
+                        .off(self._moveEventsMove)
                         .detach();
                 },
-                'click': function(){
-                    stopMove();
-                }
+                'click': function(e){
+                    var path = self._movePath;
+                    if(
+                        self.collection.isDescendant(
+                            path, self.collection.getPath($(this).closest('._node'+self.cid).data('node'))
+                        )
+                    ) {
+                        stopActionMove.call(self);
+                        return;
+                    } 
 
-            },
-            pos,
-            moveEventsMove = {
+                    if(!self._dropMenu) {
+                        var Button = App.getView('Button');
+                        
+                        var dropMenu=new (App.getView('Dropdown'))();
+                        dropMenu
+                                .addButton(new Button({
+                                    text:'Поместить внутрь',
+                                    click: function(){
+                                        self._movePos='center';
+                                        moveTo.call(self, dropMenu.getTarget());
+                                    }
+                                }))
+                                .addButton(new Button({
+                                    text:'Поместить перед',
+                                    click: function(){
+                                        self._movePos='top';
+                                        moveTo.call(self, dropMenu.getTarget());
+                                    }
+                                }))
+                                .addButton(new Button({
+                                    text:'Поместить после',
+                                    click: function(){
+                                        self._movePos='bottom';
+                                        moveTo.call(self, dropMenu.getTarget());
+                                    }
+                                }));
+                                 
+                        self._dropMenu = dropMenu;
+                        
+                    }
+                    self._dropMenu
+                        .setTarget($(this))
+                        .show();                    
+                }           
+
+            }
+            this._moveWindowListeners = {
+                'keydown': function(e){
+                    if(e.keyCode == 27) {
+                        stopActionMove.call(self);
+                        return false;
+                    }
+                }       
+            }            
+            this._moveEventsMove = {
                 'mousemove': function(e){
                     var el = $(this),
                         height = el.outerHeight(),
@@ -288,48 +354,55 @@
                         _pos='top';
                         
                     }
-                    if(_pos!=pos) {
-                        pos=_pos;
+                    if(_pos!=self._movePos) {
+                        self._movePos=_pos;
                         el
                             .removeClass('pos_top pos_center pos_bottom')
-                            .addClass('pos_'+pos);
+                            .addClass('pos_'+_pos);
                     }
                     
                 },
                 'click': function(){
-                    var nodeEl = $(this).closest('._node'+self.cid),
-                        pathTo = self.collection.getPath(nodeEl.data('node')),
-                        index;
-                    
-                    stopMove();
-                    
-                    if(pos=='top') {
-                        self.collection.move(path, self.collection.getParent(pathTo), pathTo);
-                    } else if(pos=='bottom') {
-                        self.collection.move(path, self.collection.getParent(pathTo), self.collection.getPath(nodeEl.next().data('node')));
-                    } else {
-                        self.collection.move(path, pathTo);
-                    }
+                    moveTo.call(self, $(this));
                 }                
-            },
-            windowListeners = {
-                'keydown': function(e){
-                    if(e.keyCode == 27) {
-                        stopMove();
-                        return false;
-                    }
-                }       
-            };
-            
-        $(window).on(windowListeners);    
-        this.$el.on(moveEvents, moveTarget); 
+            }            
         
-        function stopMove(){
-            moveEl.detach();
-            $(window).off(windowListeners);
-            self.$el.off(moveEvents, moveTarget);
-        }
+        } 
+    
+        $(window).on(this._moveWindowListeners);    
+        this.$el.on(this._moveEvents, this._moveTarget); 
+  
     }
+    function stopActionMove(){
+        this._moveEl
+            .off(this._moveEventsMove)
+            .detach();
+        $(window).off(this._moveWindowListeners);
+        this.$el.off(this._moveEvents, this._moveTarget);
+        if(this._dropMenu) {
+            this._dropMenu
+                .setTarget()
+                .hide();
+        }
+        this._inMove = false;
+    }
+    function moveTo(el){
+        var path = this._movePath,
+            pos = this._movePos,
+            nodeEl = el.closest('._node'+this.cid),
+            pathTo = this.collection.getPath(nodeEl.data('node')),
+            index;
+                    
+        stopActionMove.call(this);
+                   
+        if(pos=='top') {
+            this.collection.move(path, this.collection.getParent(pathTo), pathTo);
+        } else if(pos=='bottom') {
+            this.collection.move(path, this.collection.getParent(pathTo), this.collection.getPath(nodeEl.next().data('node')));
+        } else {
+            this.collection.move(path, pathTo);
+        }
+    }        
     function moveNode(node, parentPath, beforePath){
         var listEl = this._listEls[node.id]||this._listEls[node.cid];
         if(!listEl) return;
