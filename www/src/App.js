@@ -68,7 +68,7 @@ var App = (function(){
                     self._isTouch = false;
                 }
             }
-            return true;
+            return self._isTouch;
         },
         view: {
             getScrollbarWidth: function(){
