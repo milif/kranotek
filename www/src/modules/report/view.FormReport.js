@@ -261,6 +261,16 @@
         this.trigger('errorchange');
     }
 
+    function showConfigDiagram(length) {
+        if(length) {
+            this._createDiagramButtonContainer && this._createDiagramButtonContainer.hide();
+            this._diagram.show();
+        } else {
+            this._createDiagramButtonContainer && this._createDiagramButtonContainer.show();
+            this._diagram.hide();
+        }
+    }
+
     function setCollection(isClear) {
         var data = isClear ? [] : this.model.get('Config');
         var self = this,
@@ -272,22 +282,18 @@
             updateConfigErrors.call(self, this);
             self._isDirty = true;
             self.trigger('dirtychange');
+            showConfigDiagram.call(self, self._collection.length);
         });
         this._collection.on('remove', function() {
             updateConfigErrors.call(self, this);
             self._isDirty = true;
             self.trigger('dirtychange');
+            showConfigDiagram.call(self, self._collection.length);
         });
         
         this._diagram && this._diagram.setCollection(collection);
-        if(data.length) {
-            
-            this._createDiagramButtonContainer && this._createDiagramButtonContainer.hide();
-            this._diagram.show();
-        } else {
-            this._createDiagramButtonContainer && this._createDiagramButtonContainer.show();
-            this._diagram.hide();
-        }
+        showConfigDiagram.call(this, data.length);
+
         updateConfigErrors.call(this, collection);
         self._isDirty = false;
         this.trigger('dirtychange');

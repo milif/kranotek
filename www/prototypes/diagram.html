@@ -26,6 +26,7 @@
     
     <script id="require" type="text/javascript" src="../require.js"></script>
     <script>
+        window.DEBUGCollection;
         require('loader.js', function(){
             require(
                 'CollectionNested.js',
@@ -93,7 +94,7 @@
                                 }
                             }
                         });
-                    
+                    window.DEBUGCollection = collection;
                     $('#diagram').append(diagram.$el);               
                 
                 }
