@@ -3,6 +3,9 @@
  */
 /*
  * @require view/form/Field.js
+ * @require CollectionNested.js
+ * @require view/Popup.js 
+ * @require view/NestedList.js
  */
 (function(App){
     App.defineView('FieldSelect', {
@@ -34,33 +37,16 @@
                 collection = this.collection,
                 items = options.options || {};
             
-            if(options.hasEmpty && options.options && !options.options['null']) options.options['null'] = options.emptyText;
-            
-            this._itemEl.append(this.itemTpl({
-                cid: this.cid,
-                name: this.options.name
-            }));
-
-            this._selectEl = this.$el.find('select')
-                .on('change', function(){
-                    self.setValue($(this).val());
-                });
-
-            this.setReadOnly(this.options.readonly);
-
             if(collection) this.setCollection(collection);
             else this.setOptions(items);
 
             if(this.options.details) {
-                this._selectEl.width(175);
-                var fieldElement = this._selectEl.parent();
+                var selectEl = getSelectEl.call(this);
+                selectEl.width(175);
+                var fieldElement = selectEl.parent();
                 fieldElement.append($('<span>&nbsp;</span>'));
                 fieldElement.append(this.options.details.$el);
             }
-
-            this.on('change', function(){
-                this._selectEl.val(this._value+"");
-            });
             
             return this;
         },
@@ -82,20 +68,25 @@
             this.collection = collection;
             if(!collection) return this;
 
+            if( collection instanceof App.getCollection('CollectionNested')) {
+                setCollectionNested.call(this, collection);
+                return this;
+            }
+            var selectEl=getSelectEl.call(this);
             collection
                 .on('add', function(model, collection, options){
                     if(this.options.hasEmpty) options.index++;
                     var text = displayIndex ? model.get(displayIndex).toString() : model.toString();
                     var optionEl = $(createOption.call(this, model.id, text)),
-                        prevEl = this._selectEl.find('>:eq('+options.index+')');
+                        prevEl = selectEl.find('>:eq('+options.index+')');
                     if(prevEl.length>0) {
                         optionEl.insertBefore(prevEl);
                     } else {
-                        optionEl.appendTo(this._selectEl);
+                        optionEl.appendTo(selectEl);
                     }
                 }, this)
                 .on('remove', function(model){
-                    this._selectEl.find('[value="'+model.id+'"]').remove();
+                    selectEl.find('[value="'+model.id+'"]').remove();
                 }, this);
                 
             var items = [];
@@ -129,20 +120,122 @@
                 }            
             }           
             
-            this._selectEl.html(options);
+            getSelectEl.call(this).html(options);
         },
         setReadOnly: function(isReadOnly){
             if( this._isReadOnly === isReadOnly ) return;
             
-            var self = this;
+            var self = this,
+                selectEl = getSelectEl.call(this);
             
             this._isReadOnly = isReadOnly;
             
-            if(isReadOnly) this._selectEl.attr('disabled', true);
-            else this._selectEl.removeAttr('disabled');     
-        }     
+            if(isReadOnly) selectEl.attr('disabled', true);
+            else selectEl.removeAttr('disabled');     
+        }
     });
+    function getSelectEl(){
+        if(!this._selectEl) {
+            var self = this,
+                options = this.options;
+            if(options.hasEmpty && options.options && !options.options['null']) options.options['null'] = options.emptyText;
     
+            this._itemEl.append(this.itemTpl({
+                cid: this.cid,
+                name: this.options.name
+            }));
+
+            this._selectEl = this.$el.find('select')
+                .on('change', function(){
+                    self.setValue($(this).val());
+                });
+
+            this.setReadOnly(this.options.readonly);
+            
+            this.on('change', function(){
+                this._selectEl.val(this._value+"");
+            });
+        }
+        if(this._selectEl.parent().length==0){
+            this._itemEl
+                .children().detach().end()
+                .append(this._selectEl);
+        }
+        return this._selectEl;
+     
+    }
+    function setCollectionNested(collection){
+        if(!this._fieldTrigger) {
+            var self = this;
+            this._fieldTrigger = new (App.getView('FieldTrigger'))({
+                listeners: {
+                    'trigger': function(){
+                        openPopupNested.call(self);
+                    }
+                }
+            });
+            this._fieldTrigger.setValue(this.getValue() || this.options.emptyText);
+            this.on('change', function(){
+                this._fieldTrigger.setValue(this.getValue() || this.options.emptyText);
+            });
+        }
+        if(this._fieldTrigger.$el.parent().length==0) {
+            this._itemEl
+                .children().detach().end()
+                .append(this._fieldTrigger.$el);
+        }
+    }
+    function openPopupNested(){
+        if(!this._popupNested){
+            var self = this,
+                popup = new (App.getView('Popup'))({
+                    popupWidth: 700
+                })
+                    .setTitle(this.options.emptyText+":"),
+                nestedList = new (App.getView('NestedList'))({
+                    listeners: {
+                        'appendlist': function(path, toolbar){
+                            var nestedlist = this,
+                                buttonSelect = new (App.getView('Button'))({
+                                    disabled: true,
+                                    size: 'small',
+                                    icon:'icon-ok',
+                                    tooltip: 'Выбрать',
+                                    click: function(){
+                                        var node=nestedlist.getListNode(path);
+                                        self.setValue(nestedlist.collection.getNode(node));
+                                        popup.close();
+                                    }
+                                });
+                            toolbar.add(buttonSelect);
+                            toolbar.buttonSelect = buttonSelect;
+                        },
+                        'selectionchange': function(selected){
+                        
+                            var current = selected[0],
+                                toolbars = this.getToolbars();
+                                
+                            for(var path in toolbars){
+                                if(current!=this.collection.rootPath && current!=path && this.collection.isDescendant(path, current)){
+                                    toolbars[path].buttonSelect.enable();
+                                } else {
+                                    toolbars[path].buttonSelect.disable();
+                                }
+
+                            }
+ 
+                        }                                           
+                    }
+                });
+            popup.add(nestedList);
+            this._popupNested = popup;
+            this._nestedList = nestedList;
+        }
+        this._nestedList
+            .setCollection(this.collection);
+        
+        this._popupNested.open();
+    }
     function createOption(key, value){
         return '<option value="'+key+'" '+(key==this.getValue()?'selected':'')+'>'+value+'</option>';
     }

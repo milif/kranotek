@@ -32,6 +32,9 @@
             });
             return pathArray;
         },
+        getName: function(node){
+            return node.toString();
+        },
         getParent: function(path){
             return getPathParent(path);
         },

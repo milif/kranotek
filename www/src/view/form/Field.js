@@ -34,16 +34,21 @@ App.defineView('Field', {
     },   
     doRender: function(){
     
-        var self = this;
+        var self = this,
+            label = this.options.label;
 
         var tpl = this.options.hideLabel ? this.tplHiddenLabel : this.tpl;
         this.$el.append($(tpl({
             cid: this.cid,
             name: this._name,
-            label: this.options.label
+            label: label
         })));
         
-        if(this.options.label=='') this.$el.find('._label'+this.cid).remove();
+        if(!label || label=='') {
+            this.$el
+                .addClass('mod_nolabel')
+                .find('._label'+this.cid).remove();
+        }
         if(this._name) this.$el
             .attr('data-form-field', this._name)
             .data('field', this);

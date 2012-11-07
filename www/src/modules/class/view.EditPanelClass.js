@@ -6,6 +6,7 @@
  * @require modules/class/collection.Class.js
  * @require modules/class/view.EditPanelClassFunction.js
  * @require modules/class/view.EditClassFieldPopup.js
+ * @require modules/class/view.ClassPresenter.js
 
  * @require view/container/Container.js
  * @require view/Grid.js 
@@ -37,17 +38,10 @@
         
             this.parent().doRender.apply(this, arguments);
             
-            var self = this;
-                 
-            this.add(tpl({
-                cid: this.cid
-            })); 
-            
-            this._listEl = this.$el.find('._nestedlist'+this.cid);                
+            var self = this;       
                    
             this._nestedlist = new (App.getView('NestedList'))({
                 collection: this.collection,
-                el: this._listEl,
                 emptyText: 'Нет классов',
                 listeners: {
                     'appendlist': function(path, toolbar){
@@ -132,7 +126,9 @@
                 Button = App.getView('Button'),
                 ModelClassField = this.collection.model.getModelClassField(),
                 Grid = App.getView('Grid'),
+                ViewClassPresenter = App.getView('ClassPresenter'),
                 
+                viewPresenter = new (App.getView('ClassPresenter'))(),
                 viewFunctions = new (App.getView('EditPanelClassFunction'))(),
                 addFieldButton = new Button({
                     disabled: true,
@@ -286,6 +282,7 @@
                     .addTab(form, 'Свойства', 0)
                     .addTab(gridFields, 'Поля', 1)
                     .addTab(viewFunctions, 'Функции', 2)
+                    .addTab(viewPresenter, 'Представления', 3)
                     .activeTab(0)
                     .hide();
 
@@ -296,12 +293,14 @@
                 
             this._addFieldButton = addFieldButton;
 
-            this.add(tabbar);   
+            this.add(this._nestedlist);
+            this.add(tabbar); 
                     
             this._form = form;
             this._tabbar = tabbar; 
             this._gridFields = gridFields;
             this._viewFunctions = viewFunctions;
+            this._viewPresenter = viewPresenter;
                  
             this._fieldName = fieldName;
             this._fieldSystem = fieldSystem;
@@ -323,9 +322,6 @@
         }
     });
     
-    var tpl = _.template(
-        '<div class="b-classeditpanel-nestedlist _nestedlist{cid}"></div>'
-    );
     function editField(model){
         if(!model) return;
         var self = this;
@@ -355,6 +351,7 @@
                 .setModel(model);
             this._tabbar
                 .enableTab(2)
+                .enableTab(3)
                 .show();
             
             this._fieldName.setReadOnly(true);
@@ -364,6 +361,7 @@
             
             this._gridFields.setCollection(model.getCollectionFields());
             this._viewFunctions.setModel(model);
+            this._viewPresenter.setModel(model);
             
             if(model.get('System')) {
                 this._addFieldButton.disable();
@@ -383,6 +381,7 @@
 
             this._tabbar
                 .disableTab(2)
+                .disableTab(3)
                 .activeTab(0)
                 .show();
                 

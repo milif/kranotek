@@ -89,6 +89,7 @@
                     });                
             });
             $(window).off(this._windowListeners);
+            $('.tooltip').fadeOut(200);
             this.trigger('close');
             return this;
         },
