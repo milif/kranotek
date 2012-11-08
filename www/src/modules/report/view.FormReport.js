@@ -10,6 +10,7 @@
  * @require view/Dropdown.js
  * @require view/form/Form.js
  * @require view/form/FieldText.js
+ * @require view/form/FieldSelect.js
  * @require view/container/Container.js
  * @require view/Diagram.js
  * @require view/Popup.js
@@ -67,19 +68,22 @@
                 silent: true,
                 success: function(){
                     _.each(ClassCollection.models, function(model) {
+                        model.set('Name', model.get('ClassName'));
                         FormReportNodeCollection.add(model, {silent: true});
                         var functionsCollection = model.getCollectionFunctions();
-                        functionsCollection.fetch({
-                            silent: true,
-                            success: function(){
-                                _.each(functionsCollection.models, function(functionModel){
-                                    FormReportNodeCollection.add(functionModel, {silent: true});
-                                });
-                            },
-                            complete: function(){
-                                App.view.setLoading(self.$el, false);
-                            }
-                        });
+                        if(functionsCollection) {
+                            functionsCollection.fetch({
+                                silent: true,
+                                success: function(){
+                                    _.each(functionsCollection.models, function(functionModel){
+                                        FormReportNodeCollection.add(functionModel, {silent: true});
+                                    });
+                                },
+                                complete: function(){
+                                    App.view.setLoading(self.$el, false);
+                                }
+                            });
+                        }
                     });
                 },
                 complete: function(){
@@ -96,6 +100,7 @@
                 Container = App.getView('Container'),
                 Popup = App.getView('Popup'),
                 FieldText = App.getView('FieldText'),
+                FieldSelect = App.getView('FieldSelect'),
                 fieldReportName = new FieldText({
                     label: 'Название отчета',
                     name: 'Name'
@@ -163,9 +168,11 @@
                     label: 'Название',
                     name: 'Name'
                 }),
-                nodeData = new FieldText({
+                nodeData = new FieldSelect({
                     label: 'Данные',
-                    name: 'Data'
+                    name: 'Data',
+                    emptyText: 'Выберите объект',
+                    collection: FormReportNodeCollection
                 }),
                 nodeForm = new Form({
                     listeners: {

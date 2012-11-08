@@ -4,6 +4,7 @@
 /*
  * @require view/form/Field.js
  * @require CollectionNested.js
+ * @require view/form/FieldTrigger.js
  * @require view/Popup.js 
  * @require view/NestedList.js
  */
