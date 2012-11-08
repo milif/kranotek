@@ -38,7 +38,26 @@ var App = (function(){
         model.__sync = request;
         return request;
     }
-
+  
+    _.debounce = function(func, wait, immediate) {
+        var timeout, firstCall;
+        return function() {
+          var context = this, args = arguments;
+          var later = function() {
+            timeout = null;
+            if(!firstCall) func.apply(context, args);
+          };
+          if (immediate && !timeout) {
+            func.apply(context, args);
+            firstCall = true;
+          } else {
+            firstCall = false;
+          }
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      };
+      
     /* Core */
 
     var view = {},
@@ -59,6 +78,17 @@ var App = (function(){
         );
 
      var self = {
+        isTouch: function(){
+            if(!('_isTouch' in self)) {
+                try {
+                    document.createEvent("TouchEvent"); 
+                    self._isTouch = true;
+                } catch(e){
+                    self._isTouch = false;
+                }
+            }
+            return self._isTouch;
+        },
         view: {
             getScrollbarWidth: function(){
                 var self = arguments.callee;

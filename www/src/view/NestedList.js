@@ -9,13 +9,16 @@
 (function(){
     App.defineView('NestedList', {
 
+        tagName: 'div',
+        className: 'b-nestedlist',
+        
         options: {
+            listHeight: 185,
             path: null,
             collection: null,
             listMinWidth: 200,
             emptyText: 'Нет данных'
         },
-        tpl: _.template('<div class="b-nestedlist _lists{cid}"></div>'),
         tplList: _.template('<div class="b-nestedlist-lists-hh _list{cid}"><div class="b-nestedlist-lists-h _scroll{cid}">' +
                         '<table class="table table-hover _items{cid}"></table><div class="b-nestedlist-empty _empty{cid}">{emptytext}</div>' +
                     '</div></div>'),
@@ -24,52 +27,57 @@
         
             var self = this;
             
-            this.$el.on('click', "._item"+this.cid, function(){
-                self.select($(this).data('path'));
-            });
-        
+            this.$el
+                .on('click', "._item"+this.cid, function(){
+                    self.select($(this).data('path'));
+                });
             this._state = {
-                'path': this.options.path || this.collection.rootPath,
+                'path': this.collection ? this.collection.rootPath : null,
                 'offset': 0
-            }
+            }            
+            this.refreshList = App.debounce( function(path) { // Important!!!
+                if(this.collection.isLocal()) {
+                    this.renderList(path);
+                    this.updatePath();
+                    return this;
+                }
+                this.fetchNode(path);
+            }, 100, false, true);          
         },    
         doRender: function(){
         
             var self = this;
         
-            this.$el.append($(this.tpl({
-                cid: this.cid
-            })));
+            this.$el
+                .css('max-height', this.options.listHeight)
+                .addClass('_lists'+this.cid);
             
-            this._listsEl = this.$el.find('._lists'+this.cid);
+            this._listsEl = this.$el;
             
-            this.updateLists();
+            this.setCollection(this.collection);
+            
+            if(this.collection) this.updateLists();
 
             return this;    
         },
-        doPresenter: function(){
+        setCollection: function(collection){
             
-            var self = this;
-            
-            if(!this._presenterOnce) {
-                
-                // Important! Remove all models listeners after remove view
-                this.on('remove', function(){
-                    this.collection.off(null, null, this);
-                }); 
-                           
-                this._presenterOnce = true;
+            if(this.collection) {
+                this.collection.off(null, null, this);
             }
             
-            this.collection 
-
+            this.collection = collection;
+            
+            if(!collection) return this;
+            
+            collection 
                 .on('reset', function(){
-                    // TO DO
+                    // TODO
                 }, this)            
                 .on('add', function(node){
-                    var path = self.collection.getPath(node),
-                        parentPath = self.collection.getParent(path);
-                    self.renderList(parentPath);
+                    var path = this.collection.getPath(node),
+                        parentPath = this.collection.getParent(path);
+                    this.renderList(parentPath);
                 }, this)
                 .on('remove', function(node){
                     var path = this.collection.getPath(node),
@@ -81,6 +89,10 @@
                     if(this._state.path.search(path) != -1 ) this.select(parentPath); 
                     if(this.collection.getChildren(parentPath).length==0) self.renderList(parentPath);
                 }, this);
+                
+            this.select(collection.rootPath);
+            
+            return this;
         },
         updateLists: function(state){
             var self = this,
@@ -117,20 +129,24 @@
                         cid: this.cid,
                         emptytext: this.options.emptyText
                     }))
+                        .css('max-height', this.options.listHeight)
+                        .find('._scroll'+this.cid).css('max-height', this.options.listHeight).end()                    
                         .data('path', currentPath);
-                        
+                    
                     toolbar = new (App.getView('ToolbarHover'))();
-                    toolbar.add(new (App.getView('Button'))({
-                        icon: 'icon-refresh',
-                        type: 'small',
-                        listeners: {
-                            'click': function(){
-                                self.refreshList(
-                                    this.$el.closest('._list'+self.cid).data('path')
-                                );
+                    if(!this.collection.isLocal()) {
+                        toolbar.add(new (App.getView('Button'))({
+                            icon: 'icon-refresh',
+                            type: 'small',
+                            listeners: {
+                                'click': function(){
+                                    self.refreshList(
+                                        this.$el.closest('._list'+self.cid).data('path')
+                                    );
+                                }
                             }
-                        }
-                    }), 10);
+                        }), 10);
+                    }
                     toolbar.setPanel(listEl);
                     listEl.data('toolbar', toolbar);
                     this.trigger('appendlist', currentPath, toolbar);
@@ -199,9 +215,6 @@
             }
 
         },
-        refreshList: App.debounce( function(path) { // Important!!!
-            this.fetchNode(path);
-        }, 100, false, true),
         renderList: function(path){
             var listEl = this._lists[path];
             if(!listEl) return;
@@ -222,18 +235,16 @@
             }
             
             if(nodes.length == 0) {
-                items = listEl
-                    .find('._items'+this.cid).hide().end()
-                    .find('._empty'+this.cid).show();
+                listEl
+                    .addClass('mod_empty');
 
-                App.view.applyInset(items);
+                App.view.applyInset(listEl.find('._empty'+this.cid));
             } else {
                 items = $(items)
                     .appendTo(
                         listEl
-                            .find('._empty'+this.cid).hide().end()
+                            .removeClass('mod_empty')
                             .find('._items'+this.cid)
-                                .show()
                                 .children().remove().end()
                     );            
             }
@@ -243,9 +254,9 @@
         fetchNode: function(path){
             var self = this,
                 elList = this._lists[path];
-
+            
             App.view.setLoading(elList, true);
-                   
+                  
             this.collection.fetchNode(path, {
                 silent: true,
                 presenter: this,
@@ -290,8 +301,13 @@
             }
             return lists;
         },
-        getToolbar: function(path){
-            
+        getToolbars: function(){
+            var toolbars = {},
+                lists = this._lists;
+            for(var i=0;i<lists.length;i++){
+                toolbars[lists[i].data('path')]=lists[i].data('toolbar');
+            }    
+            return toolbars;  
         }
     });
 })();

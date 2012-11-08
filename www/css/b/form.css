@@ -32,14 +32,25 @@
         margin: 0;
         height: 100%;
         width: 100%;
-        box-sizing: border-box;        
-        }       
+        }  
+     .b-field-item > .b-field {
+        margin-bottom: 0;
+        }
+.b-field.mod_nolabel > .controls {
+    margin-left: 0;
+    }
 .b-field.mod_trigger {
     }
+    .b-field.mod_trigger .controls {
+        white-space: nowrap;
+        }
     .b-field.mod_trigger .input {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
         border-right: none;
+        width: 162px;
+        box-sizing: content-box!important;
+        min-height: 20px!important;
         } 
     .b-field.mod_trigger .btn {
         border-top-left-radius: 0;

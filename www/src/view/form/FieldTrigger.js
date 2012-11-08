@@ -21,6 +21,9 @@
         
             var self = this;
         
+            this.$el
+                .addClass('mod_trigger');
+        
             $(tpl({
                 'cid': this.cid
             }))
@@ -28,9 +31,7 @@
                     self.trigger('trigger');
                 })
                 .insertAfter(
-                    this.$el
-                        .addClass('mod_trigger')
-                        .find("._input"+this.cid)
+                    this._itemEl
                 );
             
             return this;

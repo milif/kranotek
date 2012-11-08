@@ -5,6 +5,7 @@
  * @require modules/class/model.ClassField.js
  * @require modules/class/collection.ClassField.js  
  * @require modules/class/collection.ClassFunction.js  
+ * @require modules/class/collection.ClassPresenter.js  
  */
 App.defineModel('Class', {
     defaults: {
@@ -21,6 +22,13 @@ App.defineModel('Class', {
                 'ClassId': this.id
             }
         });
+    },
+    getCollectionPresenters: function(){
+        return this.id ? new (App.getCollection('ClassPresenter'))(null, {
+            params: {
+                'ClassId': this.id
+            }
+        }) : null;        
     },
     getCollectionFunctions: function(){
         return this.id ? new (App.getCollection('ClassFunction'))(null, {

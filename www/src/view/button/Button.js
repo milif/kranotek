@@ -22,7 +22,7 @@ App.defineView('Button', {
     init: function(){
         var self = this;
         if(this.options.click) this.on('click', this.options.click);
-        this.$el.on('click', function(){
+        this.$el.on('touchend click', function(){
             if($(this).is('.disabled')) {
                 self.trigger('disableclick');
                 return;

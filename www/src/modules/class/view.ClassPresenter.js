@@ -116,7 +116,7 @@
                         });
                     }
                 }),
-                presenterGridCollection = new CollectionPresenter(),
+                //presenterGridCollection = new CollectionPresenter(),
                 presenterGrid = new Grid({
                     selectable: true,
                     columns: [
@@ -143,7 +143,7 @@
                     }
                 });
             
-            presenterGrid.setCollection(presenterGridCollection);
+            //presenterGrid.setCollection(presenterGridCollection);
             presenterGrid.getToolbar()
                 .add(addButton, 1)
                 .add(removeButton, 2);
@@ -170,11 +170,23 @@
             this._fieldType = fieldType;
             this._fieldConfig = fieldConfig;
             this._presenterGrid = presenterGrid;
-            this._presenterGridCollection = presenterGridCollection;
+            //this._presenterGridCollection = presenterGridCollection;
             this._ModelPresenter = ModelPresenter;
 
-            var collectionFunctions = this.model.getCollectionFunctions();
-            this._collectionFunctions = collectionFunctions;
+            this.setModel(this.model);
+
+            return this;
+        },
+        setModel: function(model){
+            if(!model) return this;
+            
+            this.model = model;
+            
+            var collectionFunctions = model.getCollectionFunctions();
+            
+            this._presenterGrid.setCollection(model.getCollectionPresenters());
+            this._fieldFunction.setCollection(model.getCollectionFunctions(), 'Name');
+            /*
             collectionFunctions.fetch({
                 silent: true,
                 success: function(){
@@ -184,7 +196,8 @@
                     // App.view.setLoading(self.$el, false);
                 }
             });
-
+            */
+                        
             return this;
         },
         doPresenter: function(){
@@ -203,15 +216,6 @@
     var tpl = _.template(
         '<div class="b-classpresenter{cid}"></div>'
     );
-
-    function doRender() {
-        this._presenterGrid.fetch({
-            params: {
-                ClassId: '1' //todo
-            }
-        });
-        this._fieldFunction.setCollection(this._collectionFunctions, 'Name');
-    }
 
     function setupConfigView() {
         var self = this,
@@ -237,7 +241,7 @@
         this._popupModel = model;
         this._form.setModel(model);
         setupConfigView.call(this);
-        this._popup.setTitle(model.get('Name'));
+        this._popup.setTitle(model.id ? model.get('Name'): 'Новое представление'); //!!! Исправлена ошибка
         this._popup.open();
         this._viewConfig && this._viewConfig.layout();
         this._fieldType.setReadOnly(!this._fieldFunction.getValue());

@@ -7,15 +7,28 @@
     }
     .b-nestedlist-lists-hh {
         display: inline-block;
-        height: 100%;
+        vertical-align: top;
         position: relative;
         margin-left: 2.5%;        
+        min-height: 50px;
         }
+        .b-nestedlist-lists-hh.mod_empty {
+            vertical-align: middle;
+            height: auto;
+            }        
+            .b-nestedlist-lists-hh.mod_empty .b-nestedlist-lists-h {
+                overflow: visible;
+                }
+            .b-nestedlist-lists-hh.mod_empty .b-nestedlist-empty {
+                display: block;
+                }
+            .b-nestedlist-lists-hh.mod_empty .table {
+                display: none;
+                }            
         .b-nestedlist-lists-hh:first-child {
             margin-left: 0;
             }
     .b-nestedlist-lists-h {
-        height: 100%;
         overflow-y: auto;
         overflow-x: hidden;
         }
@@ -35,13 +48,9 @@
     .b-nestedlist-empty {
         display: none;
         color: #CCC;
-        position: absolute;
-        top: 50%;
-        bottom: 0;
-        left: 0;
-        right: 0;
         text-align: center;
-        margin-top:-13px;
         font-size: 26px;
+        height: 26px;
+        margin-top: 5px;
         font-weight: bold;
         }

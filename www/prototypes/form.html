@@ -35,7 +35,8 @@
                 'view/form/FieldSelect.js',  
                 'view/form/FieldCheckbox.js',         
                 'view/form/FieldTextarea.js',
-                'view/form/FieldTrigger.js',              
+                'view/form/FieldTrigger.js',  
+                'CollectionNested.js',            
                 
                 function(){
                 
@@ -63,9 +64,19 @@
                         toString: function(){
                             return this.get('Value');
                         }
-                    });        
+                    });    
+                    App.defineModel('TestModelNested', {
+                        api: 'node',
+                        toString: function(){
+                            return this.get('Name');
+                        }
+                    });                         
                     App.defineCollection('TestCollection', {
                         model: App.getModel('ModelTest')
+                    });
+                    App.defineCollection('TestCollectionNested', {
+                        extend: 'CollectionNested',
+                        model: App.getModel('TestModelNested')
                     });
                     
                     var Form = App.getView('Form'),
@@ -77,15 +88,30 @@
                         Button = App.getView('Button'),
                         ModelTest = App.getModel('ModelTest'),
                         TestCollection = App.getCollection('TestCollection'),
+                        TestCollectionNested = App.getCollection('TestCollectionNested'),
+                        
                         collection = new TestCollection([
                             { 'Value': 'Option 1' },
                             { 'id': 123, 'Value': 'Option 2' }
                         ]),
+                        collectionnested = new TestCollectionNested([
+                            { 'Name': 'Node 6', 'path':'/1/3/6', 'moveable': true },
+                            { 'Name': 'Node 1', 'path':'/1', 'moveable': true },
+                            { 'Name': 'Node 2', 'path':'/2', 'moveable': true },
+                            { 'Name': 'Node 3', 'path':'/1/3', 'scheme': 'yellow', 'moveable': true },
+                            { 'Name': 'Node 4', 'path':'/1/4', 'moveable': true },
+                            { 'Name': 'Node 5', 'path':'/2/5', 'moveable': true },
+                            { 'Name': 'Node 7', 'path':'/1/3/7', 'moveable': true },
+                            { 'Name': 'Node 8', 'path':'/1/8', 'moveable': true }
+                        ],{
+                            local: true
+                        }),
                         model = new ModelTest({
                             'text': '',
                             'textarea': 'test2',
                             'select': 2,
                             'selectc': 123,
+                            'selectcn': null,
                             'checkbox': true,
                             'trigger': 'Trigger me'
                         }),
@@ -133,7 +159,13 @@
                                 name: 'selectc',
                                 hasEmpty: true,
                                 collection: collection
-                            }))                            
+                            }))   
+                            .add(new FieldSelect({
+                                label: 'Select field (nested collection)',
+                                name: 'selectcn',
+                                emptyText: 'Выберите объект',
+                                collection: collectionnested
+                            }))                         
                             .add(new FieldCheckbox({
                                 label: 'Checkbox field',
                                 name: 'checkbox'
