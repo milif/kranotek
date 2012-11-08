@@ -2,6 +2,7 @@
  * @id 508bd6240f30b - (!!!) Идентификатор добавляется автоматически. Запрещено ручное изменение и копирование идентификатора при создании новых файлов (!!!) 
  */
 /*
+* @require modules/class/collection.ViewAsTableConfig.js
 * @require view/Grid.js
 * @require view/button/Button.js
 * @require view/Form/FieldText.js
@@ -27,18 +28,6 @@
             this.add(tpl({
                 cid: this.cid
             }));
-
-            App.defineModel('ViewAsTableConfig', {
-                defaults: {
-                    'title': '',
-                    'fieldName': '',
-                    'columnWidth': '',
-                    'isVisible': true
-                }
-            });
-            App.defineCollection('ViewAsTableConfig',{
-                model: App.getModel('ViewAsTableConfig')
-            });
 
             var FieldText = App.getView('FieldText'),
                 FieldCheckbox = App.getView('FieldCheckbox'),

@@ -15,6 +15,8 @@
  * @require view/Diagram.js
  * @require view/Popup.js
  * @require modules/report/model.Report.js
+ * @require modules/report/collection.FormReportNodes.js
+ * @require modules/report/collection.FormReportNodeData.js
  */
 (function(){
     App.defineView('FormReport', {
@@ -34,30 +36,6 @@
             this.parent().doRender.apply(this, arguments);
 
             var self = this;
-                 
-            App.defineModel('FormReportNode', {
-                defaults: {
-                    'Name': '',
-                    'Data': ''
-                },
-                toString: function(){
-                    return this.get('Name');
-                }
-            });
-            App.defineCollection('FormReportNodes', {
-                extend: 'CollectionNested',
-                model: App.getModel('FormReportNode')
-            });
-
-            App.defineModel('FormReportNodeData', {
-                toString: function(){
-                    return this.get('Name');
-                }
-            });
-            App.defineCollection('FormReportNodeData', {
-                extend: 'CollectionNested',
-                model: App.getModel('FormReportNodeData')
-            });
 
             var ClassCollection = new (App.getCollection('Class'))(),
                 FormReportNodeCollection = new (App.getCollection('FormReportNodeData'))([], {
