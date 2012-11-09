@@ -39,34 +39,7 @@
 
             var ClassCollection = new (App.getCollection('Class'))(),
                 FormReportNodeCollection = new (App.getCollection('FormReportNodeData'))([], {
-                local: true
-            });
-                
-            ClassCollection.fetch({
-                silent: true,
-                success: function(){
-                    _.each(ClassCollection.models, function(model) {
-                        model.set('Name', model.get('ClassName'));
-                        FormReportNodeCollection.add(model, {silent: true});
-                        var functionsCollection = model.getCollectionFunctions();
-                        if(functionsCollection) {
-                            functionsCollection.fetch({
-                                silent: true,
-                                success: function(){
-                                    _.each(functionsCollection.models, function(functionModel){
-                                        FormReportNodeCollection.add(functionModel, {silent: true});
-                                    });
-                                },
-                                complete: function(){
-                                    App.view.setLoading(self.$el, false);
-                                }
-                            });
-                        }
-                    });
-                },
-                complete: function(){
-                    App.view.setLoading(self.$el, false);
-                }
+                local: false
             });
             
             var ReportNode = App.getModel('FormReportNode'),
