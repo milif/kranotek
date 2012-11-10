@@ -230,9 +230,9 @@
             this.select();
             
             if(!collection || collection.isLocal()) {
-                this._refreshButton.disable();
+                this._refreshButton.$el.parent().hide();
             } else {
-                this._refreshButton.enable();
+                this._refreshButton.$el.parent().show();
             }
             
             setTimeout(function(){

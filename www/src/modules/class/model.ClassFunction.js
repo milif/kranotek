@@ -41,6 +41,9 @@ App.defineModel('ClassFunction', {
         }
         return errors.length > 0 ? errors : null ;
     },
+    toString: function(){
+        return this.get('Name');
+    },
     api: 'classfunction'
 });
 $.extend(App.getModel('ClassFunction'), {

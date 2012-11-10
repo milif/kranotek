@@ -84,7 +84,7 @@
                         { name: 'Заголовок', key: 'title', width: 1, editor: new FieldText() },
                         { name: 'Название поля', key: 'fieldName', width: 1, editor: new FieldText() },
                         { name: 'Ширина столбца', key: 'columnWidth', width: 1, editor: new FieldText() },
-                        { name: 'Видимо или скрыто', key: 'isVisible', width: 1, editor: new FieldCheckbox() }
+                        { name: 'Видимо', key: 'isVisible', width: 1, align: 'center', editor: new FieldCheckbox() }
                     ],
                     listeners: {
                         'selectionchange': function(id){

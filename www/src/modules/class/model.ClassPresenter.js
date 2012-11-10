@@ -21,10 +21,8 @@ App.defineModel('ClassPresenter', {
         if(typeof attr !='undefined') {
             if(attr.length < 4) {
                 errors.push({ name: 'Name', msg: 'Название 4 и более символов'});
-            } else if(!/^[a-z]+[a-z0-9]*$/i.test(attr)){
-                errors.push({ name: 'Name', msg: 'Не верное назнвание класса'});
             }
-        }            
+        }          
         return errors.length > 0 ? errors : null ;
     },    
     api: 'classpresenter'

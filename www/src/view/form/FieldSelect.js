@@ -72,7 +72,10 @@
                 setCollectionNested.call(this, collection);
                 return this;
             }
-            var selectEl=getSelectEl.call(this);
+            
+            var self = this,
+                selectEl=getSelectEl.call(this);
+            
             collection
                 .on('add', function(model, collection, options){
                     if(this.options.hasEmpty) options.index++;
@@ -87,32 +90,57 @@
                 }, this)
                 .on('remove', function(model){
                     selectEl.find('[value="'+model.id+'"]').remove();
-                }, this);
-                
-            var items = [];
-            if(this.options.hasEmpty) items.push({text:this.options.emptyText, value: ""});
+                }, this);    
             
-            collection.each(function(model){
-                var text = displayIndex ? model.get(displayIndex).toString() : model.toString();
-                items.push({text: text, value: model.id||model.cid});
-            });
-            
-            this.setOptions(items);
+            if(!collection.isLocal()) {
+                if(!this._refreshButton) {
+                    var selectEl = getSelectEl.call(this),
+                        refreshButton = new (App.getView('Button'))({
+                            icon: 'icon-refresh',
+                            tooltip: 'Обновить список',
+                            click: function(){
+                                self.collection.fetch({
+                                    silent: false,
+                                    complete: function(){
+                                        renderCollection.call(self, displayIndex);
+                                    }
+                                });                                
+                            }
+                        });
+                    var fieldElement = selectEl.parent();
+                    fieldElement.append($('<span>&nbsp;</span>'));
+                    fieldElement.append(refreshButton.$el);           
+                    this._refreshButton = refreshButton;
+                }
+                this._refreshButton.show();
+            } else {
+                this._refreshButton && this._refreshButton.hide();
+            }
+            if(!collection.isFetched()) {
+                collection.fetch({
+                    silent: false,
+                    complete: function(){
+                        renderCollection.call(self, displayIndex);
+                    }
+                });             
+            } else {
+                renderCollection.call(this, displayIndex);
+            }
             
             return this;
         },
         setOptions: function(items){
         
-            var options = '';        
+            var options = this.options.hasEmpty ? '<option value="">'+this.options.emptyText+'</option>' : '';
             
             if($.isArray(items)) {
                 for(var i=0;i<items.length;i++){
                     options+=createOption.call(this, items[i].value, items[i].text);
                 }
             } else {
-                if(items['null']) {
+                /*if(items['null']) {
                     options+='<option value="">'+items['null']+'</option>';
-                }
+                }*/
                 if(items) for(var p in items){
                     if(p !== 'null') {
                         options+=createOption.call(this, p, items[p]);
@@ -134,11 +162,20 @@
             else selectEl.removeAttr('disabled');     
         }
     });
+    function renderCollection (displayIndex){
+        var items = [];
+                    
+        this.collection.each(function(model){
+            var text = displayIndex ? model.get(displayIndex).toString() : model.toString();
+            items.push({text: text, value: model.id||model.cid});
+        });
+            
+        this.setOptions(items);        
+    }
     function getSelectEl(){
         if(!this._selectEl) {
             var self = this,
                 options = this.options;
-            if(options.hasEmpty && options.options && !options.options['null']) options.options['null'] = options.emptyText;
     
             this._itemEl.append(this.itemTpl({
                 cid: this.cid,

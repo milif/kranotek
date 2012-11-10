@@ -12,8 +12,8 @@
         className: "b-form form-horizontal",
         
         tpl: _.template(
-            '<div class="_fields{cid}"></div>' +
-            '<div class="control-group">' +
+            '<div class="b-form-fields _fields{cid}"></div>' +
+            '<div class="b-form-buttons-h control-group">' +
                 '<div class="b-form-buttons controls _buttons{cid}"></div>' +
             '</div>'
         ),
@@ -223,6 +223,7 @@
                     self.add($(this).data('field'));
                 });
             }
+            field.layout();
             return this;
         },
         addButton: function(component){

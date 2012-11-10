@@ -3,12 +3,19 @@
  */
 .b-form {
     }
-    .b-form-buttons .btn {
-        margin-left: 10px;
-        } 
-        .b-form-buttons .btn:first-child {
-            margin-left: 0px;
-            }    
+    .b-form-fields > .control-group:last-child {
+        margin-bottom: 0;
+        }
+    .b-form-buttons-h {
+        margin-top: 20px;
+        }
+        .b-form-buttons .btn {
+            margin-left: 10px;
+            } 
+            .b-form-buttons .btn:first-child {
+                margin-left: 0px;
+                }  
+              
 .b-field{
     }            
     .b-field-item {

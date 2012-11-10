@@ -185,18 +185,7 @@
             var collectionFunctions = model.getCollectionFunctions();
             
             this._presenterGrid.setCollection(model.getCollectionPresenters());
-            this._fieldFunction.setCollection(model.getCollectionFunctions(), 'Name');
-            /*
-            collectionFunctions.fetch({
-                silent: true,
-                success: function(){
-                    doRender.call(self);
-                },
-                complete: function(){
-                    // App.view.setLoading(self.$el, false);
-                }
-            });
-            */
+            this._fieldFunction.setCollection(model.getCollectionFunctions());
                         
             return this;
         },

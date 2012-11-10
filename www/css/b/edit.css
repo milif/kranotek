@@ -19,3 +19,6 @@
         bottom: 0;   
         z-index: 99; 
         }
+        .edit-h input {
+            box-sizing: border-box;
+            }

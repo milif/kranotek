@@ -341,7 +341,7 @@ var App = (function(){
             return this._isLocal;
         },
         isFetched: function(){
-            return this._fetched;
+            return this._isLocal || this._fetched;
         },
         parse: function(resp){
             return resp && resp.data ? resp.data : resp;
