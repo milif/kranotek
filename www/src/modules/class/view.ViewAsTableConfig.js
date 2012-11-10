@@ -88,6 +88,12 @@
                     ],
                     listeners: {
                         'selectionchange': function(id){
+                            var model = this.collection.get(id);
+                            if(model) {
+                                removeButton.enable();
+                            } else {
+                                removeButton.disable();
+                            }
                         }
                     }
                 });
