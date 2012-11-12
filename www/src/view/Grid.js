@@ -128,9 +128,15 @@
                     }
                 }, 500);
             });
-            this.$el.on('mouseleave', '._hover'+this.cid, function(){
-                clearTimeout(self._hoverAction);
-            });
+            this.$el
+                .on('mouseleave', '._hover'+this.cid, function(){
+                    clearTimeout(self._hoverAction);
+                })
+                .on('click','.b-grid-td', function(){
+                    var el = $(this),
+                        index=el.parent().children().index(el);
+                    callCellEditor.call(self, el, self._columns[index]);
+                });
             
             addColumns.call(this, this.options.columns);
             
@@ -389,8 +395,21 @@
         
         return  trEl;
     }
+    function callCellEditor(cellEl, column){
+        var editor = column.editor;
+        
+        if(!editor) return;
+        
+        var model = getItemByCell.call(this, cellEl);
+        
+        if((model.id||model.cid)!=this._selectedRow) return;
+        editor.model = model;
+        cellEl.triggerHandler('edit');
+        editor.setValue(model.get(column.key));                
+    }
     function applyCellEditor(cellEl, editor, column){
         var self = this;
+        /*
         cellEl.on('click', function(){
            var model = getItemByCell.call(self, cellEl);
            if((model.id||model.cid)!=self._selectedRow) return;
@@ -398,6 +417,7 @@
            cellEl.triggerHandler('edit');
            editor.setValue(model.get(column.key));
         });
+        */
         App.view.setEditor(cellEl, editor);        
     }
     function getItemByCell(el){
