@@ -72,7 +72,7 @@
                         'save': function(isNew){
                             var model = this.getModel();
                             if(isNew) {
-                                presenterGridCollection.add([model],{silent: false});
+                                self._presenterGrid.collection.add([model],{silent: false});
                             }
                             popup.close();
                         }
@@ -89,13 +89,24 @@
                     .add(form),
 
                 addButton = new Button({
-                    tooltip: 'Добавить значение',
+                    tooltip: 'Добавить представление',
                     size: 'small',
                     icon: 'icon-plus',
                     click: function(){
                         editPresenter.call(self);
                     }
                 }),
+                editButton = new Button({
+                    disabled: true,
+                    tooltip: 'Изменить представление',
+                    size: 'small',
+                    icon: 'icon-edit',
+                    click: function(){
+                        var ids = presenterGrid.getSelection(),
+                        model = presenterGrid.collection.get(ids[0]);
+                        editPresenter.call(self, model);
+                    }
+                }),                
                 removeButton =  new Button({
                     disabled: true,
                     size: 'small',
@@ -121,10 +132,7 @@
                     columns: [
                         { name: 'Название', key: 'Name', width: 1 },
                         { name: 'Функция', key: 'FunctionId', width: 1, render: function(value){
-                            var collectionFunctions = self.model.getCollectionFunctions(),
-                                model = collectionFunctions && collectionFunctions.get(value),
-                                name = model && model.get('Name');
-                            return name || '';
+                            return value;
                         }},
                         { name: 'Тип отображения', key: 'Type', width: 1, render: function(value){
                             return this.collection.model.TypesValues[value] || '';
@@ -133,11 +141,12 @@
                     listeners: {
                         'selectionchange': function(id){
                             var model = this.collection.get(id);
-                            editPresenter.call(self, model);
                             if(model) {
                                 removeButton.enable();
+                                editButton.enable();
                             } else {
                                 removeButton.disable();
+                                editButton.disable();
                             }
                         }
                     }
@@ -145,6 +154,7 @@
             
             presenterGrid.getToolbar()
                 .add(addButton, 1)
+                .add(editButton, 2)
                 .add(removeButton, 2);
 
             popup.hide();
