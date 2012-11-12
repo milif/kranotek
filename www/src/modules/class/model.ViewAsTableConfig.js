@@ -30,7 +30,7 @@ App.defineModel('ViewAsTableConfig', {
 
         attr = attrs.columnWidth;
         if(typeof attr !='undefined' && attr != '') {
-            if(!/\d*$/i.test(attr)) {
+            if(!/\d$/i.test(attr)) {
                 errors.push({ name: 'columnWidth', msg: 'Не число'});
             }
         }
