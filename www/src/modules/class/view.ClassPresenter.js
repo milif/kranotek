@@ -116,13 +116,13 @@
                         });
                     }
                 }),
-                //presenterGridCollection = new CollectionPresenter(),
                 presenterGrid = new Grid({
                     selectable: true,
                     columns: [
                         { name: 'Название', key: 'Name', width: 1 },
                         { name: 'Функция', key: 'FunctionId', width: 1, render: function(value){
-                            var model = collectionFunctions.get(value),
+                            var collectionFunctions = self.model.getCollectionFunctions(),
+                                model = collectionFunctions && collectionFunctions.get(value),
                                 name = model && model.get('Name');
                             return name || '';
                         }},
@@ -143,7 +143,6 @@
                     }
                 });
             
-            //presenterGrid.setCollection(presenterGridCollection);
             presenterGrid.getToolbar()
                 .add(addButton, 1)
                 .add(removeButton, 2);
@@ -157,7 +156,10 @@
             fieldType.setReadOnly(true);
 
             fieldFunction.on('change', function(){
-                fieldType.setReadOnly(!fieldFunction.getValue());
+                if(!this._value) {
+                    fieldType.setValue('');
+                }
+                fieldType.setReadOnly(!this._value);
             });
             fieldType.on('change', function(){
                 setupConfigView.call(self);
@@ -181,8 +183,6 @@
             if(!model) return this;
             
             this.model = model;
-            
-            var collectionFunctions = model.getCollectionFunctions();
             
             this._presenterGrid.setCollection(model.getCollectionPresenters());
             this._fieldFunction.setCollection(model.getCollectionFunctions());

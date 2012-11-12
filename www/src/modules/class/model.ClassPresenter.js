@@ -16,15 +16,29 @@ App.defineModel('ClassPresenter', {
     validateModel: function(attrs){
         var errors = [],
             attr;
-        
+
+        attr = attrs.FunctionId;
+         if(typeof attr !='undefined') {
+           if(attr.length < 1) {
+                errors.push({ name: 'FunctionId', msg: 'Выберите источник данных'});
+            }
+        }
+
+        attr = attrs.Type;
+        if(typeof attr !='undefined') {
+           if(attr.length < 1) {
+                errors.push({ name: 'Type', msg: 'Выберите тип'});
+            }
+        }
+
         attr = attrs.Name;
         if(typeof attr !='undefined') {
             if(attr.length < 4) {
                 errors.push({ name: 'Name', msg: 'Название 4 и более символов'});
             }
-        }          
+        }
         return errors.length > 0 ? errors : null ;
-    },    
+    },
     api: 'classpresenter'
 });
 
