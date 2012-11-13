@@ -48,7 +48,11 @@ App.defineCollection('FormReportNodeData', {
                     path: path ? path : this.rootPath
                 },
                 success: function(){
-                    _.each(ClassCollection.models, function(model) {
+                    _.each(presenterCollection.models, function(model) {
+                        var _path = path ? path : this.rootPath;
+                        _path += '/' + model.get('id');
+                        model.set('path', _path);
+                        model.set('leaf', true);
                         self.add(model, {silent: true});
                     });
                     self._fetchedNodes[path] = true;
