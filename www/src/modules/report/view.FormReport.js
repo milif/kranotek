@@ -108,10 +108,17 @@
                         },
                         'clicknode': function(path, node){
                             self._selectedNode = { path: path, node: node };
-                            App.msg.info({
-                                title: 'Клик по ноде',
-                                text: 'Совершен клик по ноде "'+node.get('Name')+'"'
-                            });
+
+                            var isMenu = false;
+                            if(node.get('scheme') === 'yellow') {
+                                isMenu = true;
+                            }
+                            self._nodeFormMode = isMenu ? 'editMenu' : 'editData';
+                            self._currentNode = node;
+                            nodeForm.setModel(node);
+                            isMenu ? nodeData.hide() : nodeData.show();
+                            nodePopup.setTitle('Редактировать '+ (isMenu ? 'Меню' : 'Данные'));
+                            nodePopup.open();
                         }
                     }
                 }),
@@ -136,13 +143,21 @@
                                     'path':path+'/'+_.uniqueId('node'),
                                     'moveable': true
                                 };
-                            if(self._nodeFormMode == 'addData') {
+                            if(_.include(['addData', 'editData'], self._nodeFormMode)) {
                                 nodeConfig.Data = data;
                             }
-                            if(self._nodeFormMode == 'addMenu') {
+                            if(_.include(['addMenu', 'editMenu'], self._nodeFormMode)) {
                                 nodeConfig.scheme = 'yellow';
                             }
-                            self._collection.add(nodeConfig, {silent: false});
+                            if(_.include(['addMenu', 'addData'], self._nodeFormMode)) {
+                                self._collection.add(nodeConfig, {silent: false});
+                            } else if(_.include(['editMenu', 'editData'], self._nodeFormMode)) {
+                                var node = self._collection.getNode(path);
+                                node.set({ 'Name': name });
+                                if(self._nodeFormMode === 'editData') {
+                                    node.set({ 'Data': data });
+                                }
+                            }
                             nodePopup.close();
                             diagram.show();
                             createDiagramButtonContainer.hide();
@@ -229,6 +244,13 @@
         }
     }
 
+    function onCollectionUpdate(self) {
+        updateConfigErrors.call(self, this);
+        self._isDirty = true;
+        self.trigger('dirtychange');
+        showConfigDiagram.call(self, self._collection.length);
+    }
+
     function setCollection(isClear) {
         var data = isClear ? [] : this.model.get('Config');
         var self = this,
@@ -237,16 +259,13 @@
             });
         this._collection = collection;
         this._collection.on('add', function() {
-            updateConfigErrors.call(self, this);
-            self._isDirty = true;
-            self.trigger('dirtychange');
-            showConfigDiagram.call(self, self._collection.length);
+            onCollectionUpdate.call(this, self);
         });
         this._collection.on('remove', function() {
-            updateConfigErrors.call(self, this);
-            self._isDirty = true;
-            self.trigger('dirtychange');
-            showConfigDiagram.call(self, self._collection.length);
+            onCollectionUpdate.call(this, self);
+        });
+        this._collection.on('change', function() {
+            onCollectionUpdate.call(this, self);
         });
         
         this._diagram && this._diagram.setCollection(collection);
