@@ -4,6 +4,7 @@
 /*
  * @require view/form/Field.js
  * @require CollectionNested.js
+ * @require view/form/FieldTrigger.js
  * @require view/Popup.js 
  * @require view/NestedList.js
  */
@@ -253,12 +254,14 @@
                                 toolbars = this.getToolbars();
                                 
                             for(var path in toolbars){
-                                if(current!=this.collection.rootPath && current!=path && this.collection.isDescendant(path, current)){
+                                var isSelectable = current!=this.collection.rootPath && current!=path && this.collection.isDescendant(path, current),
+                                    e ={selectable: isSelectable};
+                                self.trigger('beforeenableselect', e, current);
+                                if(e.selectable){
                                     toolbars[path].buttonSelect.enable();
                                 } else {
                                     toolbars[path].buttonSelect.disable();
                                 }
-
                             }
  
                         }                                           

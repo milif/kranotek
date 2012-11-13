@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Prototype</title>
+    <meta charset="utf-8">
+    <!-- Bootstrap -->
+    <link href="../../vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../../vendor/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">  
+        
+    
+    
+  </head>
+  <body style="background: url(../background.png); ">
+  
+    <div class="container-fluid">
+        <h1>Diagram</h1>
+        <div id="diagram" style="background: white;"></div>             
+    </div>
+    
+    <style>
+        h1 .btn {
+            margin-left: 15px;
+            }
+    </style>    
+    
+    <script id="require" type="text/javascript" src="../../require.js"></script>
+    <script>
+        require('loader.js', function(){
+            require(
+                'CollectionNested.js',
+                'view/Diagram.js',   
+                'view/Dropdown.js',  
+                'modules/report/view.FormReport.js',        
+                
+                function(){
+                
+                    App.env = {
+                        apiUrl: '/app_dev.php',
+                        apiUrlSuffix: ''
+                    }
+
+                    var ModelReport = App.getModel('Report'),
+                        report = new ModelReport({
+                            Name: 'test',
+                            Config: [{"Name":"Menu1","path":"//node46","moveable":true,"scheme":"yellow"},{"Name":"Data1","path":"//node46/node63","moveable":true,"Data":""},{"Name":"Data2","path":"//node46/node76","moveable":true,"Data":""},{"Name":"Menu1Sub1","path":"//node46/node89","moveable":true,"scheme":"yellow"},{"Name":"Menu1Sub1Sub","path":"//node46/node89/node106","moveable":true,"scheme":"yellow"}]
+                        }),
+                        FormReport = App.getView('FormReport'),
+                        formReport = new FormReport({
+                            model: report
+                        });
+                    
+                    $('#diagram').append(formReport.$el);               
+                
+                }
+            );
+        });    
+    </script>
+
+  </body>
+</html>

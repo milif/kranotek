@@ -145,6 +145,7 @@
      
         this._rootListEl.children().remove();
         this._listEls=[];
+        this._menubutton=[];
      
         while (stack.length>0){ 
             current = stack.pop();
