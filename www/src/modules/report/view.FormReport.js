@@ -115,6 +115,15 @@
                             }
                             self._nodeFormMode = isMenu ? 'editMenu' : 'editData';
                             self._currentNode = node;
+                            var nodeDataModel,
+                                nodeDataRawValue = node.get('Data');
+                            if(nodeDataRawValue){
+                                nodeDataModel = new (App.getModel('FormReportNodeData'))(nodeDataRawValue)
+                                if(nodeDataModel) {
+                                    node.set({ 'Data': nodeDataModel });
+                                }
+                            }
+                            
                             nodeForm.setModel(node);
                             isMenu ? nodeData.hide() : nodeData.show();
                             nodePopup.setTitle('Редактировать '+ (isMenu ? 'Меню' : 'Данные'));
