@@ -162,7 +162,7 @@
             }
             return resp;
         },
-        remove: function(models){
+        remove: function(models, options){
             var path,
                 parentPath,
                 model;
@@ -172,12 +172,25 @@
                 path = model.get('path');
                 parentPath = getPathParent(path);
                 
+                if(options.descendants) {
+                    var descendants = this.getDescendants(path),
+                        childpath;
+                    for(var i=0; i<descendants.length; i++){
+                        childpath=this.getPath(descendants[i]);
+                        delete this._byPath[childpath];
+                        delete this._children[childpath];
+                    }
+                    delete this._children[path];
+                    this.parent().remove.call(this, descendants, $.extend({}, options, {silent: true}));                 
+                }
+                
                 delete this._byPath[path];
                 this._children[parentPath] = _.reject(this._children[parentPath], function(node){ return (node.id||node.cid) == (model.id||model.cid); });
-            }        
+            }
             return this.parent().remove.apply(this, arguments);
         }       
     });
+
     function addModel(model, beforePath){ 
         var path = model.get('path');
         this._byPath[path] = model;
