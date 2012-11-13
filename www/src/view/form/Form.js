@@ -180,6 +180,7 @@
         },
         cancel: function(){
             bindModel.call(this, this.model);
+            this.trigger('cancel', this.model);
             return this;     
         },
         getField: function(name){

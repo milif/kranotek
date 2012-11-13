@@ -175,6 +175,10 @@
                 setupConfigView.call(self);
             });
 
+            form.on('cancel', function() {
+                self._viewConfig.setConfig(self._popupModel.get('Config') || {});
+            });
+
             this._popup = popup;
             this._form = form;
             this._fieldName = fieldName;

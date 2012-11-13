@@ -44,6 +44,7 @@
                         var model = new self._model({});
                         self._collection.add(model , {silent: false});
                         self._grid.edit(model.cid);
+                        self.trigger('edit');
                     }
                 }),
                 removeButton =  new Button({
@@ -62,6 +63,7 @@
                                     wait: true,
                                     silent:false
                                 });
+                                self.trigger('edit');
                             }
                         });
                     }
@@ -108,9 +110,11 @@
         },
         setConfig: function(config) {
             var self = this;
+            self._collection.reset();
             _.each(config, function(item){
                 self._collection.add(new self._model(item));
             });
+            this._grid.setCollection(self._collection);
         },
         getConfig: function(config) {
             return this._collection.toJSON();
