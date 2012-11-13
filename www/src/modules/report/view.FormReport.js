@@ -184,14 +184,14 @@
                 createDiagramButton = new Button({
                     text: 'Добавить источник данных',
                     click: function(){
-                        self._nodeFormMode = 'addMenu';
+                        self._nodeFormMode = 'addData';
                         var model = new ReportNode({
                             path: '/'
                         });
                         self._currentNode = model;
                         nodeForm.setModel(model);
-                        nodeData.hide();
-                        nodePopup.setTitle('Добавить Меню');
+                        nodeData.show();
+                        nodePopup.setTitle('Добавить Данные');
                         nodePopup.open();
                     }
                 }),
