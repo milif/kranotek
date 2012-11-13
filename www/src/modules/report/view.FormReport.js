@@ -196,6 +196,12 @@
             diagram.on('addnode', function(path, node){
                 self._selectedNode = { path: path, node: node };
             });
+            nodeData.on('beforeenableselect', function(e, current){
+                // disabled selecting classes as value for Data field
+                if((current.split("/").length - 1) == 1) {
+                    e.selectable = false;
+                }
+            });
 
             this._currentNode = null;
             this._nodeFormMode = 'addMenu';
