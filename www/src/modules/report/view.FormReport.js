@@ -244,18 +244,18 @@
             delete this._errors.Config;
         } else {
             this._errors.Config = 'Empty';
-            this._createDiagramButtonContainer && this._createDiagramButtonContainer.show();
         }
         this.trigger('errorchange');
     }
 
     function showConfigDiagram(length) {
+        if(!this._createDiagramButtonContainer) {
+            return;
+        }
         if(length) {
-            this._createDiagramButtonContainer && this._createDiagramButtonContainer.hide();
-            this._diagram.show();
+            this._createDiagramButtonContainer.hide();
         } else {
-            this._createDiagramButtonContainer && this._createDiagramButtonContainer.show();
-            this._diagram.hide();
+            this._createDiagramButtonContainer.show();
         }
     }
 
