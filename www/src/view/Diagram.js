@@ -71,6 +71,9 @@
                 },this)
                 .on('move', function(node, parentPath, beforePath){
                     moveNode.call(this, node, parentPath, beforePath);
+                }, this)
+                .on('change', function(node){
+                    editNode.call(this, node);
                 }, this);
             if(this.collection) {
                 if(self.collection.isFetched() || self.collection.isLocal()) {
@@ -433,6 +436,12 @@
                 .appendTo(parentListEl || this._rootListEl)
                 .closest('._listH'+this.cid).show();
         }    
+    }
+
+    function editNode(node){
+        var listEl = this._listEls[node.id]||this._listEls[node.cid],
+            nodeEl = listEl.closest('._node'+this.cid);
+        nodeEl.find('.b-diagram-caption-name').text(node.get('Name'));
     }
     
 })(App);
