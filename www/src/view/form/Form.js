@@ -143,7 +143,7 @@
             var self = this,
                 button = this._buttonSave,
                 isNew = this.model.isNew(),
-                attrs = this.model.changedAttributes(this._model.attributes),
+                attrs = this.model.changedAttributes(this._model.attributes) || {},
                 e = {};
                 
             this.trigger('beforesave', e, isNew, attrs);

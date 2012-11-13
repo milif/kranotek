@@ -185,9 +185,7 @@
                     text: 'Добавить источник данных',
                     click: function(){
                         self._nodeFormMode = 'addData';
-                        var model = new ReportNode({
-                            path: '/'
-                        });
+                        var model = new ReportNode({});
                         self._currentNode = model;
                         nodeForm.setModel(model);
                         nodeData.show();
@@ -197,9 +195,7 @@
                 }),
                 createDiagramButtonContainer = new Container().add(createDiagramButton);
 
-            nodeForm.setModel(new ReportNode({
-                path: '/'
-            }));
+            nodeForm.setModel(new ReportNode({}));
             nodeForm.setLocal(true);
 
             diagram.on('addnode', function(path, node){
@@ -207,8 +203,16 @@
             });
             nodeData.on('beforeenableselect', function(e, current){
                 // disabled selecting classes as value for Data field
-                if((current.split("/").length - 1) == 1) {
+                if(self._collection.getNode(self._collection.getParent(current)) === null) {
                     e.selectable = false;
+                }
+            });
+
+            diagram.on('beforemove', function(pathTo, moveOptions){
+                console.log(self._collection.rootPath);
+                var nodeDepth = (pathTo.split("/").length - 1);
+                if(nodeDepth === 1) {
+                    moveOptions.isMovable = false;
                 }
             });
 
@@ -225,7 +229,7 @@
             this._createDiagramButtonContainer = createDiagramButtonContainer;
 
             this.on('beforesave', function(e, isNew, attrs){
-                attrs.Config = self._collection;
+                attrs.Config = self._collection.toJSON();
             });
 
             setCollection.call(this);

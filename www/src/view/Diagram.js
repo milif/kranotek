@@ -69,7 +69,7 @@
                 .on('remove',function(node){
                     removeNode.call(this, node);
                 },this)
-                .on('move', function(node, parentPath, beforePath){
+                .on('move', function(node, parentPath, beforePath){                    
                     moveNode.call(this, node, parentPath, beforePath);
                 }, this)
                 .on('change', function(node){
@@ -404,6 +404,16 @@
             index;
                     
         stopActionMove.call(this);
+
+        var moveOptions = { isMovable: true };
+        this.trigger('beforemove', pathTo, moveOptions);
+        if(!moveOptions.isMovable) {
+            App.msg.alert({  
+                title: 'Невозможен перенос ноды',
+                text: 'В это место невозможно переместить ноду'
+            });
+            return;
+        }
                    
         if(pos=='top') {
             this.collection.move(path, this.collection.getParent(pathTo), pathTo);
