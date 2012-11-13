@@ -42,8 +42,66 @@
 
                     var ModelReport = App.getModel('Report'),
                         report = new ModelReport({
-                            Name: 'test',
-                            Config: [{"Name":"Menu1","path":"//node46","moveable":true,"scheme":"yellow"},{"Name":"Data1","path":"//node46/node63","moveable":true,"Data":""},{"Name":"Data2","path":"//node46/node76","moveable":true,"Data":""},{"Name":"Menu1Sub1","path":"//node46/node89","moveable":true,"scheme":"yellow"},{"Name":"Menu1Sub1Sub","path":"//node46/node89/node106","moveable":true,"scheme":"yellow"}]
+                           "Name":"test",
+                           "Config":[
+                              {
+                                 "Name":"Menu1",
+                                 "Data":"",
+                                 "path":"//node46",
+                                 "moveable":true,
+                                 "scheme":"yellow"
+                              },
+                              {
+                                 "Name":"Data1",
+                                 "Data":{
+                                    "Name":"test",
+                                    "FunctionId":"567",
+                                    "Type":"Table",
+                                    "Config":[
+                                       {
+                                          "title":"test",
+                                          "fieldName":"testfjgjt",
+                                          "columnWidth":"100",
+                                          "isVisible":false
+                                       },
+                                       {
+                                          "title":"oklopot",
+                                          "fieldName":"yttgb",
+                                          "columnWidth":"",
+                                          "isVisible":true
+                                       }
+                                    ],
+                                    "id":12,
+                                    "path":"/11505/12",
+                                    "leaf":true
+                                 },
+                                 "path":"//node46/node63",
+                                 "moveable":true
+                              },
+                              {
+                                 "Name":"Data2",
+                                 "Data":"",
+                                 "path":"//node46/node76",
+                                 "moveable":true
+                              },
+                              {
+                                 "Name":"Menu1Sub1",
+                                 "Data":"",
+                                 "path":"//node46/node89",
+                                 "moveable":true,
+                                 "scheme":"yellow"
+                              },
+                              {
+                                 "Name":"Menu1Sub1Sub",
+                                 "Data":"",
+                                 "path":"//node46/node89/node106",
+                                 "moveable":true,
+                                 "scheme":"yellow"
+                              }
+                           ],
+                           "false":{
+                              "wait":true
+                           }
                         }),
                         FormReport = App.getView('FormReport'),
                         formReport = new FormReport({
