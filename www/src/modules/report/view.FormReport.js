@@ -203,13 +203,12 @@
             });
             nodeData.on('beforeenableselect', function(e, current){
                 // disabled selecting classes as value for Data field
-                if(self._collection.getNode(self._collection.getParent(current)) === null) {
+                if(!FormReportNodeCollection.getNode(FormReportNodeCollection.getParent(current))) {
                     e.selectable = false;
                 }
             });
 
             diagram.on('beforemove', function(pathTo, moveOptions){
-                console.log(self._collection.rootPath);
                 var nodeDepth = (pathTo.split("/").length - 1);
                 if(nodeDepth === 1) {
                     moveOptions.isMovable = false;
