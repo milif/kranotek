@@ -256,7 +256,7 @@
                             for(var path in toolbars){
                                 var isSelectable = current!=this.collection.rootPath && current!=path && this.collection.isDescendant(path, current),
                                     e ={selectable: isSelectable};
-                                self.trigger('beforeenableselect', e, current);
+                                self.trigger('beforeenableselect', e, current, path, this.collection.rootPath);
                                 if(e.selectable){
                                     toolbars[path].buttonSelect.enable();
                                 } else {

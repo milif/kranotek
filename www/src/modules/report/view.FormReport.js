@@ -201,9 +201,9 @@
             diagram.on('addnode', function(path, node){
                 self._selectedNode = { path: path, node: node };
             });
-            nodeData.on('beforeenableselect', function(e, current){
+            nodeData.on('beforeenableselect', function(e, current, path, rootPath){
                 // disabled selecting classes as value for Data field
-                if(!FormReportNodeCollection.getNode(FormReportNodeCollection.getParent(current))) {
+                if(path === rootPath) {
                     e.selectable = false;
                 }
             });
