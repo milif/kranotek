@@ -293,7 +293,7 @@
         this._collection.on('remove', function() {
             onCollectionUpdate.call(this, self);
         });
-        this._collection.on('change', function() {
+        this._collection.on('move', function() {
             onCollectionUpdate.call(this, self);
         });
         
