@@ -231,6 +231,12 @@
                 attrs.Config = self._collection.toJSON();
             });
 
+            this._originalConfigData = [];
+            var configData = this.model.get('Config');
+            _.each(configData, function(item){
+                self._originalConfigData.push(_.extend({}, item));
+            });
+
             setCollection.call(this);
 
             return this;
@@ -270,7 +276,12 @@
     }
 
     function setCollection(isClear) {
-        var data = isClear ? [] : this.model.get('Config');
+        var data = [];
+        if(!isClear) {
+            _.each(this._originalConfigData, function(item){
+                data.push(_.extend({}, item));
+            });
+        }
         var self = this,
             collection = new this._FormReportNodes(data,{
                 local: true
