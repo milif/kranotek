@@ -217,6 +217,7 @@
 
             this._currentNode = null;
             this._nodeFormMode = 'addMenu';
+            this._nodeForm = nodeForm;
             
             fieldReportConfig.hide();
             this.add(fieldReportName);
@@ -231,19 +232,23 @@
                 attrs.Config = self._collection.toJSON();
             });
 
-            this._originalConfigData = [];
-            var configData = this.model.get('Config');
-            _.each(configData, function(item){
-                self._originalConfigData.push(_.extend({}, item));
-            });
+            storeOriginalConfig.call(this);
+            setConfigCollection.call(this);
 
-            setCollection.call(this);
+            return this;
+        },
+        setModel: function(model) {
+            this.parent().setModel.apply(this, arguments);
+            if(!model) return this;
 
+            storeOriginalConfig.call(this);
+            setConfigCollection.call(this);
+            
             return this;
         },
         cancel: function(){
             this.parent().cancel.apply(this, arguments);
-            setCollection.call(this);
+            setConfigCollection.call(this);
             return this;
         }
     });
@@ -275,7 +280,7 @@
         showConfigDiagram.call(self, self._collection.length);
     }
 
-    function setCollection(isClear) {
+    function setConfigCollection(isClear) {
         var data = [];
         if(!isClear) {
             _.each(this._originalConfigData, function(item){
@@ -283,10 +288,16 @@
             });
         }
         var self = this,
+            collection;
+        if(this._FormReportNodes) {
             collection = new this._FormReportNodes(data,{
                 local: true
             });
+        }
         this._collection = collection;
+        if(!this._collection) {
+            return this;
+        }
         this._collection.on('add', function() {
             onCollectionUpdate.call(this, self);
         });
@@ -303,5 +314,14 @@
         updateConfigErrors.call(this, collection);
         self._isDirty = false;
         this.trigger('dirtychange');
+    }
+
+    function storeOriginalConfig() {
+        var self = this;
+        this._originalConfigData = [];
+        var configData = this.model.get('Config');
+        _.each(configData, function(item){
+            self._originalConfigData.push(_.extend({}, item));
+        });
     }
 })();

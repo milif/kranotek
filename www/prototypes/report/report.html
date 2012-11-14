@@ -30,8 +30,12 @@
             require(
                 'CollectionNested.js',
                 'view/Diagram.js',   
-                'view/Dropdown.js',  
-                'modules/report/view.FormReport.js',        
+                'view/Dropdown.js',
+                'view/Grid.js',
+                'view/toolbar/Toolbar.js',
+                'view/button/Button.js',
+                'modules/report/collection.Report.js',
+                'modules/report/view.FormReport.js',
                 
                 function(){
                 
@@ -40,9 +44,12 @@
                         apiUrlSuffix: ''
                     }
 
-                    var ModelReport = App.getModel('Report'),
-                        report = new ModelReport({
-                           "Name":"test",
+                    var Grid = App.getView('Grid'),
+                        Button = App.getView('Button'),
+                        Toolbar = App.getView('Toolbar'),
+                        ModelReport = App.getModel('Report'),
+                        collection = new(App.getCollection('Report'))([{
+                           "Name":"test_name",
                            "Config":[
                               {
                                  "Name":"RootData",
@@ -97,17 +104,87 @@
                                  "moveable":true,
                                  "scheme":"yellow"
                               }
-                           ],
-                           "false":{
-                              "wait":true
-                           }
+                           ]
+                        },{
+                           "Name":"test_name2",
+                           "Config":[
+                              {
+                                 "Name":"RootData2",
+                                 "Data":"",
+                                 "path":"/node2",
+                                 "moveable":true
+                              }
+                            ]
+                        }]),
+                        report = new ModelReport({}),
+                        addButton = new Button({
+                            tooltip: 'Добавить представление',
+                            size: 'small',
+                            icon: 'icon-plus',
+                            click: function(){
+                                formReport.setModel(new ModelReport({}));
+                                formReport.show();
+                            }
                         }),
+                        editButton = new Button({
+                            disabled: true,
+                            size: 'small',
+                            icon: 'icon-edit',
+                            click: function(){
+                                var ids = grid.getSelection(),
+                                    model = collection.get(ids[0]);
+                                formReport.setModel(model);
+                                formReport.show();
+                            }
+                        }), 
+                        removeButton = new Button({
+                            disabled: true,
+                            size: 'small',
+                            icon: 'icon-remove',
+                            click: function(){
+                                var ids = grid.getSelection(),
+                                    model = collection.get(ids[0]);
+                                collection.remove([model], {silent: false});
+                            }
+                        }),
+                        grid = new Grid({
+                            collection: collection,
+                            selectable: true,
+                            columns: [
+                                { key: 'Name', name: 'Название' }
+                            ],
+                            listeners: {
+                                'selectionchange': function(id){
+                                    var model = collection.get(id);
+                                    if(model) {
+                                        removeButton.enable();
+                                        editButton.enable();
+                                        formReport.setModel(model);
+                                        formReport.show();
+                                    } else {
+                                        removeButton.disable();
+                                        editButton.disable();
+                                        formReport.hide();
+                                    }
+                                }
+                            }
+                        });
                         FormReport = App.getView('FormReport'),
                         formReport = new FormReport({
                             model: report
                         });
+
+                    formReport.hide();
+
+                    grid.getToolbar()
+                      .add(addButton, 1)
+                      .add(editButton, 2)
+                      .add(removeButton, 2);
                     
-                    $('#diagram').append(formReport.$el);               
+                    $('#diagram').append(grid.$el);
+                    $('#diagram').append(formReport.$el);
+
+                    grid.layout();
                 
                 }
             );
