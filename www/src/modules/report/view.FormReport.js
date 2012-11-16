@@ -159,9 +159,11 @@
                             
                             if(newNodePresenter && _.include(['addData', 'editData'], self._nodeFormMode)) {
                                 nodeConfig.Data = newNodePresenter;
+                                nodeConfig.Type = 'Data';
                             }
                             if(_.include(['addMenu', 'editMenu'], self._nodeFormMode)) {
                                 nodeConfig.scheme = 'yellow';
+                                nodeConfig.Type = 'Menu';
                             }
                             if(_.include(['addMenu', 'addData'], self._nodeFormMode)) {
                                 self._collection.add(nodeConfig, {silent: false});
