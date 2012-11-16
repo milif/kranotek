@@ -4,6 +4,7 @@
 /*
  * @require modules/report/formreport.css
  * @require modules/class/collection.Class.js
+ * @require modules/class/collection.ClassPresenter.js
 
  * @require CollectionNested.js
  * @require view/button/Button.js
@@ -103,8 +104,6 @@
                                         self._collection.remove(node, {silent: false, descendants: true});
                                     }
                                 }));
-                            
-                            // this.setMenu(path, menu);
                         },
                         'clicknode': function(path, node){
                             self._selectedNode = { path: path, node: node };
@@ -115,14 +114,12 @@
                             }
                             self._nodeFormMode = isMenu ? 'editMenu' : 'editData';
                             self._currentNode = node;
-                            var nodeDataModel,
-                                nodeDataRawValue = node.get('Data');
-                            if(nodeDataRawValue){
-                                nodeClassModel = new (App.getCollection('Class'))(nodeDataRawValue);
-                                if(nodeDataModel) {
-                                    node.set({ 'Data': nodeClassModel });
-                                }
-                            }
+                            var nodeDataRawValue = node.get('Data');
+                            nodeModel = new (App.getModel('ClassPresenter'))({
+                                'id': nodeDataRawValue.id,
+                                'Name': nodeDataRawValue.__toString
+                            });
+                            node.set({ 'Data': nodeModel });
                             
                             nodeForm.setModel(node);
                             isMenu ? nodeData.hide() : nodeData.show();
@@ -152,9 +149,16 @@
                                     'path':path+'/'+_.uniqueId('node'),
                                     'moveable': true
                                 },
-                                newNodeClass = new (App.getModel('Class'))(data);
-                            if(_.include(['addData', 'editData'], self._nodeFormMode)) {
-                                nodeConfig.Data = newNodeClass;
+                                newNodePresenter;
+                            if(data) {
+                                newNodePresenter = new (App.getModel('ClassPresenter'))({
+                                    'id': data.get('id'),
+                                    'Name': data.get('Name')
+                                });
+                            }
+                            
+                            if(newNodePresenter && _.include(['addData', 'editData'], self._nodeFormMode)) {
+                                nodeConfig.Data = newNodePresenter;
                             }
                             if(_.include(['addMenu', 'editMenu'], self._nodeFormMode)) {
                                 nodeConfig.scheme = 'yellow';
@@ -165,7 +169,7 @@
                                 var node = self._collection.getNode(path);
                                 node.set({ 'Name': name });
                                 if(self._nodeFormMode === 'editData') {
-                                    node.set({ 'Data': newNodeClass });
+                                    node.set({ 'Data': newNodePresenter });
                                 }
                             }
                             nodePopup.close();

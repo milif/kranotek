@@ -13,6 +13,9 @@ App.defineModel('ClassPresenter', {
         'Type': '',
         'Config': null
     },
+    toString: function() {
+        return this.get('Name');
+    },
     validateModel: function(attrs){
         var errors = [],
             attr;
