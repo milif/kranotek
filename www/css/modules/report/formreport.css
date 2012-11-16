@@ -11,3 +11,8 @@
 .b-formreport > div > .container-fluid {
     padding-left: 180px;
 }
+
+.b-formreport .b-diagram {
+    padding-top: 0;
+    padding-bottom: 0;
+}
