@@ -260,6 +260,7 @@
             this._errors.Config = 'Empty';
         }
         this.trigger('errorchange');
+        this._model.trigger('error', this._model, this._errors);
     }
 
     function showConfigDiagram(length) {
