@@ -170,6 +170,9 @@
                             nodePopup.close();
                             diagram.show();
                             createDiagramButtonContainer.hide();
+                            // trigger change in diagram
+                            self._isDirty = true;
+                            self.trigger('dirtychange');
                         }
                     }
                 })
