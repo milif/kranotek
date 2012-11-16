@@ -118,9 +118,9 @@
                             var nodeDataModel,
                                 nodeDataRawValue = node.get('Data');
                             if(nodeDataRawValue){
-                                nodeDataModel = new (App.getModel('FormReportNodeData'))(nodeDataRawValue)
+                                nodeClassModel = new (App.getCollection('Class'))(nodeDataRawValue);
                                 if(nodeDataModel) {
-                                    node.set({ 'Data': nodeDataModel });
+                                    node.set({ 'Data': nodeClassModel });
                                 }
                             }
                             
