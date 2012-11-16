@@ -28,6 +28,6 @@ App.defineModel('Report', {
         }
         return errors.length > 0 ? errors : null ;
     },
-    api: 'reportconfig'
+    api: 'report'
 });
 

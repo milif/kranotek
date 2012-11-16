@@ -238,7 +238,7 @@
             if(!collection || collection.isLocal()) {
                 this._refreshButton.$el.parent().hide();
             } else {
-                this._refreshButton.$el.parent().show();
+                this._refreshButton.$el.parent().css('display','inline-block').show();
             }
             
             setTimeout(function(){
@@ -498,4 +498,3 @@
         tdTpl = _.template('<td class="b-grid-td t-bg align_{align}"><div class="b-grid-td-h _td{cid} data-key="{key}" _hover{cid}">{text}</div></td>');
     
 })(App);
-

@@ -173,19 +173,19 @@ var App = (function(){
             }
         },
         defineView: function(name, cfg){
-            view[name] = getExtendable(View, cfg, 'getView').extend(cfg);
+            view[name] = getExtendable(View, cfg, 'getView').extend(cfg, name);
         },
         getView: function(name){
             return view[name];
         },
         defineModel: function(name, cfg){
-            model[name] = getExtendable(Model, cfg, 'getModel').extend(cfg);
+            model[name] = getExtendable(Model, cfg, 'getModel').extend(cfg, name);
         },
         getModel: function(name){
             return model[name];
         },
         defineCollection: function(name, cfg){
-            collection[name] = getExtendable( Collection, cfg, 'getCollection').extend(cfg);
+            collection[name] = getExtendable( Collection, cfg, 'getCollection').extend(cfg, name);
         },
         getCollection: function(name){
             return collection[name];
@@ -252,6 +252,14 @@ var App = (function(){
         parse: function(resp){
             return resp && resp.model ? resp.model : resp;
         },
+        serialize: function(){
+            var res={},
+                attrs = this.attributes;
+            for(var p in attrs){
+                res[p] = attrs[p] instanceof Backbone.Model ? (attrs[p].id ? {id: attrs[p].id, __model: attrs[p].cls , __toString: attrs[p]+"" } : attrs[p].serialize()) : attrs[p] ;
+            }
+            return res;
+        },        
         parent: parentFn
     }),
     View = extendFn.call(Backbone.View, {
@@ -346,6 +354,13 @@ var App = (function(){
         parse: function(resp){
             return resp && resp.data ? resp.data : resp;
         },
+        serialize: function(){
+            var res=[];
+            this.each(function(item){
+                res.push('serialize' in  item ? item.serialize() : item );
+            });
+            return res;
+        },
         parent: parentFn
     });
 
@@ -361,12 +376,13 @@ var App = (function(){
     function parentFn(){
         return arguments.callee.caller.__owner__.__super__;
     }
-    function extendFn(extend){
+    function extendFn(extend, name){
         var child = Backbone.Model.extend.apply(this, arguments);
         for(var p in extend) {
             if($.isFunction(extend[p])) extend[p].__owner__ = child;
         }
         child.extend = extendFn;
+        child.prototype.cls = name;
         return child;
     }
     function applyListeners(obj, listeners){

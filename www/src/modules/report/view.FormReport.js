@@ -232,7 +232,7 @@
             this._createDiagramButtonContainer = createDiagramButtonContainer;
 
             this.on('beforesave', function(e, isNew, attrs){
-                attrs.Config = self._collection.toJSON();
+                attrs.Config = JSON.stringify(self._collection.serialize());
             });
 
             storeOriginalConfig.call(this);
