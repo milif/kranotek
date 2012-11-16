@@ -151,9 +151,10 @@
                                     'Name': name,
                                     'path':path+'/'+_.uniqueId('node'),
                                     'moveable': true
-                                };
+                                },
+                                newNodeClass = new (App.getModel('Class'))(data);
                             if(_.include(['addData', 'editData'], self._nodeFormMode)) {
-                                nodeConfig.Data = data;
+                                nodeConfig.Data = newNodeClass;
                             }
                             if(_.include(['addMenu', 'editMenu'], self._nodeFormMode)) {
                                 nodeConfig.scheme = 'yellow';
@@ -164,7 +165,7 @@
                                 var node = self._collection.getNode(path);
                                 node.set({ 'Name': name });
                                 if(self._nodeFormMode === 'editData') {
-                                    node.set({ 'Data': data });
+                                    node.set({ 'Data': newNodeClass });
                                 }
                             }
                             nodePopup.close();
@@ -286,8 +287,9 @@
 
     function setConfigCollection(isClear) {
         var data = [];
-        if(!isClear) {
-            _.each(this._originalConfigData, function(item){
+        if(!isClear && this._originalConfigData) {
+            var configData = JSON.parse(this._originalConfigData);
+            _.each(configData, function(item){
                 data.push(_.extend({}, item));
             });
         }
@@ -321,11 +323,6 @@
     }
 
     function storeOriginalConfig() {
-        var self = this;
-        this._originalConfigData = [];
-        var configData = this.model.get('Config');
-        _.each(configData, function(item){
-            self._originalConfigData.push(_.extend({}, item));
-        });
+        this._originalConfigData = this.model.get('Config');
     }
 })();

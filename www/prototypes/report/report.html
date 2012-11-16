@@ -48,74 +48,7 @@
                         Button = App.getView('Button'),
                         Toolbar = App.getView('Toolbar'),
                         ModelReport = App.getModel('Report'),
-                        collection = new(App.getCollection('Report'))([{
-                           "Name":"testname",
-                           "Config":[
-                              {
-                                 "Name":"RootData",
-                                 "Data":"",
-                                 "path":"/node46",
-                                 "moveable":true
-                              },
-                              {
-                                 "Name":"Data1",
-                                 "Data":{
-                                    "Name":"test",
-                                    "FunctionId":"567",
-                                    "Type":"Table",
-                                    "Config":[
-                                       {
-                                          "title":"test",
-                                          "fieldName":"testfjgjt",
-                                          "columnWidth":"100",
-                                          "isVisible":false
-                                       },
-                                       {
-                                          "title":"oklopot",
-                                          "fieldName":"yttgb",
-                                          "columnWidth":"",
-                                          "isVisible":true
-                                       }
-                                    ],
-                                    "id":12,
-                                    "path":"/11505/12",
-                                    "leaf":true
-                                 },
-                                 "path":"/node46/node63",
-                                 "moveable":true
-                              },
-                              {
-                                 "Name":"Data2",
-                                 "Data":"",
-                                 "path":"/node46/node76",
-                                 "moveable":true
-                              },
-                              {
-                                 "Name":"Menu1Sub1",
-                                 "Data":"",
-                                 "path":"/node46/node89",
-                                 "moveable":true,
-                                 "scheme":"yellow"
-                              },
-                              {
-                                 "Name":"Menu1Sub1Sub",
-                                 "Data":"",
-                                 "path":"/node46/node89/node106",
-                                 "moveable":true,
-                                 "scheme":"yellow"
-                              }
-                           ]
-                        },{
-                           "Name":"testname2",
-                           "Config":[
-                              {
-                                 "Name":"RootData2",
-                                 "Data":"",
-                                 "path":"/node2",
-                                 "moveable":true
-                              }
-                            ]
-                        }]),
+                        collection = new(App.getCollection('Report'))(),
                         report = new ModelReport({}),
                         addButton = new Button({
                             tooltip: 'Добавить представление',
@@ -143,8 +76,21 @@
                             icon: 'icon-remove',
                             click: function(){
                                 var ids = grid.getSelection(),
-                                    model = collection.get(ids[0]);
-                                collection.remove([model], {silent: false});
+                                    model = grid.collection.get(ids[0]);
+                                if(model && !model.id) {
+                                    grid.collection.remove([model], {silent: false});
+                                    return;
+                                }
+                                App.msg.okcancel({
+                                    title: 'Удаление отчета',
+                                    text: 'Вы действительно хотите удалить отчет?',
+                                    callback: function(){    
+                                        if(model) model.destroy({
+                                            wait: true,
+                                            silent:false
+                                        });                                    
+                                    }
+                                }); 
                             }
                         }),
                         grid = new Grid({

@@ -15,6 +15,9 @@ App.defineModel('Class', {
         'AllWorkspace': false,
         'WorkspaceId': ""
     },
+    toString: function() {
+        return this.get('ClassName');
+    },
     getCollectionFields: function(){
         return new (App.getCollection('ClassField'))(null, {
             local: !this.id,
