@@ -74,7 +74,8 @@
                                     click: function(){
                                         self._nodeFormMode = 'addMenu';
                                         var model = new ReportNode({
-                                            path: self._collection.getPath(node)
+                                            path: self._collection.getPath(node),
+                                            Type: 'Menu'
                                         });
                                         self._currentNode = model;
                                         nodeForm.setModel(model);
@@ -88,7 +89,8 @@
                                     click: function(){
                                         self._nodeFormMode = 'addData';
                                         var model = new ReportNode({
-                                            path: self._collection.getPath(node)
+                                            path: self._collection.getPath(node),
+                                            Type: 'Data'
                                         });
                                         self._currentNode = model;
                                         nodeForm.setModel(model);
@@ -196,7 +198,9 @@
                     text: 'Добавить источник данных',
                     click: function(){
                         self._nodeFormMode = 'addData';
-                        var model = new ReportNode({});
+                        var model = new ReportNode({
+                            Type: 'Data'
+                        });
                         self._currentNode = model;
                         nodeForm.setModel(model);
                         nodeData.show();
@@ -206,7 +210,9 @@
                 }),
                 createDiagramButtonContainer = new Container().add(createDiagramButton);
 
-            nodeForm.setModel(new ReportNode({}));
+            nodeForm.setModel(new ReportNode({
+                Type: 'Data'
+            }));
             nodeForm.setLocal(true);
 
             diagram.on('addnode', function(path, node){
