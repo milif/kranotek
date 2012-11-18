@@ -1,8 +1,4 @@
 /*
- * @id 507ea0e8efc21 - (!!!) Идентификатор добавляется автоматически. Запрещено ручное изменение и копирование идентификатора при создании новых файлов (!!!) 
- */
-
-/*
 * @require view/container/Container.js
 * @require view/Grid.js
 * @require view/NestedList.js

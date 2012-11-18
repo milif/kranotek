@@ -8,6 +8,7 @@ $sRootPath = $DOCUMENT_ROOT.$aRequest['rootPath'];
 $bIsCompile = isset($aRequest['compile']) && $aRequest['compile'];
 $aIncludePath = $aRequest['includePath'];
 $aLoadedScripts = $aRequest['loadedScripts'];
+$aLog = array();
 
 $fLoggin = getLogginFile(); 
 if(is_file($fLoggin)) unlink($fLoggin);
@@ -66,6 +67,9 @@ if($bIsCompile) {
     $aResult['include']=$aSources;
 }
 
+if($aLog) $aResult['log']=$aLog;
+
+header('Content-type: application/json');
 echo json_encode($aResult);
 
 function buildSources($aRequire) {
@@ -75,6 +79,7 @@ function buildSources($aRequire) {
     $aSources = array();
     $aIndex = array();
     $aFilesData=array();
+    $aAddedSources = array();
     
     foreach($aRequire as $sItem){
         if($sFile = getFile($sItem)) $aStack[]=$sFile;
@@ -96,11 +101,13 @@ function buildSources($aRequire) {
             array_pop($aStack);
             if(isset($aLoadedScripts[$sUID])) continue;
             $sType = getFileType($sFile);
-            $aSources[$sType][]= array($sUID, $sFile);
+            if(!isset($aAddedSources[$sUID])) {
+                $aSources[$sType][]= array($sUID, $sFile);
+                $aAddedSources[$sUID] = true;
+            }
         }
      
-    }    
-    
+    }
     return $aSources;
 }
 function getFileData($sFile){
@@ -149,7 +156,7 @@ function compile($sType, $sContent){
         $sCompilerFile = __DIR__.'/google-closure/compiler.jar';
         $sCMD = "java -jar $sCompilerFile --js $fContent --js_output_file $fOutputContent 2>$fLoggin";
         exec($sCMD);
-        $sContent = file_get_contents($fOutputContent);
+        $sContent = file_get_contents($fContent); //file_get_contents($fOutputContent);
         unlink($fContent );
         unlink($fOutputContent);
     } elseif($sType=='css') {
@@ -171,4 +178,8 @@ function setAbsolutePath($aMatches){
 }
 function getLogginFile(){
     return __DIR__.'/log.txt';
+}
+function _log($msg){
+    global $aLog;
+    $aLog[] = $msg;
 }
