@@ -11,7 +11,13 @@ App.defineCollection('FormReportNodeData', {
     fetchNode: function(path, options){
         var self = this,
             successClb = options.success,
-            completeClb = options.complete;
+            completeClb = options.complete,
+            presenter = options.presenter,
+            classId;
+
+        if(this._ClassCollection) {
+            classId = this._ClassCollection.getNode(presenter.getListNode('/')).get('id');
+        }
         
         delete this._children[path];
 
@@ -36,19 +42,20 @@ App.defineCollection('FormReportNodeData', {
                     App.view.setLoading(self.$el, false);
                 }
             }));
+            this._ClassCollection = ClassCollection;
         } else {
-            var presenterCollection = new (App.getCollection('ClassPresenter'))(null, {
-                params: {
-                    'ClassId': this.id
-                }
-            });
+            var presenterCollection = new (App.getCollection('ClassPresenter'))();
             presenterCollection.fetch($.extend(options, {
                 silent: true,
                 params: {
-                    path: path ? path : this.rootPath
+                    'ClassId': classId
                 },
                 success: function(){
-                    _.each(ClassCollection.models, function(model) {
+                    _.each(presenterCollection.models, function(model) {
+                        var _path = path ? path : this.rootPath;
+                        _path += '/' + model.get('id');
+                        model.set('path', _path);
+                        model.set('leaf', true);
                         self.add(model, {silent: true});
                     });
                     self._fetchedNodes[path] = true;

@@ -4,6 +4,7 @@
 /*
  * @require modules/report/formreport.css
  * @require modules/class/collection.Class.js
+ * @require modules/class/collection.ClassPresenter.js
 
  * @require CollectionNested.js
  * @require view/button/Button.js
@@ -103,15 +104,28 @@
                                         self._collection.remove(node, {silent: false, descendants: true});
                                     }
                                 }));
-                            
-                            // this.setMenu(path, menu);
                         },
                         'clicknode': function(path, node){
                             self._selectedNode = { path: path, node: node };
-                            App.msg.info({
-                                title: 'Клик по ноде',
-                                text: 'Совершен клик по ноде "'+node.get('Name')+'"'
+
+                            var isMenu = false;
+                            if(node.get('scheme') === 'yellow') {
+                                isMenu = true;
+                            }
+                            self._nodeFormMode = isMenu ? 'editMenu' : 'editData';
+                            self._currentNode = node;
+                            /*
+                            var nodeDataRawValue = node.get('Data');
+                            nodeModel = new (App.getModel('ClassPresenter'))({
+                                'id': nodeDataRawValue.id,
+                                'Name': nodeDataRawValue.__toString
                             });
+                            node.set({ 'Data': nodeModel });
+                            */
+                            nodeForm.setModel(node);
+                            isMenu ? nodeData.hide() : nodeData.show();
+                            nodePopup.setTitle((isMenu ? 'Меню' : 'Данные' ) +' "'+node+'"');
+                            nodePopup.open();
                         }
                     }
                 }),
@@ -135,17 +149,38 @@
                                     'Name': name,
                                     'path':path+'/'+_.uniqueId('node'),
                                     'moveable': true
-                                };
-                            if(self._nodeFormMode == 'addData') {
-                                nodeConfig.Data = data;
+                                },
+                                newNodePresenter;
+                            if(data) {
+                                newNodePresenter = new (App.getModel('ClassPresenter'))({
+                                    'id': data.get('id'),
+                                    'Name': data.get('Name')
+                                });
                             }
-                            if(self._nodeFormMode == 'addMenu') {
+                            
+                            if(newNodePresenter && _.include(['addData', 'editData'], self._nodeFormMode)) {
+                                nodeConfig.Data = newNodePresenter;
+                                nodeConfig.Type = 'Data';
+                            }
+                            if(_.include(['addMenu', 'editMenu'], self._nodeFormMode)) {
                                 nodeConfig.scheme = 'yellow';
+                                nodeConfig.Type = 'Menu';
                             }
-                            self._collection.add(nodeConfig, {silent: false});
+                            if(_.include(['addMenu', 'addData'], self._nodeFormMode)) {
+                                self._collection.add(nodeConfig, {silent: false});
+                            } else if(_.include(['editMenu', 'editData'], self._nodeFormMode)) {
+                                var node = self._collection.getNode(path);
+                                node.set({ 'Name': name });
+                                if(self._nodeFormMode === 'editData') {
+                                    node.set({ 'Data': newNodePresenter });
+                                }
+                            }
                             nodePopup.close();
                             diagram.show();
                             createDiagramButtonContainer.hide();
+                            // trigger change in diagram
+                            self._isDirty = true;
+                            self.trigger('dirtychange');
                         }
                     }
                 })
@@ -160,30 +195,40 @@
                 createDiagramButton = new Button({
                     text: 'Добавить источник данных',
                     click: function(){
-                        self._nodeFormMode = 'addMenu';
-                        var model = new ReportNode({
-                            path: '/'
-                        });
+                        self._nodeFormMode = 'addData';
+                        var model = new ReportNode({});
                         self._currentNode = model;
                         nodeForm.setModel(model);
-                        nodeData.hide();
-                        nodePopup.setTitle('Добавить Меню');
+                        nodeData.show();
+                        nodePopup.setTitle('Добавить Данные');
                         nodePopup.open();
                     }
                 }),
                 createDiagramButtonContainer = new Container().add(createDiagramButton);
 
-            nodeForm.setModel(new ReportNode({
-                path: '/'
-            }));
+            nodeForm.setModel(new ReportNode({}));
             nodeForm.setLocal(true);
 
             diagram.on('addnode', function(path, node){
                 self._selectedNode = { path: path, node: node };
             });
+            nodeData.on('beforeenableselect', function(e, current, path, rootPath){
+                // disabled selecting classes as value for Data field
+                if(path === rootPath) {
+                    e.selectable = false;
+                }
+            });
+
+            diagram.on('beforemove', function(pathTo, moveOptions){
+                var nodeDepth = (pathTo.split("/").length - 1);
+                if(nodeDepth === 1) {
+                    moveOptions.isMovable = false;
+                }
+            });
 
             this._currentNode = null;
             this._nodeFormMode = 'addMenu';
+            this._nodeForm = nodeForm;
             
             fieldReportConfig.hide();
             this.add(fieldReportName);
@@ -195,16 +240,26 @@
             this._createDiagramButtonContainer = createDiagramButtonContainer;
 
             this.on('beforesave', function(e, isNew, attrs){
-                attrs.Config = self._collection;
+                attrs.Config = JSON.stringify(self._collection.serialize());
             });
 
-            setCollection.call(this);
+            storeOriginalConfig.call(this);
+            setConfigCollection.call(this);
 
+            return this;
+        },
+        setModel: function(model) {
+            this.parent().setModel.apply(this, arguments);
+            if(!model) return this;
+
+            storeOriginalConfig.call(this);
+            setConfigCollection.call(this);
+            
             return this;
         },
         cancel: function(){
             this.parent().cancel.apply(this, arguments);
-            setCollection.call(this);
+            setConfigCollection.call(this);
             return this;
         }
     });
@@ -214,39 +269,58 @@
             delete this._errors.Config;
         } else {
             this._errors.Config = 'Empty';
-            this._createDiagramButtonContainer && this._createDiagramButtonContainer.show();
         }
         this.trigger('errorchange');
+        this._model.trigger('error', this._model, this._errors);
     }
 
     function showConfigDiagram(length) {
+        if(!this._createDiagramButtonContainer) {
+            return;
+        }
         if(length) {
-            this._createDiagramButtonContainer && this._createDiagramButtonContainer.hide();
+            this._createDiagramButtonContainer.hide(true);
             this._diagram.show();
         } else {
-            this._createDiagramButtonContainer && this._createDiagramButtonContainer.show();
-            this._diagram.hide();
+            this._createDiagramButtonContainer.show();
+            this._diagram.hide(true);
         }
     }
 
-    function setCollection(isClear) {
-        var data = isClear ? [] : this.model.get('Config');
+    function onCollectionUpdate(self) {
+        updateConfigErrors.call(self, this);
+        self._isDirty = true;
+        self.trigger('dirtychange');
+        showConfigDiagram.call(self, self._collection.length);
+    }
+
+    function setConfigCollection(isClear) {
+        var data = [];
+        if(!isClear && this._originalConfigData) {
+            var configData = JSON.parse(this._originalConfigData);
+            _.each(configData, function(item){
+                data.push(_.extend({}, item));
+            });
+        }
         var self = this,
+            collection;
+        if(this._FormReportNodes) {
             collection = new this._FormReportNodes(data,{
                 local: true
             });
+        }
         this._collection = collection;
+        if(!this._collection) {
+            return this;
+        }
         this._collection.on('add', function() {
-            updateConfigErrors.call(self, this);
-            self._isDirty = true;
-            self.trigger('dirtychange');
-            showConfigDiagram.call(self, self._collection.length);
+            onCollectionUpdate.call(this, self);
         });
         this._collection.on('remove', function() {
-            updateConfigErrors.call(self, this);
-            self._isDirty = true;
-            self.trigger('dirtychange');
-            showConfigDiagram.call(self, self._collection.length);
+            onCollectionUpdate.call(this, self);
+        });
+        this._collection.on('move', function() {
+            onCollectionUpdate.call(this, self);
         });
         
         this._diagram && this._diagram.setCollection(collection);
@@ -255,5 +329,9 @@
         updateConfigErrors.call(this, collection);
         self._isDirty = false;
         this.trigger('dirtychange');
+    }
+
+    function storeOriginalConfig() {
+        this._originalConfigData = this.model.get('Config');
     }
 })();

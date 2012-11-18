@@ -14,7 +14,7 @@
   <body style="background: url(../background.png); ">
   
     <div class="container-fluid">
-        <h1>Diagram</h1>
+        <h1>Формы отчетов</h1>
         <div id="diagram" style="background: white;"></div>             
     </div>
     
@@ -30,8 +30,12 @@
             require(
                 'CollectionNested.js',
                 'view/Diagram.js',   
-                'view/Dropdown.js',  
-                'modules/report/view.FormReport.js',        
+                'view/Dropdown.js',
+                'view/Grid.js',
+                'view/toolbar/Toolbar.js',
+                'view/button/Button.js',
+                'modules/report/collection.Report.js',
+                'modules/report/view.FormReport.js',
                 
                 function(){
                 
@@ -40,17 +44,81 @@
                         apiUrlSuffix: ''
                     }
 
-                    var ModelReport = App.getModel('Report'),
-                        report = new ModelReport({
-                            Name: 'test',
-                            Config: [{"Name":"Menu1","path":"//node46","moveable":true,"scheme":"yellow"},{"Name":"Data1","path":"//node46/node63","moveable":true,"Data":""},{"Name":"Data2","path":"//node46/node76","moveable":true,"Data":""},{"Name":"Menu1Sub1","path":"//node46/node89","moveable":true,"scheme":"yellow"},{"Name":"Menu1Sub1Sub","path":"//node46/node89/node106","moveable":true,"scheme":"yellow"}]
+                    var Grid = App.getView('Grid'),
+                        Button = App.getView('Button'),
+                        Toolbar = App.getView('Toolbar'),
+                        ModelReport = App.getModel('Report'),
+                        collection = new(App.getCollection('Report'))(),
+                        report = new ModelReport({}),
+                        addButton = new Button({
+                            tooltip: 'Добавить форму',
+                            size: 'small',
+                            icon: 'icon-plus',
+                            click: function(){
+                                formReport.setModel(new ModelReport({}));
+                                formReport.show();
+                            }
                         }),
+                        removeButton = new Button({
+                            tooltip: 'Удалить форму',
+                            disabled: true,
+                            size: 'small',
+                            icon: 'icon-remove',
+                            click: function(){
+                                var ids = grid.getSelection(),
+                                    model = grid.collection.get(ids[0]);
+                                if(model && !model.id) {
+                                    grid.collection.remove([model], {silent: false});
+                                    return;
+                                }
+                                App.msg.okcancel({
+                                    title: 'Удаление формы',
+                                    tooltip: 'Удалить форму',
+                                    text: 'Вы действительно хотите удалить форму?',
+                                    callback: function(){    
+                                        if(model) model.destroy({
+                                            wait: true,
+                                            silent:false
+                                        });                                    
+                                    }
+                                }); 
+                            }
+                        }),
+                        grid = new Grid({
+                            collection: collection,
+                            selectable: true,
+                            columns: [
+                                { key: 'Name', name: 'Название' }
+                            ],
+                            listeners: {
+                                'selectionchange': function(id){
+                                    var model = collection.get(id);
+                                    if(model) {
+                                        removeButton.enable();
+                                        formReport.setModel(model);
+                                        formReport.show();
+                                    } else {
+                                        removeButton.disable();
+                                        formReport.hide();
+                                    }
+                                }
+                            }
+                        });
                         FormReport = App.getView('FormReport'),
                         formReport = new FormReport({
                             model: report
                         });
+
+                    formReport.hide();
+
+                    grid.getToolbar()
+                      .add(addButton, 1)
+                      .add(removeButton, 2);
                     
-                    $('#diagram').append(formReport.$el);               
+                    $('#diagram').append(grid.$el);
+                    $('#diagram').append(formReport.$el);
+
+                    grid.layout();
                 
                 }
             );

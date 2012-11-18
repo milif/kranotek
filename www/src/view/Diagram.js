@@ -69,8 +69,11 @@
                 .on('remove',function(node){
                     removeNode.call(this, node);
                 },this)
-                .on('move', function(node, parentPath, beforePath){
+                .on('move', function(node, parentPath, beforePath){                    
                     moveNode.call(this, node, parentPath, beforePath);
+                }, this)
+                .on('change', function(node){
+                    editNode.call(this, node);
                 }, this);
             if(this.collection) {
                 if(self.collection.isFetched() || self.collection.isLocal()) {
@@ -401,6 +404,16 @@
             index;
                     
         stopActionMove.call(this);
+
+        var moveOptions = { isMovable: true };
+        this.trigger('beforemove', pathTo, moveOptions);
+        if(!moveOptions.isMovable) {
+            App.msg.alert({  
+                title: 'Невозможен перенос ноды',
+                text: 'В это место невозможно переместить ноду'
+            });
+            return;
+        }
                    
         if(pos=='top') {
             this.collection.move(path, this.collection.getParent(pathTo), pathTo);
@@ -434,6 +447,12 @@
                 .appendTo(parentListEl || this._rootListEl)
                 .closest('._listH'+this.cid).show();
         }    
+    }
+
+    function editNode(node){
+        var listEl = this._listEls[node.id]||this._listEls[node.cid],
+            nodeEl = listEl.closest('._node'+this.cid);
+        nodeEl.find('.b-diagram-caption-name').text(node.get('Name'));
     }
     
 })(App);
