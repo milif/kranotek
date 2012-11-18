@@ -67,4 +67,3 @@ $.extend(App.getModel('Class'), {
         return App.getModel('ClassField');
     }
 });
-

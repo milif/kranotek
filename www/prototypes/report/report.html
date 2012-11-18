@@ -51,7 +51,7 @@
                         collection = new(App.getCollection('Report'))(),
                         report = new ModelReport({}),
                         addButton = new Button({
-                            tooltip: 'Добавить представление',
+                            tooltip: 'Добавить форму',
                             size: 'small',
                             icon: 'icon-plus',
                             click: function(){
@@ -59,18 +59,8 @@
                                 formReport.show();
                             }
                         }),
-                        editButton = new Button({
-                            disabled: true,
-                            size: 'small',
-                            icon: 'icon-edit',
-                            click: function(){
-                                var ids = grid.getSelection(),
-                                    model = collection.get(ids[0]);
-                                formReport.setModel(model);
-                                formReport.show();
-                            }
-                        }), 
                         removeButton = new Button({
+                            tooltip: 'Удалить форму',
                             disabled: true,
                             size: 'small',
                             icon: 'icon-remove',
@@ -82,8 +72,9 @@
                                     return;
                                 }
                                 App.msg.okcancel({
-                                    title: 'Удаление отчета',
-                                    text: 'Вы действительно хотите удалить отчет?',
+                                    title: 'Удаление формы',
+                                    tooltip: 'Удалить форму',
+                                    text: 'Вы действительно хотите удалить форму?',
                                     callback: function(){    
                                         if(model) model.destroy({
                                             wait: true,
@@ -104,12 +95,10 @@
                                     var model = collection.get(id);
                                     if(model) {
                                         removeButton.enable();
-                                        editButton.enable();
                                         formReport.setModel(model);
                                         formReport.show();
                                     } else {
                                         removeButton.disable();
-                                        editButton.disable();
                                         formReport.hide();
                                     }
                                 }
@@ -124,7 +113,6 @@
 
                     grid.getToolbar()
                       .add(addButton, 1)
-                      .add(editButton, 2)
                       .add(removeButton, 2);
                     
                     $('#diagram').append(grid.$el);

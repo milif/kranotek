@@ -236,6 +236,20 @@ var App = (function(){
     },
     Model = extendFn.call(Backbone.Model, {
         initialize: function(){
+            var attr,
+                model;
+            for(var p in this.attributes){
+                attr = this.attributes[p];
+                if($.isPlainObject(attr) && '__model' in attr) {
+                    model = attr.__model;
+                    delete attr.__model;
+                    this.attributes[p] = new (App.getModel(model))(attr);
+                }
+            }
+            var toStringPrx = this.toString;
+            this.toString = function (){
+                return this.get('__toString') || toStringPrx.call(this);
+            }
             applyListeners(this, this.listeners);
         },
         validate: function(attr, options){

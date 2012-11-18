@@ -114,16 +114,17 @@
                             }
                             self._nodeFormMode = isMenu ? 'editMenu' : 'editData';
                             self._currentNode = node;
+                            /*
                             var nodeDataRawValue = node.get('Data');
                             nodeModel = new (App.getModel('ClassPresenter'))({
                                 'id': nodeDataRawValue.id,
                                 'Name': nodeDataRawValue.__toString
                             });
                             node.set({ 'Data': nodeModel });
-                            
+                            */
                             nodeForm.setModel(node);
                             isMenu ? nodeData.hide() : nodeData.show();
-                            nodePopup.setTitle('Редактировать '+ (isMenu ? 'Меню' : 'Данные'));
+                            nodePopup.setTitle((isMenu ? 'Меню' : 'Данные' ) +' "'+node+'"');
                             nodePopup.open();
                         }
                     }
@@ -278,9 +279,11 @@
             return;
         }
         if(length) {
-            this._createDiagramButtonContainer.hide();
+            this._createDiagramButtonContainer.hide(true);
+            this._diagram.show();
         } else {
             this._createDiagramButtonContainer.show();
+            this._diagram.hide(true);
         }
     }
 
