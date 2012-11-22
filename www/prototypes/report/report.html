@@ -55,8 +55,9 @@
                             size: 'small',
                             icon: 'icon-plus',
                             click: function(){
+                                grid.select();
                                 formReport.setModel(new ModelReport({}));
-                                formReport.show();
+                                formReport.show(true);
                             }
                         }),
                         removeButton = new Button({
@@ -96,10 +97,10 @@
                                     if(model) {
                                         removeButton.enable();
                                         formReport.setModel(model);
-                                        formReport.show();
+                                        formReport.show(true);
                                     } else {
                                         removeButton.disable();
-                                        formReport.hide();
+                                        formReport.hide(true);
                                     }
                                 }
                             }
