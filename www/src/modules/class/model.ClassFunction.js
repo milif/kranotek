@@ -29,7 +29,7 @@ App.defineModel('ClassFunction', {
         if(typeof attr !='undefined') {
             if(attr.length < 4) {
                 errors.push({ name: 'Name', msg: 'Название 4 и более символов'});
-            } else if(!/^[a-z]+[a-z0-9]*$/i.test(attr)){
+            } else if(!/^[a-z]+[_a-z0-9]*$/i.test(attr)){
                 errors.push({ name: 'Name', msg: 'Не верное назнвание функции'});
             }
         }
