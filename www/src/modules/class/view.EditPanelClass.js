@@ -236,7 +236,7 @@
                                 fieldCollection.each(function(model){
                                     fields.push(model.attributes);
                                 });
-                                if(fields.length==0){
+                                if(fields.length==0 && model.get('path')=='/'){
                                     e.cancel = true;
                                     App.msg.warning({
                                         title: 'Заполните поля класса',
@@ -350,6 +350,7 @@
                 .setLegend('Класс ' + model.get('ClassName'))
                 .setModel(model);
             this._tabbar
+                .enableTab(1)
                 .enableTab(2)
                 .enableTab(3)
                 .show();
@@ -372,11 +373,12 @@
     }
     function addClassTo(path) {
         this._form.askIfDirty(function(){        
-            var model = new this.collection.model({
-                'parent': path
-            });
+            var isChild = path!='/',
+                model = new this.collection.model({
+                    'parent': path
+                });
             this._form
-                .setLegend('Создание нового '+(path!='/'?'дочернего':'')+' класса')
+                .setLegend('Создание нового '+(isChild?'дочернего':'')+' класса')
                 .setModel(model);
 
             this._tabbar
@@ -384,6 +386,10 @@
                 .disableTab(3)
                 .activeTab(0)
                 .show();
+            
+            if(isChild){
+                this._tabbar.disableTab(1);
+            }
                 
             this._gridFields.setCollection(model.getCollectionFields());
             this._addFieldButton.enable();

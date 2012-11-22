@@ -175,9 +175,9 @@
                     '</div>' +
                     '<div class="b-diagram-linkline"></div>' +                   
                 '</div>' +
-                '<div class="b-diagram-caption">' +
+                '<div class="b-diagram-caption _captionh{cid}">' +
                     '<div class="b-diagram-caption-h t-bg _caption{cid} _menu{cid}">' +
-                        '<span class="b-diagram-caption-name">{name}</span>' +                      
+                        '<span class="b-diagram-caption-name _name{cid}">{name}</span>' +                      
                     '</div>' +
                 '</div>' + 
                 '<div class="b-diagram-children _listH{cid}">' +
@@ -452,7 +452,7 @@
     function editNode(node){
         var listEl = this._listEls[node.id]||this._listEls[node.cid],
             nodeEl = listEl.closest('._node'+this.cid);
-        nodeEl.find('.b-diagram-caption-name').text(node.get('Name'));
+        nodeEl.find('>._captionh'+this.cid+' ._name'+this.cid).text(node.get('Name'));
     }
     
 })(App);
